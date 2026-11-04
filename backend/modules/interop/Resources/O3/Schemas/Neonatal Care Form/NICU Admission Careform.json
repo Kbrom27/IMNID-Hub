@@ -1,0 +1,1162 @@
+{
+  "name": "NICU Admission Careform",
+  "pages": [
+    {
+      "label": "NICU Admission Careform",
+      "sections": [
+        {
+          "label": "Identification",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Readmission",
+              "id": "readmission",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "07855d17-0410-4145-a503-25beb0716b3a",
+                "answers": [
+                  {
+                    "concept": "1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Yes"
+                  },
+                  {
+                    "concept": "1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "No"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Date of Admission",
+              "id": "dateOfAdmission",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "date",
+                "concept": "55259419-f24c-4fe1-b897-dcb10d8e77d3"
+              }
+            },
+            {
+              "label": "Time of Admission",
+              "id": "timeOfAdmission",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "datetime",
+                "concept": "2661bbbc-8192-4e4b-b579-bc8b823ce4e4"
+              },
+              "datePickerFormat": "timer"
+            },
+            {
+              "label": "Admission age (Minutes/hours/days)",
+              "id": "admissionAgeMinutesHoursDays",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "bde5ba4a-c8e3-48d6-82e1-3048f48b9c11"
+              }
+            },
+            {
+              "label": "Admission age unit",
+              "id": "admissionAgeUnit",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "07366c22-80c1-49c9-a033-8f324f4a0c45",
+                "answers": [
+                  {
+                    "concept": "1733AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Minutes"
+                  },
+                  {
+                    "concept": "1822AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Hours"
+                  },
+                  {
+                    "concept": "1072AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Days"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Place of delivery",
+              "id": "placeOfDelivery",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "47ed39f1-43ef-4f03-a8a7-77fb3ed21794",
+                "answers": [
+                  {
+                    "concept": "6d19d727-0a5a-428d-9c8c-fbf1a757f5ba",
+                    "label": "Inborn"
+                  },
+                  {
+                    "concept": "8d754b1f-33be-487e-9073-a075e53d23d5",
+                    "label": "Outborn"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "If outborn - where?",
+              "id": "ifOutbornWhere",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "select",
+                "concept": "4dd7ce18-00ba-4fa9-ab03-0cb333505227",
+                "answers": [
+                  {
+                    "concept": "cd545e41-7a4c-4457-a77f-33800619a8f1",
+                    "label": "Home"
+                  },
+                  {
+                    "concept": "3b01c2bc-8c34-422f-92bf-e02b55beba72",
+                    "label": "In Transit (i.e. birth on the way/in transport)"
+                  },
+                  {
+                    "concept": "9d959bcd-2256-4446-8fe9-34c5cf428c44",
+                    "label": "Religious Building (i.e. Church)"
+                  },
+                  {
+                    "concept": "f422066c-d56f-4c51-85bb-110c592fb1f7",
+                    "label": "Other Healthcare Facility"
+                  },
+                  {
+                    "concept": "042367c4-c420-4a67-b73e-460eb7cc1a2b",
+                    "label": "Other (i.e. Not Healthcare Facility)"
+                  },
+                  {
+                    "concept": "4ecad760-e2f1-4a02-8072-d7fc5068dd29",
+                    "label": "Not recorded"
+                  },
+                  {
+                    "concept": "0b476f22-529c-4769-8795-3b875a78faa9",
+                    "label": "Not readable"
+                  }
+                ]
+              },
+              "hide": {
+                "hideWhenExpression": "placeOfDelivery!=='8d754b1f-33be-487e-9073-a075e53d23d5'"
+              }
+            },
+            {
+              "label": "Date of delivery",
+              "id": "dateOfDelivery",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "date",
+                "concept": "ded9fde6-bf50-4dbe-90c9-63af25214fea"
+              }
+            },
+            {
+              "label": "Time of birth",
+              "id": "timeOfBirth",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "datetime",
+                "concept": "f94fe94e-29e1-4352-9621-6f849b1d85e2"
+              },
+              "datePickerFormat": "timer"
+            },
+            {
+              "label": "Mother’s Name",
+              "id": "motherSName",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "6117d5ee-7c32-421f-bc2a-a4c869c6ea6f"
+              }
+            },
+            {
+              "label": "Last Name of Mother:",
+              "id": "lastNameOfMother",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "37d7cc66-a0ce-4a2b-a0d9-fd5b6b3e0066"
+              }
+            },
+            {
+              "label": "Referring health facility",
+              "id": "referringHealthFacility",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "7bc22534-b52b-4afa-8291-46e4f5d651d8"
+              },
+              "hide": {
+                "hideWhenExpression": "placeOfDelivery!=='8d754b1f-33be-487e-9073-a075e53d23d5'"
+              }
+            }
+          ]
+        },
+        {
+          "label": "Reason for Admission",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "First Reason for Admission",
+              "id": "firstReasonForAdmission",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "select",
+                "concept": "d9674d5f-5aa4-4482-9674-dc0d48cf0aa5",
+                "answers": [
+                  {
+                    "concept": "c12cb86c-e774-4daf-9478-4783bc107f39",
+                    "label": "Congenital Malformation (Neonatal working diagnosis)"
+                  },
+                  {
+                    "concept": "3fef9319-be10-47c3-b218-1e279b2bda70",
+                    "label": "Small Baby / Preterm / Low Birthweight (Neonatal working diagnosis)"
+                  },
+                  {
+                    "concept": "9d509daa-888b-455f-9d6c-fcb499994f09",
+                    "label": "\"Birth asphyxia\"/ Birth Injury (Neonatal working diagnosis)"
+                  },
+                  {
+                    "concept": "795b1ac9-7327-4068-90c2-c83b512360ed",
+                    "label": "Suspected Infection - sepsis/meningitis (Neonatal working diagnosis)"
+                  },
+                  {
+                    "concept": "1eb332fe-84db-4043-9475-a3824b218599",
+                    "label": "Tetanus (Neonatal working diagnosis)"
+                  },
+                  {
+                    "concept": "4f3296c2-03d0-4ce5-b01f-fb980322d237",
+                    "label": "Respiratory Distress/Difficulty in Breathing (Danger signs)"
+                  },
+                  {
+                    "concept": "f3280eb4-f4d5-4aca-909a-6e141f43a22d",
+                    "label": "Convulsions (Danger signs)"
+                  },
+                  {
+                    "concept": "130294e0-ec08-4f6b-84e7-91d313aa04b9",
+                    "label": "Temperature too high (Danger signs)"
+                  },
+                  {
+                    "concept": "931680f6-4645-4841-9b00-b5bfa2898f06",
+                    "label": "Temperature too low (Danger signs)"
+                  },
+                  {
+                    "concept": "2561d01b-0a3b-4108-82c5-fd6961535975",
+                    "label": "Jaundice (Danger signs)"
+                  },
+                  {
+                    "concept": "888ef2dc-82f2-416d-ae76-a85d16960a30",
+                    "label": "Vomiting (Danger signs)"
+                  },
+                  {
+                    "concept": "463570b3-6e0d-4342-aa4d-de2c3220e1c8",
+                    "label": "Pallor/Severe Anaemia (Danger signs)"
+                  },
+                  {
+                    "concept": "65503ad8-13d6-4817-b9e2-e82699537d93",
+                    "label": "Cord red/sticky (Danger signs)"
+                  },
+                  {
+                    "concept": "41845b10-66dc-4dd9-8c50-92bb1e60e167",
+                    "label": "Not feeding/Failure to suck (Danger signs)"
+                  },
+                  {
+                    "concept": "cdc01ea1-dd93-489f-a273-8e6f07f8ffde",
+                    "label": "Large Baby (Neonatal reasons)"
+                  },
+                  {
+                    "concept": "b154908f-a933-4f5b-af4d-6691580c124b",
+                    "label": "PROM and Maternal Fever (Maternal reasons)"
+                  },
+                  {
+                    "concept": "dcad1b24-99cf-4744-aa7a-95b0f28f31fe",
+                    "label": "Other (Maternal reasons)"
+                  },
+                  {
+                    "concept": "99eeb095-c404-4bc9-b21c-ae2232b0a5ed",
+                    "label": "Other (None of the above) - Specify"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "If other - specify (First):",
+              "id": "ifOtherSpecifyFirst",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "e4915979-73a6-4b64-a4d1-8d930c5b67b2"
+              },
+              "hide": {
+                "hideWhenExpression": "firstReasonForAdmission!=='99eeb095-c404-4bc9-b21c-ae2232b0a5ed'"
+              }
+            },
+            {
+              "label": "Second Reason for Admission",
+              "id": "secondReasonForAdmission",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "select",
+                "concept": "dcdaa634-7780-4066-8279-3464d13e50ea",
+                "answers": [
+                  {
+                    "concept": "c12cb86c-e774-4daf-9478-4783bc107f39",
+                    "label": "Congenital Malformation (Neonatal working diagnosis)"
+                  },
+                  {
+                    "concept": "3fef9319-be10-47c3-b218-1e279b2bda70",
+                    "label": "Small Baby / Preterm / Low Birthweight (Neonatal working diagnosis)"
+                  },
+                  {
+                    "concept": "9d509daa-888b-455f-9d6c-fcb499994f09",
+                    "label": "\"Birth asphyxia\"/ Birth Injury (Neonatal working diagnosis)"
+                  },
+                  {
+                    "concept": "795b1ac9-7327-4068-90c2-c83b512360ed",
+                    "label": "Suspected Infection - sepsis/meningitis (Neonatal working diagnosis)"
+                  },
+                  {
+                    "concept": "1eb332fe-84db-4043-9475-a3824b218599",
+                    "label": "Tetanus (Neonatal working diagnosis)"
+                  },
+                  {
+                    "concept": "4f3296c2-03d0-4ce5-b01f-fb980322d237",
+                    "label": "Respiratory Distress/Difficulty in Breathing (Danger signs)"
+                  },
+                  {
+                    "concept": "f3280eb4-f4d5-4aca-909a-6e141f43a22d",
+                    "label": "Convulsions (Danger signs)"
+                  },
+                  {
+                    "concept": "130294e0-ec08-4f6b-84e7-91d313aa04b9",
+                    "label": "Temperature too high (Danger signs)"
+                  },
+                  {
+                    "concept": "931680f6-4645-4841-9b00-b5bfa2898f06",
+                    "label": "Temperature too low (Danger signs)"
+                  },
+                  {
+                    "concept": "2561d01b-0a3b-4108-82c5-fd6961535975",
+                    "label": "Jaundice (Danger signs)"
+                  },
+                  {
+                    "concept": "888ef2dc-82f2-416d-ae76-a85d16960a30",
+                    "label": "Vomiting (Danger signs)"
+                  },
+                  {
+                    "concept": "463570b3-6e0d-4342-aa4d-de2c3220e1c8",
+                    "label": "Pallor/Severe Anaemia (Danger signs)"
+                  },
+                  {
+                    "concept": "65503ad8-13d6-4817-b9e2-e82699537d93",
+                    "label": "Cord red/sticky (Danger signs)"
+                  },
+                  {
+                    "concept": "41845b10-66dc-4dd9-8c50-92bb1e60e167",
+                    "label": "Not feeding/Failure to suck (Danger signs)"
+                  },
+                  {
+                    "concept": "cdc01ea1-dd93-489f-a273-8e6f07f8ffde",
+                    "label": "Large Baby (Neonatal reasons)"
+                  },
+                  {
+                    "concept": "b154908f-a933-4f5b-af4d-6691580c124b",
+                    "label": "PROM and Maternal Fever (Maternal reasons)"
+                  },
+                  {
+                    "concept": "dcad1b24-99cf-4744-aa7a-95b0f28f31fe",
+                    "label": "Other (Maternal reasons)"
+                  },
+                  {
+                    "concept": "99eeb095-c404-4bc9-b21c-ae2232b0a5ed",
+                    "label": "Other (None of the above) - Specify"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "If other - specify (Second):",
+              "id": "ifOtherSpecifySecond",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "40184f78-4190-4876-b731-267a0d61d0b2"
+              },
+              "hide": {
+                "hideWhenExpression": "secondReasonForAdmission!=='99eeb095-c404-4bc9-b21c-ae2232b0a5ed'"
+              }
+            },
+            {
+              "label": "Third Reason for Admission",
+              "id": "thirdReasonForAdmission",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "select",
+                "concept": "d922dd76-cef2-4e2d-a2ff-792dfab7675e",
+                "answers": [
+                  {
+                    "concept": "c12cb86c-e774-4daf-9478-4783bc107f39",
+                    "label": "Congenital Malformation (Neonatal working diagnosis)"
+                  },
+                  {
+                    "concept": "3fef9319-be10-47c3-b218-1e279b2bda70",
+                    "label": "Small Baby / Preterm / Low Birthweight (Neonatal working diagnosis)"
+                  },
+                  {
+                    "concept": "9d509daa-888b-455f-9d6c-fcb499994f09",
+                    "label": "\"Birth asphyxia\"/ Birth Injury (Neonatal working diagnosis)"
+                  },
+                  {
+                    "concept": "795b1ac9-7327-4068-90c2-c83b512360ed",
+                    "label": "Suspected Infection - sepsis/meningitis (Neonatal working diagnosis)"
+                  },
+                  {
+                    "concept": "1eb332fe-84db-4043-9475-a3824b218599",
+                    "label": "Tetanus (Neonatal working diagnosis)"
+                  },
+                  {
+                    "concept": "4f3296c2-03d0-4ce5-b01f-fb980322d237",
+                    "label": "Respiratory Distress/Difficulty in Breathing (Danger signs)"
+                  },
+                  {
+                    "concept": "f3280eb4-f4d5-4aca-909a-6e141f43a22d",
+                    "label": "Convulsions (Danger signs)"
+                  },
+                  {
+                    "concept": "130294e0-ec08-4f6b-84e7-91d313aa04b9",
+                    "label": "Temperature too high (Danger signs)"
+                  },
+                  {
+                    "concept": "931680f6-4645-4841-9b00-b5bfa2898f06",
+                    "label": "Temperature too low (Danger signs)"
+                  },
+                  {
+                    "concept": "2561d01b-0a3b-4108-82c5-fd6961535975",
+                    "label": "Jaundice (Danger signs)"
+                  },
+                  {
+                    "concept": "888ef2dc-82f2-416d-ae76-a85d16960a30",
+                    "label": "Vomiting (Danger signs)"
+                  },
+                  {
+                    "concept": "463570b3-6e0d-4342-aa4d-de2c3220e1c8",
+                    "label": "Pallor/Severe Anaemia (Danger signs)"
+                  },
+                  {
+                    "concept": "65503ad8-13d6-4817-b9e2-e82699537d93",
+                    "label": "Cord red/sticky (Danger signs)"
+                  },
+                  {
+                    "concept": "41845b10-66dc-4dd9-8c50-92bb1e60e167",
+                    "label": "Not feeding/Failure to suck (Danger signs)"
+                  },
+                  {
+                    "concept": "cdc01ea1-dd93-489f-a273-8e6f07f8ffde",
+                    "label": "Large Baby (Neonatal reasons)"
+                  },
+                  {
+                    "concept": "b154908f-a933-4f5b-af4d-6691580c124b",
+                    "label": "PROM and Maternal Fever (Maternal reasons)"
+                  },
+                  {
+                    "concept": "dcad1b24-99cf-4744-aa7a-95b0f28f31fe",
+                    "label": "Other (Maternal reasons)"
+                  },
+                  {
+                    "concept": "99eeb095-c404-4bc9-b21c-ae2232b0a5ed",
+                    "label": "Other (None of the above) - Specify"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "If other - specify (Third):",
+              "id": "ifOtherSpecifyThird",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "3608d3e5-39cf-4bd5-ab35-5570e09d6b60"
+              },
+              "hide": {
+                "hideWhenExpression": "thirdReasonForAdmission!=='99eeb095-c404-4bc9-b21c-ae2232b0a5ed'"
+              }
+            },
+            {
+              "label": "Apnea?",
+              "id": "apnea",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "48ce659c-9bcd-4492-a453-435ee41f7647",
+                "answers": [
+                  {
+                    "concept": "1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Yes"
+                  },
+                  {
+                    "concept": "1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "No"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "label": "PHYSICAL EXAM",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "General appearance",
+              "id": "generalAppearance",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "0ff9ec67-371f-4866-ba3c-2a0884266a72",
+                "answers": [
+                  {
+                    "concept": "d414ad17-fa9d-4617-8de3-21660a27181d",
+                    "label": "Well looking"
+                  },
+                  {
+                    "concept": "e1b12e43-8f10-4f05-bedc-6b7ea491b902",
+                    "label": "ASL"
+                  },
+                  {
+                    "concept": "0225d9b6-c476-4132-a504-aa2525a2125b",
+                    "label": "CSL"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Dysmorphysim",
+              "id": "dysmorphysim",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "f81a0d97-a8c9-428f-8a57-b4fc9b59f961",
+                "answers": [
+                  {
+                    "concept": "1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Yes"
+                  },
+                  {
+                    "concept": "1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "No"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Dysmorphic feature",
+              "id": "dysmorphicFeature",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "981d562a-efb8-4acd-8be9-3894300fa61a"
+              },
+              "hide": {
+                "hideWhenExpression": "dysmorphysim!=='1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'"
+              }
+            },
+            {
+              "label": "Ballard score",
+              "id": "ballardScore",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "a7fdfb7c-9d5f-4df1-a15c-cce11838f710"
+              },
+              "validators": [
+                {
+                  "type": "js_expression",
+                  "failsWhenExpression": "!isEmpty(ballardScore) && (ballardScore<20 || ballardScore>44)",
+                  "message": "Ballard score out of range"
+                }
+              ]
+            },
+            {
+              "label": "RR (breaths/min)",
+              "id": "rrBreathsMin",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "9319d3c9-ec6b-4284-a9e9-7de303c1e0c7"
+              },
+              "validators": [
+                {
+                  "type": "js_expression",
+                  "failsWhenExpression": "(rrBreathsMin<5 || rrBreathsMin>80) && !isEmpty(rrBreathsMin)",
+                  "message": "RR out of range"
+                }
+              ]
+            },
+            {
+              "label": "HR (beats/min)",
+              "id": "hrBeatsMin",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "8f8b516b-658c-42c5-a0a8-c83afc7c09cf"
+              }
+            },
+            {
+              "label": "Temperature measured in (°C) or (°F)?",
+              "id": "temperatureMeasuredInCOrF",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "10d9f898-7261-43f5-a8cf-553363e62fbb",
+                "answers": [
+                  {
+                    "concept": "5b75a1eb-8df6-40b2-aae4-e010d3b08be3",
+                    "label": "°C"
+                  },
+                  {
+                    "concept": "c77bd00c-08d6-487e-9dc5-229e8454a938",
+                    "label": "°F"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Temp (C)",
+              "id": "tempC",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "bf0959e1-054e-4c2d-b570-5fecf852adb9"
+              },
+              "validators": [
+                {
+                  "type": "js_expression",
+                  "failsWhenExpression": "(temperatureMeasuredInCOrF==='5b75a1eb-8df6-40b2-aae4-e010d3b08be3') && isEmpty(myValue)",
+                  "message": "This field is required"
+                },
+                {
+                  "type": "js_expression",
+                  "failsWhenExpression": "(tempC<30 || tempC>45) && !isEmpty(tempC)",
+                  "message": "Temperature out of range"
+                }
+              ],
+              "hide": {
+                "hideWhenExpression": "temperatureMeasuredInCOrF!=='5b75a1eb-8df6-40b2-aae4-e010d3b08be3'"
+              }
+            },
+            {
+              "label": "Temperature on admission (°F):",
+              "id": "temperatureOnAdmissionF",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "a78855b4-7195-4093-a109-2d4b48c0d180"
+              },
+              "validators": [
+                {
+                  "type": "js_expression",
+                  "failsWhenExpression": "(temperatureMeasuredInCOrF==='c77bd00c-08d6-487e-9dc5-229e8454a938') && isEmpty(myValue)",
+                  "message": "This field is required"
+                }
+              ],
+              "hide": {
+                "hideWhenExpression": "temperatureMeasuredInCOrF!=='c77bd00c-08d6-487e-9dc5-229e8454a938'"
+              }
+            },
+            {
+              "label": "SpO2",
+              "id": "spo2",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "85aeb6c5-36f2-4835-b55c-8d8194b07a94"
+              }
+            },
+            {
+              "label": "Was the newborn receiving oxygen therapy at point of oxygen saturation measurement?",
+              "id": "wasTheNewbornReceivingOxygenTherapyAtPointOfOxygenSaturationMeasurement",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "98d4484b-2825-41af-8a41-5c38218bc256",
+                "answers": [
+                  {
+                    "concept": "1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Yes"
+                  },
+                  {
+                    "concept": "1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "No"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Blood sugar on admission known?",
+              "id": "bloodSugarOnAdmissionKnown",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "af85c656-81cb-4633-a06e-ec6893f8d108",
+                "answers": [
+                  {
+                    "concept": "1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Yes"
+                  },
+                  {
+                    "concept": "1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "No"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "What units is blood sugar measured in",
+              "id": "whatUnitsIsBloodSugarMeasuredIn",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "292371ee-f701-409d-8fe3-f43df0981249",
+                "answers": [
+                  {
+                    "concept": "c805d46a-b289-469b-982b-6d3833af07fc",
+                    "label": "mmol/L"
+                  },
+                  {
+                    "concept": "317d6f7d-4fe5-4a80-88f9-813e78ed7e9d",
+                    "label": "mg/dL"
+                  }
+                ]
+              },
+              "hide": {
+                "hideWhenExpression": "bloodSugarOnAdmissionKnown!=='1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'"
+              }
+            },
+            {
+              "label": "Blood sugar concentration on admission (mg/dL):",
+              "id": "bloodSugarConcentrationOnAdmissionMgDL",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "afa7d272-2810-403e-9b2a-d78d76339618"
+              },
+              "hide": {
+                "hideWhenExpression": "whatUnitsIsBloodSugarMeasuredIn!=='317d6f7d-4fe5-4a80-88f9-813e78ed7e9d'"
+              }
+            },
+            {
+              "label": "Blood sugar concentration on admission (mmol/L):",
+              "id": "bloodSugarConcentrationOnAdmissionMmolL",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "aeed7c5d-0eb5-4b85-b550-03fe2df22e7e"
+              },
+              "hide": {
+                "hideWhenExpression": "whatUnitsIsBloodSugarMeasuredIn!=='c805d46a-b289-469b-982b-6d3833af07fc'"
+              }
+            },
+            {
+              "label": "Signs of severe respiratory distress (e.g. severe in-drawing, grunting, high respiratory rate (>80 breaths))",
+              "id": "signsOfSevereRespiratoryDistressEGSevereInDrawingGruntingHighRespiratoryRate80Breaths",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "6898f9e0-737f-42c3-bb21-ebb0a54f6923",
+                "answers": [
+                  {
+                    "concept": "1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Yes"
+                  },
+                  {
+                    "concept": "1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "No"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Downes: Respiratory Rate",
+              "id": "downesRespiratoryRate",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "c77e7cc4-d30c-4848-ab25-b4866c8fac83"
+              }
+            },
+            {
+              "label": "Downes: Retractions",
+              "id": "downesRetractions",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "eb021ce1-9200-4db8-86c6-e87ec7c48dbb"
+              }
+            },
+            {
+              "label": "Downes: Cyanosis",
+              "id": "downesCyanosis",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "0065eda3-5372-450e-877b-8190bd855ad6"
+              }
+            },
+            {
+              "label": "Downes: Air Entry",
+              "id": "downesAirEntry",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "a08d1870-b5c7-4e48-b50a-b4bb7fd3c5ca"
+              }
+            },
+            {
+              "label": "Downes: Grunting",
+              "id": "downesGrunting",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "f94126a3-3f5f-4680-bc9a-94059ef802d0"
+              }
+            },
+            {
+              "label": "Total downes score",
+              "id": "totalDownesScore",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "0cc62fbe-9842-4df8-aafa-8d925d1fc300"
+              }
+            }
+          ]
+        },
+        {
+          "label": "ANTHROPOMETRY",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Birth Weight (grams)",
+              "id": "birthWeightGrams",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "95ad0e45-9f61-4f73-9ac9-8b4abf26dfac"
+              },
+              "validators": [
+                {
+                  "type": "js_expression",
+                  "failsWhenExpression": "!isEmpty(birthWeightGrams) && (birthWeightGrams<500 || birthWeightGrams>5000)",
+                  "message": "Birth weight should be between 500 and 5000"
+                }
+              ]
+            },
+            {
+              "label": "Birth weight category",
+              "id": "birthWeightCategory",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "33a128a2-0ef9-403c-85c6-0b0f2ef69d5a",
+                "answers": [
+                  {
+                    "concept": "23610647-9741-4b71-b3b9-6c9a64b72aa4",
+                    "label": "LGA"
+                  },
+                  {
+                    "concept": "16dc27b8-1f8f-4a90-8731-d9eb3816baa4",
+                    "label": "AGA"
+                  },
+                  {
+                    "concept": "26feb08d-3141-40e9-8093-208ee21425dd",
+                    "label": "SGA"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Weight at admission (grams)",
+              "id": "weightAtAdmissionGrams",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "e604fff9-27a0-438a-9d77-c1766f71b889"
+              },
+              "validators": [
+                {
+                  "type": "js_expression",
+                  "failsWhenExpression": "!isEmpty(weightAtAdmissionGrams) && (weightAtAdmissionGrams < 500 || weightAtAdmissionGrams > 5000)",
+                  "message": "Weight should be between 500 and 5000"
+                }
+              ]
+            },
+            {
+              "label": "Length (cm)",
+              "id": "lengthCm",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "c68dfd37-040c-4457-ba50-0da8aa058e61"
+              }
+            },
+            {
+              "label": "Head circumference (cm)",
+              "id": "headCircumferenceCm",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "number",
+                "concept": "eef79ace-ba4f-43e5-b069-4c50741e5b28"
+              }
+            }
+          ]
+        },
+        {
+          "label": "System Examination",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Any abnormality from System Examination?",
+              "id": "anyAbnormalityFromSystemExamination",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "checkbox-searchable",
+                "concept": "04587cf2-7664-4eb1-98d8-0e86bc2bc17b",
+                "answers": [
+                  {
+                    "concept": "1808AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Abdomen"
+                  },
+                  {
+                    "concept": "9f366a3d-42f6-4eaf-a12f-a6e91f5de112",
+                    "label": "CENTRAL NERVOUS SYSTEM"
+                  },
+                  {
+                    "concept": "1349AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Chest"
+                  },
+                  {
+                    "concept": "55291e00-427c-42f6-b8c6-b00016c2154d",
+                    "label": "HEENT"
+                  },
+                  {
+                    "concept": "e65437e6-e36f-4dc5-91f5-39ab5a6a6494",
+                    "label": "Integumentary system"
+                  },
+                  {
+                    "concept": "20f3c2e7-e91c-4a43-96c2-5cf3addbff94",
+                    "label": "LGS"
+                  },
+                  {
+                    "concept": "8da5f3a1-afc7-4427-9c5b-63c7f88c4740",
+                    "label": "MUSCULOSKELETAL SYSTEM"
+                  },
+                  {
+                    "concept": "36ec92c2-bacb-4ca7-8f2a-dd75b627e465",
+                    "label": "NECK"
+                  },
+                  {
+                    "concept": "1107AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "None"
+                  },
+                  {
+                    "concept": "b5a340f1-62f6-4155-b92f-0dd0bb68b378",
+                    "label": "GENITALIA"
+                  },
+                  {
+                    "concept": "466f44fd-2047-4fac-8280-4f695325ec04",
+                    "label": "CVS"
+                  }
+                ]
+              },
+              "validators": [
+                {
+                  "type": "js_expression",
+                  "failsWhenExpression": "(anyAbnormalityFromSystemExamination?.includes('1107AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')) && (anyAbnormalityFromSystemExamination?.includes('55291e00-427c-42f6-b8c6-b00016c2154d') || anyAbnormalityFromSystemExamination?.includes('36ec92c2-bacb-4ca7-8f2a-dd75b627e465') || anyAbnormalityFromSystemExamination?.includes('20f3c2e7-e91c-4a43-96c2-5cf3addbff94') || anyAbnormalityFromSystemExamination?.includes('70df0e93-7369-4ed2-b9a2-b5ecb5ec8f0e') || anyAbnormalityFromSystemExamination?.includes('466f44fd-2047-4fac-8280-4f695325ec04') || anyAbnormalityFromSystemExamination?.includes('eca51e53-d828-4139-9804-aaf011b26af2') || anyAbnormalityFromSystemExamination?.includes('b5a340f1-62f6-4155-b92f-0dd0bb68b378') || anyAbnormalityFromSystemExamination?.includes('e65437e6-e36f-4dc5-91f5-39ab5a6a6494') || anyAbnormalityFromSystemExamination?.includes('8da5f3a1-afc7-4427-9c5b-63c7f88c4740') || anyAbnormalityFromSystemExamination?.includes('9f366a3d-42f6-4eaf-a12f-a6e91f5de112'))",
+                  "message": "None Can't be selected with other options"
+                }
+              ]
+            },
+            {
+              "label": "HEENT",
+              "id": "heent",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "17f7f5a5-2572-4a8c-8a20-19354331b8af"
+              },
+              "hide": {
+                "hideWhenExpression": "!anyAbnormalityFromSystemExamination?.includes('55291e00-427c-42f6-b8c6-b00016c2154d')"
+              }
+            },
+            {
+              "label": "NECK",
+              "id": "neck",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "9eaf8ee2-b7fa-437d-b807-4e8712067c0d"
+              },
+              "hide": {
+                "hideWhenExpression": "!anyAbnormalityFromSystemExamination?.includes('36ec92c2-bacb-4ca7-8f2a-dd75b627e465')"
+              }
+            },
+            {
+              "label": "LGS",
+              "id": "lgs",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "ebffc650-35fb-4ae0-8a2d-bb1360f1109f"
+              },
+              "hide": {
+                "hideWhenExpression": "!anyAbnormalityFromSystemExamination?.includes('20f3c2e7-e91c-4a43-96c2-5cf3addbff94')"
+              }
+            },
+            {
+              "label": "CHEST",
+              "id": "chest",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "dc25a1e7-da54-46be-bbfd-d9753cfebc19"
+              },
+              "hide": {
+                "hideWhenExpression": "!anyAbnormalityFromSystemExamination?.includes('70df0e93-7369-4ed2-b9a2-b5ecb5ec8f0e')"
+              }
+            },
+            {
+              "label": "CVS",
+              "id": "cvs",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "c0c435b6-d761-4be7-84fa-80e2def48ced"
+              },
+              "hide": {
+                "hideWhenExpression": "!anyAbnormalityFromSystemExamination?.includes('466f44fd-2047-4fac-8280-4f695325ec04')"
+              }
+            },
+            {
+              "label": "Abdomen",
+              "id": "abdomen",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "6ac1d6c9-0112-475d-a1e4-c14112af7605"
+              },
+              "hide": {
+                "hideWhenExpression": "!anyAbnormalityFromSystemExamination?.includes('eca51e53-d828-4139-9804-aaf011b26af2')"
+              }
+            },
+            {
+              "label": "GENITALIA",
+              "id": "genitalia",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "f8f9359e-3a22-4573-9f39-78922312500d"
+              },
+              "hide": {
+                "hideWhenExpression": "!anyAbnormalityFromSystemExamination?.includes('b5a340f1-62f6-4155-b92f-0dd0bb68b378')"
+              }
+            },
+            {
+              "label": "INTEGUMENTARY SYSTEM",
+              "id": "integumentarySYSTEM",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "65016f7e-5cbc-486e-ae60-2f80444e7c33"
+              },
+              "hide": {
+                "hideWhenExpression": "!anyAbnormalityFromSystemExamination?.includes('e65437e6-e36f-4dc5-91f5-39ab5a6a6494')"
+              }
+            },
+            {
+              "label": "MUSCULOSKELETAL SYSTEM",
+              "id": "musculoskeletalSYSTEM",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "8da5f3a1-afc7-4427-9c5b-63c7f88c4740"
+              },
+              "hide": {
+                "hideWhenExpression": "!anyAbnormalityFromSystemExamination?.includes('8da5f3a1-afc7-4427-9c5b-63c7f88c4740')"
+              }
+            },
+            {
+              "label": "CENTRAL NERVOUS SYSTEM",
+              "id": "centralNERVOUSSYSTEM",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "a25f0ff4-6063-4158-8d60-843500140622"
+              },
+              "hide": {
+                "hideWhenExpression": "!anyAbnormalityFromSystemExamination?.includes('9f366a3d-42f6-4eaf-a12f-a6e91f5de112')"
+              }
+            },
+            {
+              "label": "Asphyxia",
+              "id": "asphyxia",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "3b2d76d6-f78c-455e-ace2-9448274bcd8c",
+                "answers": [
+                  {
+                    "concept": "1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Yes"
+                  },
+                  {
+                    "concept": "1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "No"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Asphyxia stage",
+              "id": "asphyxiaStage",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "564dfac8-6f3f-430a-a6ad-427d86ce3ab2",
+                "answers": [
+                  {
+                    "concept": "88f2a6ea-367d-45dc-942a-b809b0d17275",
+                    "label": "Stage 1"
+                  },
+                  {
+                    "concept": "17a3b24b-e107-49fe-8b0d-69c3b7e60f4c",
+                    "label": "Stage 2"
+                  },
+                  {
+                    "concept": "4ad2171a-f99d-11eb-9a03-0242ac130003",
+                    "label": "Stage 3"
+                  }
+                ]
+              },
+              "hide": {
+                "hideWhenExpression": "asphyxia!=='1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'"
+              }
+            },
+            {
+              "label": "Plan",
+              "id": "plan",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "c853a1fe-8fbd-4b85-aee6-62a8c230ade8"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "processor": "EncounterFormProcessor",
+  "encounterType": "001c6162-8d54-49b9-85cc-68bb5c3d5ca5",
+  "referencedForms": [],
+  "uuid": "73acc16e-3961-45b9-b5da-a684d5329ae0",
+  "description": "NICU Admission Careform",
+  "version": "1.0"
+}

@@ -1,0 +1,99 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: imnid_hub_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATA_DIR=/data
+      - TZ=Africa/Addis_Ababa
+    ports:
+      - "${BACKEND_PORT:-8085}:8085"
+    volumes:
+      - ./backend:/app/backend
+      - imnid_data:/data/db
+      - imnid_uploads:/data/uploads
+      - imnid_exports:/data/exports
+      - imnid_logs:/data/logs
+      - imnid_checkpoints:/data/checkpoints
+      - imnid_mappings:/data/mappings
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8085/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - imnid_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: imnid_hub_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:80/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - imnid_net
+
+  mediator:
+    build:
+      context: ./mediator
+      dockerfile: Dockerfile
+    container_name: imnid_hub_mediator
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${MEDIATOR_PORT:-8000}:8000"
+    volumes:
+      - ./mediator:/app
+      - imnid_checkpoints:/data/checkpoints
+      - imnid_exports:/data/exports
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - imnid_net
+
+volumes:
+  imnid_data:
+    name: imnid_data
+  imnid_uploads:
+    name: imnid_uploads
+  imnid_exports:
+    name: imnid_exports
+  imnid_logs:
+    name: imnid_logs
+  imnid_checkpoints:
+    name: imnid_checkpoints
+  imnid_mappings:
+    name: imnid_mappings
+
+networks:
+  imnid_net:
+    name: imnid_net
+    driver: bridge

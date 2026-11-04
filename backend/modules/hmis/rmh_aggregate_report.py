@@ -1,0 +1,1172 @@
+"""
+================================================================================
+  PROJECT  : IMNID — Maternal Health DHIS2 Registry
+  FILE     : aggregate_report.py
+  PURPOSE  : Compute the Ethiopian MoH "01.2 — Reproductive and Maternal
+             Health" aggregate monthly report from DHIS2 tracker data and
+             POST the result to a DHIS2 aggregate dataset.
+
+  REPORT   : 01.2 - Reproductive and Maternal Health | Monthly
+             Family Planning · ANC · Delivery · PNC · C-Section
+             Abortion · Fistula · Maternal Deaths · Teenage Pregnancy
+
+  REQUIRES : pip install requests pandas openpyxl
+             Primary tracker : "Maternal Inpatient Data" (delivery/PNC/labs)
+             ANC/FP/Abortion indicators need their own program UIDs.
+
+  AUTH     (priority: CLI → env vars → credentials file → interactive)
+    CLI  : --url https://imnid.aau.edu.et/dhis --username X --password Y
+    File : dhis2_credentials.json
+
+  QUICK START:
+    # 1. Preview report — prints computed values, saves Excel
+    python aggregate_report.py \\
+      --delivery-program <UID> \\
+      --org-unit <OU_UID_or_NAME> \\
+      --period 202410 \\
+      --preview report_oct2024.xlsx
+
+    # 2. Submit to DHIS2 aggregate (dry-run first)
+    python aggregate_report.py \\
+      --delivery-program <UID> \\
+      --org-unit <OU_UID_or_NAME> \\
+      --period 202410 \\
+      --dataset <AGGREGATE_DATASET_UID> \\
+      --dry-run
+
+    # 3. Submit for real
+    python aggregate_report.py \\
+      --delivery-program <UID> \\
+      --org-unit <OU_UID_or_NAME> \\
+      --period 202410 \\
+      --dataset <AGGREGATE_DATASET_UID> \\
+      --submit
+================================================================================
+"""
+
+import argparse
+import getpass
+import json
+import os
+import sys
+import time
+import warnings
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from typing import Any
+
+try:
+    import requests
+    from requests.adapters import HTTPAdapter
+    from urllib3.util.retry import Retry
+except ImportError:
+    print("ERROR: 'requests' not installed.  pip install requests")
+    sys.exit(1)
+
+try:
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+    HAS_OPENPYXL = True
+except ImportError:
+    HAS_OPENPYXL = False
+
+warnings.filterwarnings("ignore")
+CRED_FILE = Path("dhis2_credentials.json")
+
+# ── Tracker column names after API→RAW renaming ───────────────────────────────
+# These match the CSV export names (same as RAW dict in delivery_register.py).
+# NOTE: column names are built live by fetch_tracker_df() as "{Stage}_{DE name}"
+# using the real program metadata, so the values below are the ACTUAL DHIS2
+# names (verified against Metadata/dhis2_metadata_for_openmrs_3x.json).
+_DEL_MODE    = "Delivery summary_Mode of Delivery maternal"
+_OUTCOME     = "Delivery summary_birth outcome"
+_OBS_COND    = "Delivery summary_Obstetric condition at delivery"
+_UTEROTONICS = "Delivery summary_Uterotonics given"
+_STILLBIRTH  = "Delivery summary_Stillbirth"
+_DEL_DATE    = "Delivery summary_event_date"
+_PNC_DATE    = "Postpartum care_event_date"
+_DISC_COND   = "Discharge Summary_Condition of Discharge"
+_AGE         = "Age"
+_GEST_AGE    = "Maternal History_Gestational Age (From LMP in weeks)"
+_PPFP        = "Postpartum care_FP Counseling and Method Provided pp"
+
+
+# ── Indicator computation helpers ─────────────────────────────────────────────
+
+def _col(df: pd.DataFrame, col: str) -> pd.Series:
+    """Return column as string series, or empty series if missing."""
+    if col in df.columns:
+        return df[col].astype(str).fillna("")
+    return pd.Series("", index=df.index)
+
+
+def _str_match(df: pd.DataFrame, col: str, patterns: list[str]) -> int:
+    s = _col(df, col)
+    mask = pd.Series(False, index=df.index)
+    for p in patterns:
+        mask |= s.str.contains(p, case=False, na=False)
+    return int(mask.sum())
+
+
+def _ages(df: pd.DataFrame) -> pd.Series:
+    return pd.to_numeric(df.get(_AGE, pd.Series(dtype=float)), errors="coerce")
+
+
+def _age_mask(df: pd.DataFrame, low: int, high: int | None) -> pd.Series:
+    a = _ages(df)
+    return (a >= low) if high is None else ((a >= low) & (a <= high))
+
+
+def _gest_weeks(df: pd.DataFrame) -> pd.Series:
+    return pd.to_numeric(df.get(_GEST_AGE, pd.Series(dtype=float)), errors="coerce")
+
+
+def _delivery_dates(df: pd.DataFrame) -> pd.Series:
+    """Delivery date series: the 'Date of Delivery' value, falling back to the
+    delivery event date. Empty series if neither exists."""
+    col1 = "Delivery summary_Date of Delivery"
+    dval = pd.to_datetime(df[col1], errors="coerce") if col1 in df.columns else pd.Series(pd.NaT, index=df.index)
+    devt = pd.to_datetime(df[_DEL_DATE], errors="coerce") if _DEL_DATE in df.columns else pd.Series(pd.NaT, index=df.index)
+    return dval.fillna(devt)
+
+
+def _pnc_days(df: pd.DataFrame) -> pd.Series:
+    """Days from delivery to PNC event; NaN if either date missing."""
+    d0 = _delivery_dates(df)
+    d1 = pd.to_datetime(df.get(_PNC_DATE), errors="coerce")
+    if d0 is None or d1 is None:
+        return pd.Series(np.nan, index=df.index)
+    diff = (d1 - d0).dt.days
+    return diff.where((diff >= 0) & (diff <= 7))   # only valid ≤7 day PNC
+
+
+def _str_age_match(df, col, patterns, low, high):
+    return int((_str_match_mask(df, col, patterns) & _age_mask(df, low, high)).sum())
+
+
+def _str_match_mask(df: pd.DataFrame, col: str, patterns: list[str]) -> pd.Series:
+    s = _col(df, col)
+    mask = pd.Series(False, index=df.index)
+    for p in patterns:
+        mask |= s.str.contains(p, case=False, na=False)
+    return mask
+
+
+# ── Indicator class ───────────────────────────────────────────────────────────
+
+class Indicator:
+    """One row in the HMIS 01.2 aggregate report."""
+    __slots__ = ("code", "label", "section", "source", "_fn")
+
+    def __init__(self, code, label, section, source="DEL", compute=None):
+        self.code    = code
+        self.label   = label
+        self.section = section
+        self.source  = source   # which program supplies the data
+        self._fn     = compute
+
+    def compute(self, df: pd.DataFrame):
+        """Return int value, or None if not computable from the supplied DataFrame."""
+        if self._fn is None or df is None or df.empty:
+            return None
+        try:
+            v = self._fn(df)
+            return int(v) if v is not None else None
+        except Exception:
+            return None
+
+
+# ── Full indicator list — mirrors the PDF row by row ─────────────────────────
+
+INDICATORS: list[Indicator] = [
+
+    # ════════════════════════════════════════════════════════════════════════════
+    # FAMILY PLANNING
+    # ════════════════════════════════════════════════════════════════════════════
+    # New acceptors by age
+    Indicator("MAT_CAR_Age.1.1", "Contraceptive new acceptors 10-14 yrs",   "FP", source="FP"),
+    Indicator("MAT_CAR_Age.1.2", "Contraceptive new acceptors 15-19 yrs",   "FP", source="FP"),
+    Indicator("MAT_CAR_Age.1.3", "Contraceptive new acceptors 20-24 yrs",   "FP", source="FP"),
+    Indicator("MAT_CAR_Age.1.4", "Contraceptive new acceptors 25-29 yrs",   "FP", source="FP"),
+    Indicator("MAT_CAR_Age.1.5", "Contraceptive new acceptors 30-49 yrs",   "FP", source="FP"),
+    # Repeat acceptors by age
+    Indicator("MAT_CAR_Age.2.1", "Contraceptive repeat acceptors 10-14 yrs","FP", source="FP"),
+    Indicator("MAT_CAR_Age.2.2", "Contraceptive repeat acceptors 15-19 yrs","FP", source="FP"),
+    Indicator("MAT_CAR_Age.2.3", "Contraceptive repeat acceptors 20-24 yrs","FP", source="FP"),
+    Indicator("MAT_CAR_Age.2.4", "Contraceptive repeat acceptors 25-29 yrs","FP", source="FP"),
+    Indicator("MAT_CAR_Age.2.5", "Contraceptive repeat acceptors 30-49 yrs","FP", source="FP"),
+    # New acceptors by method
+    Indicator("MAT_CAR_Mtd.1.1", "New acceptors - Oral Contraceptives",  "FP", source="FP"),
+    Indicator("MAT_CAR_Mtd.1.2", "New acceptors - Injectables",          "FP", source="FP"),
+    Indicator("MAT_CAR_Mtd.1.3", "New acceptors - Implants",             "FP", source="FP"),
+    Indicator("MAT_CAR_Mtd.1.4", "New acceptors - IUCD",                 "FP", source="FP"),
+    Indicator("MAT_CAR_Mtd.1.5", "New acceptors - Vasectomy",            "FP", source="FP"),
+    Indicator("MAT_CAR_Mtd.1.6", "New acceptors - Tubal ligation",       "FP", source="FP"),
+    Indicator("MAT_CAR_Mtd.1.7", "New acceptors - Others",               "FP", source="FP"),
+    # Repeat acceptors by method
+    Indicator("MAT_CAR_Mtd.2.1", "Repeat acceptors - Oral Contraceptives","FP", source="FP"),
+    Indicator("MAT_CAR_Mtd.2.2", "Repeat acceptors - Injectables",        "FP", source="FP"),
+    Indicator("MAT_CAR_Mtd.2.3", "Repeat acceptors - Implants",           "FP", source="FP"),
+    Indicator("MAT_CAR_Mtd.2.4", "Repeat acceptors - IUCD",               "FP", source="FP"),
+    Indicator("MAT_CAR_Mtd.2.5", "Repeat acceptors - Vasectomy",          "FP", source="FP"),
+    Indicator("MAT_CAR_Mtd.2.6", "Repeat acceptors - Tubal ligation",     "FP", source="FP"),
+    Indicator("MAT_CAR_Mtd.2.7", "Repeat acceptors - Others",             "FP", source="FP"),
+    # IPPCAR — Immediate Postpartum (derived from Postpartum care stage)
+    Indicator("MAT_IPPCAR_Age.1", "PPFP acceptors 10-14 yrs", "FP", source="DEL",
+              compute=lambda df: int((_age_mask(df, 10, 14) & _col(df,_PPFP).ne("")).sum())),
+    Indicator("MAT_IPPCAR_Age.2", "PPFP acceptors 15-19 yrs", "FP", source="DEL",
+              compute=lambda df: int((_age_mask(df, 15, 19) & _col(df,_PPFP).ne("")).sum())),
+    Indicator("MAT_IPPCAR_Age.3", "PPFP acceptors 20-24 yrs", "FP", source="DEL",
+              compute=lambda df: int((_age_mask(df, 20, 24) & _col(df,_PPFP).ne("")).sum())),
+    Indicator("MAT_IPPCAR_Age.4", "PPFP acceptors 25-29 yrs", "FP", source="DEL",
+              compute=lambda df: int((_age_mask(df, 25, 29) & _col(df,_PPFP).ne("")).sum())),
+    Indicator("MAT_IPPCAR_Age.5", "PPFP acceptors 30-49 yrs", "FP", source="DEL",
+              compute=lambda df: int((_age_mask(df, 30, 49) & _col(df,_PPFP).ne("")).sum())),
+    # IPPCAR by method
+    Indicator("MAT_IPPCAR_Mtd.1", "PPFP - Oral Contraceptives","FP", source="DEL",
+              compute=lambda df: _str_match(df,_PPFP,["oral","pill","oc"])),
+    Indicator("MAT_IPPCAR_Mtd.2", "PPFP - Implants",            "FP", source="DEL",
+              compute=lambda df: _str_match(df,_PPFP,["implant"])),
+    Indicator("MAT_IPPCAR_Mtd.3", "PPFP - IUCD",                "FP", source="DEL",
+              compute=lambda df: _str_match(df,_PPFP,["iucd","iud"])),
+    Indicator("MAT_IPPCAR_Mtd.4", "PPFP - Tubal ligation",      "FP", source="DEL",
+              compute=lambda df: _str_match(df,_PPFP,["tubal","ligation","btl"])),
+    Indicator("MAT_IPPCAR_Mtd.5", "PPFP - Others",              "FP", source="DEL",
+              compute=lambda df: _str_match(df,_PPFP,["other"])),
+    # PRLAFP — premature removal (not in delivery tracker)
+    Indicator("MAT_LAFPPR.1.1",  "Premature LAFP removal - Implants",     "FP", source="FP"),
+    Indicator("MAT_LAFPPR.1.2",  "Premature LAFP removal - IUCD",         "FP", source="FP"),
+    Indicator("MAT_LAFPPR.1.3",  "Premature LAFP removal - Others",       "FP", source="FP"),
+    Indicator("MAT_TLAFPR.",     "Total LAFP removals in reporting period","FP", source="FP"),
+
+    # ════════════════════════════════════════════════════════════════════════════
+    # ANC — requires separate ANC tracker program
+    # ════════════════════════════════════════════════════════════════════════════
+    Indicator("MAT_ANC1_GA.1.1",  "ANC1 ≤12 weeks gestational age",          "ANC", source="ANC"),
+    Indicator("MAT_ANC1_GA.1.2",  "ANC1 >12 and ≤16 weeks",                  "ANC", source="ANC"),
+    Indicator("MAT_ANC1_GA.1.3",  "ANC1 >16 weeks",                          "ANC", source="ANC"),
+    Indicator("MAT_ANC1_MA.1.1",  "ANC1 by age 10-14 yrs",                   "ANC", source="ANC"),
+    Indicator("MAT_ANC1_MA.1.2",  "ANC1 by age 15-19 yrs",                   "ANC", source="ANC"),
+    Indicator("MAT_ANC1_MA.1.3",  "ANC1 by age ≥20 yrs",                     "ANC", source="ANC"),
+    Indicator("MAT_ANC4+_MA.1.1", "ANC4+ by age 10-14 yrs",                  "ANC", source="ANC"),
+    Indicator("MAT_ANC4+_MA.1.2", "ANC4+ by age 15-19 yrs",                  "ANC", source="ANC"),
+    Indicator("MAT_ANC4+_MA.1.3", "ANC4+ by age ≥20 yrs",                    "ANC", source="ANC"),
+    Indicator("MAT_ANC4+_GA.1.1", "ANC4+ ≤30 weeks gestational age",         "ANC", source="ANC"),
+    Indicator("MAT_ANC4+_GA.1.2", "ANC4+ >30 weeks gestational age",         "ANC", source="ANC"),
+    Indicator("MAT_ANC8+.",        "ANC 8 or more contacts",                  "ANC", source="ANC"),
+    Indicator("MAT_SYPH.1.1",     "Syphilis tested - Reactive",               "ANC", source="DEL",
+              compute=lambda df: _str_match(df,"Laboratory_VDRL",["reactive","positive"])),
+    Indicator("MAT_SYPH.1.2",     "Syphilis tested - Non-Reactive",           "ANC", source="DEL",
+              compute=lambda df: _str_match(df,"Laboratory_VDRL",["non-reactive","non reactive","negative"])),
+    Indicator("MAT_SYPH.RX.1.",   "Pregnant women treated for syphilis",      "ANC", source="ANC"),
+    Indicator("MAT_Hepa.1",       "Hepatitis B tested - Reactive",            "ANC", source="DEL",
+              compute=lambda df: _str_match(df,"Laboratory_HBsAg",["reactive","positive"])),
+    Indicator("MAT_Hepa.2",       "Hepatitis B tested - Non-Reactive",        "ANC", source="DEL",
+              compute=lambda df: _str_match(df,"Laboratory_HBsAg",["non-reactive","non reactive","negative"])),
+    Indicator("MAT_Prp.1.",       "HBV prophylaxis received",                 "ANC", source="ANC"),
+
+    # ════════════════════════════════════════════════════════════════════════════
+    # DELIVERY
+    # ════════════════════════════════════════════════════════════════════════════
+    Indicator("L&D_SBA.1.", "Total births attended by skilled health personnel", "DEL",
+              compute=lambda df: len(df)),
+
+    Indicator("MAT_PPH.1.1", "PPH - Home",     "DEL",
+              compute=lambda df: 0,   # inpatient facility records only
+              ),
+    Indicator("MAT_PPH.1.2", "PPH - Facility", "DEL",
+              compute=lambda df: _str_match(df, _OBS_COND, ["pph","postpartum haemorrhage","postpartum hemorrhage","hemorrhage"])),
+
+    Indicator("MAT_UTER.1.1", "Uterotonics - Oxytocin",    "DEL",
+              compute=lambda df: _str_match(df, _UTEROTONICS, ["oxytocin"])),
+    Indicator("MAT_UTER.1.2", "Uterotonics - Misoprostol", "DEL",
+              compute=lambda df: _str_match(df, _UTEROTONICS, ["misoprostol","mesoprostol"])),
+    Indicator("MAT_UTER.1.3", "Uterotonics - Ergometrin",  "DEL",
+              compute=lambda df: _str_match(df, _UTEROTONICS, ["ergometrin","ergometrine","ergot"])),
+    Indicator("MAT_UTER.1.4", "Uterotonics - Others",      "DEL",
+              compute=lambda df: _str_match(df, _UTEROTONICS, ["other"])),
+
+    Indicator("MAT_SBR.SB.", "Number of stillbirths", "DEL",
+              compute=lambda df: _str_match(df, _OUTCOME,
+                                             ["stillbirth","still birth","still-birth","macerat","fresh still"])),
+    Indicator("MAT_SBR.LB.", "Number of live births",  "DEL",
+              compute=lambda df: _str_match(df, _OUTCOME,
+                                             ["alive","live birth","live"])),
+
+    Indicator("MAT_B&D_IBN.1.", "Institutional birth notifications given",  "DEL",
+              compute=lambda df: len(df)),
+    Indicator("MAT_B&D_IDN.2.", "Institutional death notifications given",  "DEL",
+              compute=lambda df: _str_match(df, _DISC_COND, ["death","died","dead","expired"])),
+
+    # ════════════════════════════════════════════════════════════════════════════
+    # PNC — from Postpartum care stage within Maternal Inpatient program
+    # ════════════════════════════════════════════════════════════════════════════
+    Indicator("MAT_EPNC.1.2", "PNC within 24hrs (1 day)",       "PNC",
+              compute=lambda df: int((_pnc_days(df) <= 1).sum())),
+    Indicator("MAT_EPNC.1.3", "PNC 25-48hrs (1-2 days)",        "PNC",
+              compute=lambda df: int(((_pnc_days(df) > 1)  & (_pnc_days(df) <= 2)).sum())),
+    Indicator("MAT_EPNC.1.4", "PNC 49-72hrs (2-3 days)",        "PNC",
+              compute=lambda df: int(((_pnc_days(df) > 2)  & (_pnc_days(df) <= 3)).sum())),
+    Indicator("MAT_EPNC.1.5", "PNC 73hrs-7days (4-7 days)",     "PNC",
+              compute=lambda df: int(((_pnc_days(df) > 3)  & (_pnc_days(df) <= 7)).sum())),
+
+    # ════════════════════════════════════════════════════════════════════════════
+    # CESAREAN SECTION
+    # ════════════════════════════════════════════════════════════════════════════
+    Indicator("MAT_CS.1.", "Women giving birth by caesarean section", "CS",
+              compute=lambda df: _str_match(df, _DEL_MODE,
+                                             ["cesare","c/s","c-section","lscs","cs"])),
+
+    # ════════════════════════════════════════════════════════════════════════════
+    # ABORTION — requires Abortion/Comprehensive Abortion Care program
+    # ════════════════════════════════════════════════════════════════════════════
+    Indicator("MAT_CAC_SAC.1", "Safe abortions 10-14 yrs", "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC_SAC.2", "Safe abortions 15-19 yrs", "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC_SAC.3", "Safe abortions 20-24 yrs", "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC_SAC.4", "Safe abortions 25-29 yrs", "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC_SAC.5", "Safe abortions ≥30 yrs",   "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC_PAC.1", "Post-abortion care 10-14 yrs", "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC_PAC.2", "Post-abortion care 15-19 yrs", "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC_PAC.3", "Post-abortion care 20-24 yrs", "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC_PAC.4", "Post-abortion care 25-29 yrs", "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC_PAC.5", "Post-abortion care ≥30 yrs",   "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC.Tr.1.1", "Abortion care - 1st trimester (<12 wks)",    "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC.Tr.1.2", "Abortion care - 2nd trimester (12-28 wks)",  "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC.MA.1.1", "Post-abortion FP - Oral Contraceptives",     "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC.MA.1.2", "Post-abortion FP - Injectables",             "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC.MA.1.3", "Post-abortion FP - Implants",                "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC.MA.1.4", "Post-abortion FP - IUCD",                    "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC.MA.1.6", "Post-abortion FP - Tubal ligation",          "ABORTION", source="ABORTION"),
+    Indicator("MAT_CAC.MA.1.7", "Post-abortion FP - Others",                  "ABORTION", source="ABORTION"),
+
+    # ════════════════════════════════════════════════════════════════════════════
+    # OBSTETRIC FISTULA
+    # ════════════════════════════════════════════════════════════════════════════
+    Indicator("MAT_OFC_Ide__Age.1", "Fistula identified 10-14 yrs", "FISTULA", source="FISTULA"),
+    Indicator("MAT_OFC_Ide__Age.2", "Fistula identified 15-19 yrs", "FISTULA", source="FISTULA"),
+    Indicator("MAT_OFC_Ide__Age.3", "Fistula identified 20-24 yrs", "FISTULA", source="FISTULA"),
+    Indicator("MAT_OFC_Ide__Age.4", "Fistula identified 25-29 yrs", "FISTULA", source="FISTULA"),
+    Indicator("MAT_OFC_Ide__Age.5", "Fistula identified ≥30 yrs",   "FISTULA", source="FISTULA"),
+    Indicator("MAT_OFC_Treat__Age.1","Fistula treated 10-14 yrs",   "FISTULA", source="FISTULA"),
+    Indicator("MAT_OFC_Treat__Age.2","Fistula treated 15-19 yrs",   "FISTULA", source="FISTULA"),
+    Indicator("MAT_OFC_Treat__Age.3","Fistula treated 20-24 yrs",   "FISTULA", source="FISTULA"),
+    Indicator("MAT_OFC_Treat__Age.4","Fistula treated 25-29 yrs",   "FISTULA", source="FISTULA"),
+    Indicator("MAT_OFC_Treat__Age.5","Fistula treated ≥30 yrs",     "FISTULA", source="FISTULA"),
+
+    # ════════════════════════════════════════════════════════════════════════════
+    # INSTITUTIONAL MATERNAL DEATHS
+    # ════════════════════════════════════════════════════════════════════════════
+    Indicator("MAT_IMD.1.", "Maternal deaths in health facility", "MAT_DEATHS",
+              compute=lambda df: _str_match(df, _DISC_COND, ["death","died","dead","expired","maternal death"])),
+
+    # ════════════════════════════════════════════════════════════════════════════
+    # TEENAGE PREGNANCY
+    # ════════════════════════════════════════════════════════════════════════════
+    Indicator("MAT_TngP_TPR.1", "Teenage girls tested positive for pregnancy 10-14 yrs", "TEEN",
+              compute=lambda df: int(_age_mask(df, 10, 14).sum())),
+    Indicator("MAT_TngP_TPR.2", "Teenage girls tested positive for pregnancy 15-19 yrs", "TEEN",
+              compute=lambda df: int(_age_mask(df, 15, 19).sum())),
+    Indicator("MAT_Tngtst.",    "Total women tested positive for pregnancy",              "TEEN",
+              compute=lambda df: len(df)),
+]
+
+
+# ── DHIS2 Client ─────────────────────────────────────────────────────────────
+
+def _normalise_url(url: str) -> str:
+    url = url.rstrip("/")
+    if url.endswith("/api"):
+        url = url[:-4]
+    return url
+
+
+class DHIS2Client:
+    def __init__(self, url: str, username: str, password: str,
+                 verify_ssl: bool = True, timeout: int = 60):
+        self.base    = _normalise_url(url)
+        self.timeout = timeout
+        self.session = requests.Session()
+        self.session.auth   = (username, password)
+        self.session.verify = verify_ssl
+        self.session.headers.update({"Accept": "application/json",
+                                     "Content-Type": "application/json"})
+        retry = Retry(total=3, backoff_factor=1.0,
+                      status_forcelist=[429, 500, 502, 503, 504],
+                      allowed_methods=["GET", "POST"])
+        adapter = HTTPAdapter(max_retries=retry)
+        self.session.mount("https://", adapter)
+        self.session.mount("http://",  adapter)
+        if not verify_ssl:
+            import urllib3
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+    def get(self, endpoint: str, params: dict = None) -> dict:
+        url  = f"{self.base}/api/{endpoint}"
+        resp = self.session.get(url, params=params or {}, timeout=self.timeout)
+        if resp.status_code == 401:
+            raise PermissionError("Authentication failed.")
+        if resp.status_code == 403:
+            raise PermissionError(f"Access denied: {endpoint}")
+        resp.raise_for_status()
+        return resp.json()
+
+    def post(self, endpoint: str, payload: dict, params: dict = None) -> dict:
+        url  = f"{self.base}/api/{endpoint}"
+        resp = self.session.post(url, json=payload, params=params or {},
+                                 timeout=self.timeout)
+        if resp.status_code == 401:
+            raise PermissionError("Authentication failed.")
+        resp.raise_for_status()
+        return resp.json()
+
+    def paginate(self, endpoint: str, params: dict, data_key: str,
+                 page_size: int = 250) -> list:
+        params = {**params, "pageSize": page_size, "page": 1}
+        items: list = []
+        while True:
+            data   = self.get(endpoint, params)
+            chunk  = data.get(data_key, [])
+            items.extend(chunk)
+            print(f"\r  Page {params['page']:>3}  |  this page: {len(chunk):>4}"
+                  f"  |  total: {len(items):>6}", end="", flush=True)
+            if len(chunk) < page_size:
+                print()
+                break
+            params["page"] += 1
+            time.sleep(0.05)
+        return items
+
+
+# ── Credentials helper ────────────────────────────────────────────────────────
+
+def resolve_credentials(args) -> tuple[str, str, str]:
+    url  = getattr(args, "url",      None) or os.getenv("DHIS2_URL")
+    user = getattr(args, "username", None) or os.getenv("DHIS2_USER")
+    pw   = getattr(args, "password", None) or os.getenv("DHIS2_PASS")
+
+    if CRED_FILE.exists():
+        saved = json.loads(CRED_FILE.read_text())
+        url  = url  or saved.get("url")
+        user = user or saved.get("username")
+        pw   = pw   or saved.get("password")
+
+    if not url:
+        url  = input("DHIS2 URL   : ").strip()
+    if not user:
+        user = input("Username    : ").strip()
+    if not pw:
+        pw   = getpass.getpass("Password    : ")
+    return url, user, pw
+
+
+# ── Tracker data fetch ────────────────────────────────────────────────────────
+
+def fetch_tracker_df(client: DHIS2Client, program_uid: str, ou_uid: str,
+                     ou_mode: str, start: str, end: str,
+                     page_size: int = 250) -> pd.DataFrame:
+    """Pull TEIs from DHIS2 tracker and return a flat DataFrame."""
+    params = {
+        "program": program_uid,
+        "ouMode":  ou_mode,
+        "fields": (
+            "trackedEntity,orgUnit,attributes,"
+            "enrollments[enrollment,enrolledAt,incidentAt,status,"
+            "  events[event,programStage,occurredAt,status,"
+            "    dataValues[dataElement,value]]]"
+        ),
+    }
+    if ou_uid:  params["orgUnit"] = ou_uid
+    # NOTE: no server-side date filter — enrollment may precede delivery by
+    # months (ANC) or follow it by ~a week, so we fetch a superset and filter
+    # client-side by the actual "Delivery summary_Date of Delivery" value.
+
+    print(f"Fetching tracker data  (program={program_uid}, ouMode={ou_mode}) ...")
+    probe    = client.get("tracker/trackedEntities", {**params, "pageSize": 1, "page": 1})
+    data_key = "instances" if "instances" in probe else "trackedEntities"
+    teis     = client.paginate("tracker/trackedEntities", params, data_key, page_size)
+    print(f"  {len(teis):,} TEIs fetched")
+
+    # Fetch metadata to build UID → column-name maps
+    print("Fetching program metadata ...")
+    prog  = client.get(f"programs/{program_uid}", params={
+        "fields": (
+            "name,programTrackedEntityAttributes[trackedEntityAttribute[id,name,formName]],"
+            "programStages[id,name,"
+            "  programStageDataElements[dataElement[id,name,"
+            "    optionSet[id,name,options[code,name]]]]]"
+        )
+    })
+    attr_map: dict[str, str] = {}
+    for ptea in prog.get("programTrackedEntityAttributes", []):
+        a = ptea.get("trackedEntityAttribute", {})
+        name = (a.get("name") or "").strip()
+        if not name:
+            name = (a.get("formName") or "").strip()
+        if a.get("id") and name:
+            attr_map[a["id"]] = name
+
+    de_map: dict[tuple, str] = {}
+    de_opts: dict[tuple, dict] = {}   # (stage_uid, de_uid) -> {code: label}
+    stage_map: dict[str, str] = {}
+    for stage in prog.get("programStages", []):
+        s_uid  = stage["id"]
+        s_name = stage.get("name", "").strip()
+        stage_map[s_uid] = s_name
+        for psde in stage.get("programStageDataElements", []):
+            de = psde.get("dataElement", {})
+            if de.get("id") and de.get("name"):
+                col_name = f"{s_name}_{de['name'].strip()}"
+                de_map[(s_uid, de["id"])] = col_name
+                opts = {}
+                opt_set = (de.get("optionSet") or {}).get("options") or []
+                for o in opt_set:
+                    code = str(o.get("code", ""))
+                    name = (o.get("name") or o.get("code") or "").strip()
+                    if code:
+                        opts[code] = name
+                if opts:
+                    de_opts[(s_uid, de["id"])] = opts
+
+    # Flatten TEIs → rows
+    rows = []
+    for tei in teis:
+        for enr in tei.get("enrollments", []):
+            row: dict = {
+                "tei_uid":         tei.get("trackedEntity", ""),
+                "org_unit":        tei.get("orgUnit", ""),
+                "enrollment_date": (enr.get("enrolledAt") or "")[:10],
+                "incident_date":   (enr.get("incidentAt") or "")[:10],
+            }
+            for attr in tei.get("attributes", []):
+                col = attr_map.get(attr.get("attribute", ""))
+                if col:
+                    row[col] = attr.get("value", "")
+
+            # Most-recent event per stage
+            best: dict[str, dict] = {}
+            for evt in enr.get("events", []):
+                s = evt.get("programStage", "")
+                if s not in best or evt.get("occurredAt","") > best[s].get("occurredAt",""):
+                    best[s] = evt
+
+            for s_uid, evt in best.items():
+                s_name = stage_map.get(s_uid, "")
+                if s_name:
+                    occ = evt.get("occurredAt", "")
+                    row[f"{s_name}_event_id"]     = evt.get("event", "")
+                    row[f"{s_name}_event_date"]   = occ[:10] if occ else ""
+                    row[f"{s_name}_event_status"] = evt.get("status", "")
+                for dv in evt.get("dataValues", []):
+                    col = de_map.get((s_uid, dv.get("dataElement", "")))
+                    if not col:
+                        continue
+                    val = str(dv.get("value", ""))
+                    opts = de_opts.get((s_uid, dv.get("dataElement", "")))
+                    if opts:
+                        # option-code stored → decode to label(s)
+                        labels = []
+                        for part in val.split(","):
+                            part = part.strip()
+                            if part in opts:
+                                labels.append(opts[part])
+                            elif part:
+                                labels.append(part)
+                        val = ", ".join(labels)
+                    row[col] = val
+            rows.append(row)
+
+    df = pd.DataFrame(rows)
+
+    # Coerce types
+    if "Age" in df.columns:
+        df["Age"] = pd.to_numeric(df["Age"], errors="coerce")
+
+    # Filter to the reporting window by the ACTUAL delivery date
+    if (start or end) and not df.empty:
+        d = _delivery_dates(df)
+        mask = pd.Series(True, index=df.index)
+        if start:
+            mask &= d >= pd.to_datetime(start)
+        if end:
+            mask &= d <= pd.to_datetime(end)
+        n_all = len(df)
+        df = df[mask].reset_index(drop=True)
+        print(f"  {len(df):,} deliveries within {start or '…'} → {end or '…'} "
+              f"(of {n_all:,} TEIs fetched)")
+
+    print(f"  DataFrame: {df.shape[0]:,} rows × {df.shape[1]} columns")
+    return df
+
+
+def diagnose_values(df: pd.DataFrame):
+    """Print unique values for every column the indicators rely on."""
+    key_cols = [
+        _DEL_MODE, _OUTCOME, _OBS_COND, _UTEROTONICS,
+        _STILLBIRTH, _DISC_COND, _DEL_DATE, _PNC_DATE,
+        _PPFP,
+        "Laboratory_VDRL", "Laboratory_HBsAg",
+        _AGE,
+    ]
+    print("\n── Value diagnostics ────────────────────────────────────────────────")
+    for col in key_cols:
+        if col not in df.columns:
+            print(f"  {col!r:<60}  COLUMN MISSING")
+            continue
+        vals = df[col].dropna()
+        vals = vals[vals.astype(str).str.strip() != ""]
+        unique = vals.value_counts().head(10)
+        if unique.empty:
+            print(f"  {col!r:<60}  (all empty)")
+        else:
+            print(f"\n  {col!r}  ({len(vals)} non-empty values)")
+            for v, cnt in unique.items():
+                print(f"      {cnt:>4}×  {str(v)!r}")
+
+
+# ── DHIS2 aggregate API helpers ───────────────────────────────────────────────
+
+def fetch_default_coc(client: DHIS2Client) -> str:
+    """Return the UID of the 'default' category option combo."""
+    data = client.get("categoryOptionCombos",
+                      {"filter": "name:eq:default", "fields": "id", "paging": "false"})
+    cocs = data.get("categoryOptionCombos", [])
+    if cocs:
+        return cocs[0]["id"]
+    raise RuntimeError("Could not find default categoryOptionCombo on this server.")
+
+
+def lookup_de_uids(client: DHIS2Client, codes: list[str]) -> dict[str, str]:
+    """Return {code: uid} for all data elements found by code."""
+    if not codes:
+        return {}
+    # DHIS2 filter:in has a URL-length limit; chunk to 50
+    result: dict[str, str] = {}
+    for i in range(0, len(codes), 50):
+        chunk = codes[i: i + 50]
+        clist = ",".join(chunk)
+        data  = client.get("dataElements",
+                           {"filter": f"code:in:[{clist}]",
+                            "fields": "id,code",
+                            "paging": "false"})
+        for de in data.get("dataElements", []):
+            result[de["code"]] = de["id"]
+    return result
+
+
+def build_datavalue_set(values: dict[str, int], de_uid_map: dict[str, str],
+                        default_coc: str, dataset_uid: str,
+                        period: str, ou_uid: str) -> dict:
+    """Assemble compact dataValueSet payload (period/orgUnit at top level)."""
+    dv_list = []
+    for code, value in values.items():
+        uid = de_uid_map.get(code)
+        if uid is None:
+            continue
+        dv_list.append({
+            "dataElement":         uid,
+            "categoryOptionCombo": default_coc,
+            "value":               str(value),
+        })
+    return {
+        "dataSet":    dataset_uid,
+        "period":     period,
+        "orgUnit":    ou_uid,
+        "dataValues": dv_list,
+    }
+
+
+def save_flat_import_json(values: dict[str, int | None],
+                          de_uid_map: dict[str, str],
+                          default_coc: str,
+                          period: str,
+                          ou_uid: str,
+                          output_path: str):
+    """
+    Write a flat DHIS2 dataValueSet JSON for manual import via Import/Export app.
+
+    ALL indicators are included regardless of whether a value was computed:
+      - Computed value  → that value
+      - None (requires another program) → "0" as default; user fills manually
+
+    Data element UIDs:
+      - Found in DHIS2  → real 11-char UID
+      - Not found       → indicator code used as placeholder; user must replace
+
+    The file also writes a companion _index.json listing every indicator with
+    its section, source, and whether it needs manual entry — useful for finding
+    which placeholders to resolve.
+    """
+    dv_list   = []
+    index     = []
+    resolved  = 0
+    for ind in INDICATORS:
+        value = values.get(ind.code)
+        uid   = de_uid_map.get(ind.code)      # None if not found in DHIS2
+        needs_uid   = uid is None
+        needs_value = value is None            # requires another program
+        if uid is None:
+            uid = f"[{ind.code}]"             # visible placeholder
+
+        dv_list.append({
+            "dataElement":         uid,
+            "categoryOptionCombo": default_coc,
+            "period":              period,
+            "orgUnit":             ou_uid,
+            "value":               str(value if value is not None else 0),
+        })
+        index.append({
+            "code":         ind.code,
+            "dataElement":  uid,
+            "label":        ind.label,
+            "section":      _SECTION_LABELS.get(ind.section, ind.section),
+            "source":       ind.source,
+            "computedValue": value,
+            "needsManualUID":   needs_uid,
+            "needsManualValue": needs_value,
+        })
+        if not needs_uid:
+            resolved += 1
+
+    # Main import JSON — all entries, clean DHIS2 format
+    Path(output_path).write_text(
+        json.dumps({"dataValues": dv_list}, indent=4, ensure_ascii=False)
+    )
+    print(f"Import JSON saved  → {output_path}  "
+          f"({len(dv_list)} entries, {resolved} UIDs resolved)")
+
+    # Index file — human-readable companion
+    index_path = output_path.replace(".json", "_index.json")
+    Path(index_path).write_text(
+        json.dumps(index, indent=4, ensure_ascii=False)
+    )
+    uid_warn    = len(dv_list) - resolved
+    value_warn  = sum(1 for i in index if i["needsManualValue"])
+    print(f"Index saved        → {index_path}")
+    if uid_warn:
+        print(f"  ⚠  {uid_warn} entries need real UIDs  "
+              f"(search for '[' in the import file)")
+    if value_warn:
+        print(f"  ⚠  {value_warn} entries need manual values  "
+              f"(set to 0 now — check needsManualValue=true in index)")
+
+
+def submit_datavalue_set(client: DHIS2Client, payload: dict,
+                         dry_run: bool = False) -> dict:
+    """POST the dataValueSet to DHIS2 (or print it if dry_run)."""
+    if dry_run:
+        print("\n── Dry-run payload (would POST to /api/dataValueSets) ──────────")
+        print(json.dumps(payload, indent=2))
+        return {"status": "DRY_RUN", "imported": len(payload["dataValues"])}
+    resp = client.post("dataValueSets", payload,
+                       params={"importStrategy": "CREATE_AND_UPDATE"})
+    return resp
+
+
+# ── Excel preview ─────────────────────────────────────────────────────────────
+
+_SECTION_LABELS = {
+    "FP":        "Family Planning",
+    "ANC":       "Antenatal Care",
+    "DEL":       "Delivery",
+    "PNC":       "Postnatal Care",
+    "CS":        "Cesarean Section",
+    "ABORTION":  "Abortion Care",
+    "FISTULA":   "Obstetric Fistula",
+    "MAT_DEATHS":"Institutional Maternal Deaths",
+    "TEEN":      "Teenage Pregnancy",
+}
+
+_SECTION_COLOR = {
+    "FP":        "B8E4B8",
+    "ANC":       "B8D4E4",
+    "DEL":       "E4D4B8",
+    "PNC":       "D4B8E4",
+    "CS":        "E4B8B8",
+    "ABORTION":  "E4E4B8",
+    "FISTULA":   "B8E4E4",
+    "MAT_DEATHS":"F4C2C2",
+    "TEEN":      "C2D4F4",
+}
+
+
+def write_preview_excel(values: dict[str, int | None],
+                        period: str, ou_name: str,
+                        output_path: str):
+    if not HAS_OPENPYXL:
+        print("ERROR: openpyxl not installed — cannot write Excel.  pip install openpyxl")
+        return
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "01.2 RMH Monthly Report"
+
+    thin = Side(style="thin", color="AAAAAA")
+    border = Border(left=thin, right=thin, top=thin, bottom=thin)
+
+    def cell(r, c, value, bold=False, bg=None, wrap=False, align="left"):
+        cell_obj = ws.cell(row=r, column=c, value=value)
+        cell_obj.font      = Font(bold=bold, size=10)
+        cell_obj.alignment = Alignment(horizontal=align, vertical="center",
+                                       wrap_text=wrap)
+        cell_obj.border    = border
+        if bg:
+            cell_obj.fill = PatternFill("solid", fgColor=bg)
+        return cell_obj
+
+    # Title
+    ws.merge_cells("A1:D1")
+    cell(1, 1,
+         "01.2 - Reproductive and Maternal Health | Monthly Report",
+         bold=True, bg="1E4D8C")
+    ws.cell(row=1, column=1).font = Font(bold=True, size=12, color="FFFFFF")
+    ws.cell(row=1, column=1).alignment = Alignment(horizontal="center",
+                                                    vertical="center")
+    ws.row_dimensions[1].height = 24
+
+    ws.merge_cells("A2:D2")
+    cell(2, 1, f"Period: {period}   |   Org unit: {ou_name}", bold=False, bg="D0E4FF")
+
+    # Header row
+    for c, hdr in enumerate(["S.No", "Activity", "Value", "Source"], start=1):
+        cell(3, c, hdr, bold=True, bg="3A7EBF")
+        ws.cell(row=3, column=c).font = Font(bold=True, color="FFFFFF", size=10)
+
+    ws.column_dimensions["A"].width = 26
+    ws.column_dimensions["B"].width = 55
+    ws.column_dimensions["C"].width = 12
+    ws.column_dimensions["D"].width = 14
+
+    row = 4
+    current_section = None
+    for ind in INDICATORS:
+        if ind.section != current_section:
+            current_section = ind.section
+            label  = _SECTION_LABELS.get(ind.section, ind.section)
+            bg_hdr = _SECTION_COLOR.get(ind.section, "DDDDDD")
+            ws.merge_cells(f"A{row}:D{row}")
+            cell(row, 1, label, bold=True, bg=bg_hdr)
+            ws.row_dimensions[row].height = 16
+            row += 1
+
+        bg  = _SECTION_COLOR.get(ind.section, "FFFFFF") + "44"   # lighter tint
+        val = values.get(ind.code)
+        val_str = str(val) if val is not None else "—"
+        src = "DEL tracker" if ind.source == "DEL" else ind.source
+
+        cell(row, 1, ind.code,  bg=None)
+        cell(row, 2, ind.label, bg=None, wrap=True)
+        cell(row, 3, val_str,   bg=("C8F4C8" if val is not None else "F4F4F4"),
+             align="center")
+        cell(row, 4, src,       bg=None, align="center")
+        ws.row_dimensions[row].height = 15
+        row += 1
+
+    # Freeze panes below header
+    ws.freeze_panes = "A4"
+    wb.save(output_path)
+    print(f"Preview saved → {output_path}")
+
+
+# ── CLI ───────────────────────────────────────────────────────────────────────
+
+def build_arg_parser() -> argparse.ArgumentParser:
+    ap = argparse.ArgumentParser(
+        prog="aggregate_report.py",
+        description="Generate & submit the 01.2 RMH aggregate monthly report from DHIS2 tracker data",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    grp = ap.add_argument_group("Connection")
+    grp.add_argument("--url",      help="DHIS2 base URL")
+    grp.add_argument("--username", help="DHIS2 username")
+    grp.add_argument("--password", help="DHIS2 password")
+    grp.add_argument("--no-ssl-verify", action="store_true",
+                     help="Disable SSL certificate verification")
+
+    grp = ap.add_argument_group("Tracker source")
+    grp.add_argument("--delivery-program", metavar="UID", required=True,
+                     help="Tracker program UID for delivery/inpatient data")
+    grp.add_argument("--org-unit",  metavar="UID",
+                     help="Organisation unit UID for the report")
+    grp.add_argument("--ou-mode",   default="SELECTED",
+                     choices=["SELECTED","DESCENDANTS","CHILDREN","ALL"],
+                     help="Org unit hierarchy mode (default: SELECTED)")
+    grp.add_argument("--period",    metavar="YYYYMM",
+                     help="Gregorian reporting period, e.g. 202410 for Oct 2024. "
+                          "Used for the aggregate submission. Required unless "
+                          "--start is given.")
+    grp.add_argument("--start",     metavar="YYYY-MM-DD",
+                     help="Explicit reporting start date (overrides the "
+                          "month derived from --period). Use for Ethiopian / "
+                          "non-calendar-month reporting windows.")
+    grp.add_argument("--end",       metavar="YYYY-MM-DD",
+                     help="Explicit reporting end date (inclusive). "
+                          "Default: last day of the --period month.")
+
+    grp = ap.add_argument_group("Output")
+    grp.add_argument("--preview", metavar="FILE.xlsx",
+                     help="Save Excel preview of computed values")
+    grp.add_argument("--json-out", metavar="FILE.json",
+                     help="Save raw computed values as JSON (summary format)")
+    grp.add_argument("--export-json", metavar="FILE.json",
+                     help="Save flat DHIS2 import JSON (period+orgUnit per entry) "
+                          "for manual upload via Import/Export app")
+
+    grp = ap.add_argument_group("DHIS2 aggregate submission")
+    grp.add_argument("--dataset", metavar="UID",
+                     help="Aggregate dataset UID (01.2 RMH dataset in DHIS2)")
+    grp.add_argument("--dry-run", action="store_true",
+                     help="Print payload without submitting")
+    grp.add_argument("--submit",  action="store_true",
+                     help="POST values to DHIS2 aggregate (requires --dataset)")
+    grp.add_argument("--diagnose-values", action="store_true",
+                     help="Print unique values for every key column and exit")
+    return ap
+
+
+def main():
+    args   = build_arg_parser().parse_args()
+    url, user, pw = resolve_credentials(args)
+    verify = not getattr(args, "no_ssl_verify", False)
+    client = DHIS2Client(url, user, pw, verify_ssl=verify)
+
+    # Verify connection
+    try:
+        info = client.get("system/info")
+        print(f"Connected  : {info.get('systemName','DHIS2')} v{info.get('version','?')}")
+    except Exception as e:
+        print(f"ERROR: {e}")
+        sys.exit(1)
+
+    # Resolve reporting window → start/end dates.
+    # Priority: --start/--end (explicit) > --period month (Gregorian calendar).
+    from datetime import datetime
+    start = getattr(args, "start", None)
+    end   = getattr(args, "end", None)
+    period = getattr(args, "period", None)
+
+    if start:
+        try:
+            datetime.strptime(start, "%Y-%m-%d")
+        except Exception:
+            print(f"ERROR: --start must be YYYY-MM-DD, got '{start}'")
+            sys.exit(1)
+    if end:
+        try:
+            datetime.strptime(end, "%Y-%m-%d")
+        except Exception:
+            print(f"ERROR: --end must be YYYY-MM-DD, got '{end}'")
+            sys.exit(1)
+
+    if start is None and end is None and not period:
+        print("ERROR: provide --period YYYYMM, or --start/--end dates.")
+        sys.exit(1)
+
+    if period:
+        try:
+            year, month = int(period[:4]), int(period[4:6])
+        except Exception:
+            print(f"ERROR: --period must be YYYYMM (e.g. 202410), got '{period}'")
+            sys.exit(1)
+        import calendar
+        last_day = calendar.monthrange(year, month)[1]
+        if not start:
+            start = f"{year}-{month:02d}-01"
+        if not end:
+            end = f"{year}-{month:02d}-{last_day:02d}"
+    else:
+        # start given (with optional end); no --period supplied
+        year, month = int(start[:4]), int(start[5:7])
+        period = f"{year:04d}{month:02d}"
+        if not end:
+            import calendar
+            end = f"{year:04d}-{month:02d}-{calendar.monthrange(year, month)[1]:02d}"
+
+    # Validate ordering
+    try:
+        if datetime.strptime(end, "%Y-%m-%d") < datetime.strptime(start, "%Y-%m-%d"):
+            print(f"ERROR: --end ({end}) is before --start ({start}).")
+            sys.exit(1)
+    except Exception:
+        pass
+
+    print(f"Reporting window : {start} → {end}  (period tag: {period})")
+
+    ou_uid  = args.org_unit or ""
+    ou_name = ou_uid
+
+    # Look up org unit name for display
+    if ou_uid:
+        try:
+            ou_info = client.get(f"organisationUnits/{ou_uid}", {"fields": "id,name"})
+            ou_name = ou_info.get("name", ou_uid)
+        except Exception:
+            pass
+
+    # Fetch tracker data
+    df = fetch_tracker_df(client,
+                          program_uid=args.delivery_program,
+                          ou_uid=ou_uid,
+                          ou_mode=args.ou_mode,
+                          start=start,
+                          end=end,
+                          page_size=250)
+
+    if df.empty:
+        print("No tracker records returned for this period/org unit.")
+        sys.exit(1)
+
+    if getattr(args, "diagnose_values", False):
+        diagnose_values(df)
+        sys.exit(0)
+
+    # Compute all indicators
+    print(f"\nComputing {len(INDICATORS)} indicators ...")
+    values: dict[str, int | None] = {}
+    for ind in INDICATORS:
+        values[ind.code] = ind.compute(df)
+
+    # Summary printout
+    computed = {k: v for k, v in values.items() if v is not None}
+    print(f"  Computed : {len(computed):,}  (others require additional programs)")
+    print("\n── Delivery / PNC / CS indicators ──────────────────────────────────")
+    for ind in INDICATORS:
+        v = values[ind.code]
+        if ind.source == "DEL" and v is not None:
+            print(f"  {ind.code:<28}  {v:>6}   {ind.label}")
+
+    # Excel preview
+    if args.preview:
+        write_preview_excel(values, args.period, ou_name, args.preview)
+
+    # JSON summary output
+    if args.json_out:
+        Path(args.json_out).write_text(
+            json.dumps({"period": period, "orgUnit": ou_uid,
+                        "generatedAt": pd.Timestamp.now().isoformat(),
+                        "values": {k: v for k, v in values.items() if v is not None}},
+                       indent=4, ensure_ascii=False))
+        print(f"JSON summary saved → {args.json_out}")
+
+    # Flat import JSON — always look up UIDs from DHIS2 for this
+    if args.export_json:
+        print("\nLooking up data element UIDs for import JSON ...")
+        all_codes  = [ind.code for ind in INDICATORS]
+        de_map_all = lookup_de_uids(client, all_codes)
+        matched    = len(de_map_all)
+        print(f"  Matched {matched:,} of {len(all_codes):,} indicator codes to DHIS2 UIDs")
+        if matched == 0:
+            print("  WARNING: No UIDs found — indicator codes may not exist in this "
+                  "DHIS2 instance. The export will use codes as placeholders.")
+
+        try:
+            default_coc_uid = fetch_default_coc(client)
+        except Exception:
+            default_coc_uid = "default"
+            print("  WARNING: Could not fetch default COC UID — using placeholder 'default'")
+
+        save_flat_import_json(
+            values, de_map_all, default_coc_uid,
+            period, ou_uid, args.export_json
+        )
+
+    # Aggregate API submission
+    if args.dry_run or args.submit:
+        if not args.dataset:
+            print("ERROR: --dataset <UID> is required for --dry-run / --submit")
+            sys.exit(1)
+
+        print("\nLooking up data element UIDs for submission ...")
+        codes  = [ind.code for ind in INDICATORS if values.get(ind.code) is not None]
+        de_map = lookup_de_uids(client, codes)
+        print(f"  Matched {len(de_map):,} of {len(codes):,} codes to DHIS2 data elements")
+
+        default_coc = fetch_default_coc(client)
+        payload     = build_datavalue_set(
+            {k: v for k, v in values.items() if v is not None},
+            de_map, default_coc, args.dataset, period, ou_uid
+        )
+        print(f"  Data values to submit: {len(payload['dataValues'])}")
+
+        result = submit_datavalue_set(client, payload, dry_run=not args.submit)
+        if args.submit:
+            status = result.get("status", "?")
+            imp    = result.get("importCount", {})
+            print(f"\nSubmission result: {status}")
+            print(f"  imported={imp.get('imported',0)}  "
+                  f"updated={imp.get('updated',0)}  "
+                  f"ignored={imp.get('ignored',0)}")
+
+    print("\nDone.")
+
+
+def compute_indicators(df: pd.DataFrame) -> dict[str, int | None]:
+    """Compute all indicators defined in INDICATORS registry for the given tracker dataframe."""
+    values: dict[str, int | None] = {}
+    for ind in INDICATORS:
+        values[ind.code] = ind.compute(df)
+    return values
+
+
+def build_import_json(
+    values: dict[str, int | None],
+    period: str,
+    org_unit_uid: str,
+    dataset_uid: str = "",
+    de_uid_map: dict[str, str] | None = None,
+    default_coc: str = "",
+) -> dict:
+    """Build DHIS2 dataValueSets import payload."""
+    de_map = de_uid_map or {}
+    dv_list = []
+    for code, val in values.items():
+        if val is not None:
+            uid = de_map.get(code, code)
+            item = {
+                "dataElement": uid,
+                "period": period,
+                "orgUnit": org_unit_uid,
+                "value": str(val),
+            }
+            if default_coc:
+                item["categoryOptionCombo"] = default_coc
+            dv_list.append(item)
+    res = {
+        "period": period,
+        "orgUnit": org_unit_uid,
+        "dataValues": dv_list,
+    }
+    if dataset_uid:
+        res["dataSet"] = dataset_uid
+    return res
+
+
+def resolve_ou(client: Any, org_unit: str | None, program_uid: str = "") -> tuple[str, str]:
+    """Resolve org unit string or ID to (uid, display_name)."""
+    if not org_unit:
+        return "", "All facilities"
+    ou_uid = org_unit
+    ou_name = org_unit
+    try:
+        info = client.get(f"organisationUnits/{org_unit}", params={"fields": "id,name"})
+        if "name" in info:
+            return info["id"], info["name"]
+    except Exception:
+        pass
+    try:
+        ous = client.get(
+            "organisationUnits",
+            params={"filter": f"name:ilike:{org_unit}", "fields": "id,name", "paging": "false"}
+        ).get("organisationUnits", [])
+        if ous:
+            return ous[0]["id"], ous[0]["name"]
+    except Exception:
+        pass
+    return ou_uid, ou_name
+
+
+if __name__ == "__main__":
+    main()
+

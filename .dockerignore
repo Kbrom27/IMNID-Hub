@@ -1,0 +1,37 @@
+# Never copy secrets into Docker images
+.env
+.env.*
+!.env.example
+
+# Version control
+.git/
+.github/
+
+# Local data & storage
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Python build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+env/
+venv/
+.venv/
+
+# Node build artifacts
+node_modules/
+dist/
+
+# Logs & temporary files
+*.log
+logs/
+.DS_Store
+
+# Test originals and checkpoints
+tests/originals/
+tests/originals_emr/
+sync_checkpoint.json
+*checkpoint*.json
