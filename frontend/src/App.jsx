@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { ConnectionProvider } from './context/ConnectionContext';
 import { ToastProvider } from './ui/ToastProvider';
 import Layout from './components/Layout';
 import { Spinner } from './ui';
@@ -49,7 +50,8 @@ function App() {
     <ThemeProvider>
       <ToastProvider>
         <AuthProvider>
-          <BrowserRouter>
+          <ConnectionProvider>
+            <BrowserRouter>
             <ErrorBoundary>
               <Suspense fallback={<PageLoader />}>
                 <Routes>
@@ -89,7 +91,8 @@ function App() {
             </Suspense>
           </ErrorBoundary>
         </BrowserRouter>
-      </AuthProvider>
+      </ConnectionProvider>
+    </AuthProvider>
     </ToastProvider>
   </ThemeProvider>
 );

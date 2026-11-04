@@ -8,15 +8,33 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+      },
+      fontSize: {
+        '2xs': ['11px', { lineHeight: '14px', letterSpacing: '0.04em' }],
+        'xs': ['12px', { lineHeight: '16px' }],
+        'sm': ['14px', { lineHeight: '20px' }],
+        'base': ['15px', { lineHeight: '22px' }],
+        'md': ['16px', { lineHeight: '24px' }],
+        'lg': ['18px', { lineHeight: '26px' }],
+        'xl': ['20px', { lineHeight: '28px' }],
+        '2xl': ['24px', { lineHeight: '30px' }],
+        '3xl': ['28px', { lineHeight: '34px' }],
+        '4xl': ['32px', { lineHeight: '38px' }],
       },
       borderRadius: {
         sm: 'var(--radius-sm, 6px)',
         DEFAULT: 'var(--radius-md, 10px)',
         md: 'var(--radius-md, 10px)',
-        lg: 'var(--radius-lg, 14px)',
-        xl: 'var(--radius-lg, 14px)',
+        lg: 'var(--radius-lg, 12px)',
+        xl: 'var(--radius-xl, 14px)',
+        '2xl': '16px',
+      },
+      boxShadow: {
+        'card': '0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04)',
+        'card-hover': '0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04)',
+        'dropdown': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.08)',
       },
       colors: {
         app: 'var(--bg-app)',
@@ -36,6 +54,7 @@ export default {
           muted: 'var(--text-muted)',
           inverse: 'var(--text-inverse)',
         },
+        // Brand Action Color: Teal Only
         teal: {
           50: '#f0fdfa',
           100: '#ccfbf1',
@@ -49,6 +68,7 @@ export default {
           900: '#134e4a',
           950: '#042f2e',
         },
+        // Neutral palette
         slate: {
           50: '#f8fafc',
           100: '#f1f5f9',
@@ -60,7 +80,49 @@ export default {
           700: '#334155',
           800: '#1e293b',
           900: '#0f172a',
-          950: '#020617',
+          950: '#090d16',
+        },
+        // Dedicated Semantic Success: Emerald (distinct from Brand Teal!)
+        emerald: {
+          50: '#ecfdf5',
+          100: '#d1fae5',
+          200: '#a7f3d0',
+          300: '#6ee7b7',
+          400: '#34d399',
+          500: '#10b981',
+          600: '#059669',
+          700: '#047857',
+          800: '#065f46',
+          900: '#064e3b',
+          950: '#022c22',
+        },
+        // Dedicated Semantic Danger/Offline: Rose
+        rose: {
+          50: '#fff1f2',
+          100: '#ffe4e6',
+          200: '#fecdd3',
+          300: '#fda4af',
+          400: '#fb7185',
+          500: '#f43f5e',
+          600: '#e11d48',
+          700: '#be123c',
+          800: '#9f1239',
+          900: '#881337',
+          950: '#4c0519',
+        },
+        // Dedicated Semantic Warning/Degraded: Amber
+        amber: {
+          50: '#fffbeb',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#f59e0b',
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
+          950: '#451a03',
         },
       },
     },

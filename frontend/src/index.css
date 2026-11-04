@@ -10,37 +10,44 @@
 @tailwind utilities;
 
 :root {
-  /* Radii scale: 6px / 10px / 14px */
+  /* Radii scale: 6px / 10px / 12px / 14px */
   --radius-sm: 6px;
   --radius-md: 10px;
-  --radius-lg: 14px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
 
-  /* Shadows scale */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  /* Shadows scale - refined for crisp card boundaries */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
 
-  /* Light Theme Surfaces & Text */
+  /* Light Theme Surfaces & Text (WCAG AA compliant) */
   --bg-app: #f8fafc;
   --bg-surface: #ffffff;
-  --bg-surface-hover: #f8fafc;
-  --bg-muted: #f1f5f9;
+  --bg-surface-hover: #f1f5f9;
+  --bg-muted: #f8fafc;
 
   --border-subtle: #f1f5f9;
   --border-default: #e2e8f0;
   --border-strong: #cbd5e1;
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
+  --text-primary: #0f172a;    /* 16.5:1 contrast on white */
+  --text-secondary: #334155;  /* 9.8:1 contrast on white */
+  --text-muted: #64748b;      /* 4.7:1 contrast on white (WCAG AA > 4.5:1) */
   --text-inverse: #ffffff;
 
-  /* Primary Brand Teal */
+  /* Brand Action Colors: Teal Only */
   --color-primary-50: #f0fdfa;
   --color-primary-100: #ccfbf1;
   --color-primary-500: #14b8a6;
   --color-primary-600: #0d9488;
   --color-primary-700: #0f766e;
+
+  /* Semantic State Colors */
+  --color-success: #059669; /* Emerald */
+  --color-danger: #e11d48;  /* Rose */
+  --color-warning: #d97706; /* Amber */
+  --color-neutral: #475569; /* Slate */
 }
 
 /* Dark Theme via class or data-theme */
@@ -54,14 +61,19 @@
   --border-default: #334155;
   --border-strong: #475569;
 
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
+  --text-primary: #f8fafc;    /* 17.5:1 contrast on dark */
+  --text-secondary: #cbd5e1;  /* 9.5:1 contrast on dark */
+  --text-muted: #94a3b8;      /* 5.2:1 contrast on dark (WCAG AA > 4.5:1) */
   --text-inverse: #0f172a;
 
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+
+  --color-success: #34d399;
+  --color-danger: #fb7185;
+  --color-warning: #fbbf24;
+  --color-neutral: #94a3b8;
 }
 
 @layer base {
@@ -69,6 +81,11 @@
     font-size: 14px;
     color: var(--text-primary);
     background-color: var(--bg-app);
+    letter-spacing: normal;
+    word-spacing: normal;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
@@ -77,6 +94,8 @@
     background-color: var(--bg-app);
     line-height: 1.5;
     font-size: 14px;
+    letter-spacing: normal;
+    word-spacing: normal;
   }
 
   /* Accessible focus ring system */
@@ -117,3 +136,21 @@
 .mono-font, code, pre, .font-mono {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
 }
+
+/* Tabular figures for operational timestamps, metrics, IDs, ms */
+.tabular-nums, .tabular-figure {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+/* Operation health badges & cards elevation helpers */
+.hub-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  border-radius: 12px;
+}
+.hub-card:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+}
+

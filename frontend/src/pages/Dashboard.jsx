@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Server,
   Activity,
   CheckCircle2,
   XCircle,
-  MinusCircle,
-  Copy,
-  Check,
+  AlertTriangle,
   RefreshCw,
   Zap,
   Database,
@@ -17,403 +15,412 @@ import {
   Clock,
   ArrowRight,
   Info,
-  AlertCircle
+  ShieldCheck,
+  Play,
+  RotateCcw,
 } from 'lucide-react';
-import { PageHeader, Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Button, StatusBadge } from '../ui';
+import {
+  PageHeader,
+  Button,
+  KpiCard,
+  ServerTile,
+  OperationsTable,
+  AttentionNeeded,
+  Tooltip,
+  Skeleton,
+} from '../ui';
+import { useConnections } from '../context/ConnectionContext';
 
+/**
+ * Operations Dashboard Page
+ * High-legibility "health-tech operations" cockpit.
+ *
+ * Scannable in 5 seconds:
+ * 1. "Is the system healthy?" -> KPI strip + overall connection counter
+ * 2. "What needs my attention?" -> Collapsible "Attention Needed" warning strip
+ * 3. "What do I do next?" -> Quick launch module cards + Test All connections
+ */
 const Dashboard = () => {
-  const [stats, setStats] = useState(null);
-  const [connections, setConnections] = useState({});
-  const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [testingSystem, setTestingSystem] = useState(null);
-  const [copiedKey, setCopiedKey] = useState(null);
+  const {
+    summary,
+    loading: connLoading,
+    secondsAgo,
+    fetchStatus,
+    testSingle,
+    testAll,
+    testingAll,
+  } = useConnections();
 
-  const loadData = async () => {
+  const [stats, setStats] = useState(null);
+  const [jobs, setJobs] = useState([]);
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  // Load backend stats and job executions
+  const loadStatsAndJobs = useCallback(async () => {
     try {
-      const [statsRes, connRes, jobsRes] = await Promise.all([
+      const [statsRes, jobsRes] = await Promise.all([
         fetch('/api/dashboard/stats'),
-        fetch('/api/connections/status'),
-        fetch('/api/jobs')
+        fetch('/api/jobs'),
       ]);
       if (statsRes.ok) setStats(await statsRes.json());
-      if (connRes.ok) setConnections(await connRes.json());
       if (jobsRes.ok) {
         const jData = await jobsRes.json();
         setJobs(Array.isArray(jData) ? jData : jData.jobs || []);
       }
     } catch (e) {
-      console.error('Failed to load dashboard data:', e);
+      console.error('Failed to load dashboard operational telemetry:', e);
     } finally {
-      setLoading(false);
+      setLoadingStats(false);
     }
-  };
-
-  useEffect(() => {
-    loadData();
-    const timer = setInterval(loadData, 20000);
-    return () => clearInterval(timer);
   }, []);
 
-  const testSingle = async (systemKey) => {
-    const sys = connections[systemKey];
-    if (!sys) return;
-    setTestingSystem(systemKey);
-    try {
-      const res = await fetch('/api/connections/test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system: systemKey,
-          base_url: sys.configured_url || sys.base_url || '',
-          username: sys.username || '',
-          secret: ''
-        })
-      });
-      const data = await res.json();
-      setConnections(prev => ({
-        ...prev,
-        [systemKey]: {
-          ...prev[systemKey],
-          result: data,
-          status: data.ok ? 'connected' : data.status === 'not_configured' ? 'not_configured' : 'unreachable'
-        }
-      }));
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setTestingSystem(null);
-    }
+  useEffect(() => {
+    loadStatsAndJobs();
+    const timer = setInterval(loadStatsAndJobs, 20000);
+    return () => clearInterval(timer);
+  }, [loadStatsAndJobs]);
+
+  const handleRefreshAll = () => {
+    loadStatsAndJobs();
+    fetchStatus();
   };
 
-  const handleCopyUrl = (systemKey, url) => {
-    if (!url) return;
-    navigator.clipboard.writeText(url);
-    setCopiedKey(systemKey);
-    setTimeout(() => setCopiedKey(null), 1500);
-  };
+  // KPI Calculations
+  const totalJobsCount = stats?.job_stats?.total ?? jobs.length;
+  const completedJobsCount =
+    stats?.job_stats?.completed ?? jobs.filter((j) => j.status === 'completed').length;
+  const failedJobsCount =
+    stats?.job_stats?.failed ?? jobs.filter((j) => j.status === 'failed' || j.status === 'canceled').length;
+  const runningJobsCount = jobs.filter((j) => j.status === 'running').length;
 
-  const systemsList = [
-    { key: 'dhis2_online', name: 'DHIS2 Online', desc: 'National Data Warehouse' },
-    { key: 'dhis2_offline', name: 'DHIS2 Offline', desc: 'Facility Local Instance' },
-    { key: 'dhis2_moh', name: 'DHIS2 MOH Central', desc: 'National Aggregate Server' },
-    { key: 'openmrs', name: 'OpenMRS 3.x', desc: 'Hospital Clinical EMR' },
-    { key: 'bahmni', name: 'Bahmni 0.93', desc: 'Legacy EMR Platform' },
-    { key: 'redcap', name: 'REDCap', desc: 'Research Clinical Registry' },
-    { key: 'mediator', name: 'Mediator Service', desc: 'FastAPI Microservice' },
-  ];
+  const successRate =
+    totalJobsCount > 0
+      ? ((completedJobsCount / totalJobsCount) * 100).toFixed(1)
+      : '100.0';
+
+  const failedJobsList = useMemo(() => {
+    return jobs.filter((j) => (j.status || '').toLowerCase() === 'failed');
+  }, [jobs]);
 
   return (
     <div className="space-y-6 w-full">
-      {/* Standard PageHeader */}
-      <PageHeader
-        title="System Overview"
-        description="Unified health data integration, pipelines, and server connections monitor"
-        actions={
-          <div className="flex items-center gap-2.5">
-            <Link
-              to="/jobs"
-              className="flex items-center gap-2 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-semibold shadow-sm transition"
-            >
-              <Activity className="w-4 h-4" />
-              <span>Job Monitor</span>
-            </Link>
+      {/* 1. Page Header + Primary Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h1 className="text-2xl sm:text-[28px] font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+            System Overview
+          </h1>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+            Unified health data integration, pipelines, and server connections monitor
+          </p>
+        </div>
+
+        {/* Primary Page Actions */}
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+          {/* Secondary Job Monitor Link */}
+          <Link
+            to="/jobs"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 shadow-xs transition-colors"
+          >
+            <Activity className="w-3.5 h-3.5 text-slate-500" />
+            <span>Job Monitor</span>
+          </Link>
+
+          {/* Refresh Control with Relative Time indicator */}
+          <Tooltip content={`Telemetry last refreshed ${secondsAgo}s ago. Click to refresh now.`}>
             <button
-              onClick={loadData}
-              className="p-2.5 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-semibold border border-slate-200 dark:border-slate-800 transition"
-              title="Refresh All"
+              type="button"
+              onClick={handleRefreshAll}
+              disabled={loadingStats || connLoading}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 shadow-xs transition-colors"
+              aria-label="Refresh telemetry"
             >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-teal-600' : ''}`} />
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${
+                  loadingStats || connLoading ? 'animate-spin text-teal-600' : 'text-slate-500'
+                }`}
+              />
+              <span className="hidden sm:inline font-mono tabular-nums text-slate-500">
+                {secondsAgo}s ago
+              </span>
             </button>
-          </div>
-        }
+          </Tooltip>
+
+          {/* Primary Action Button: Test All Connections */}
+          <Button
+            variant="primary"
+            onClick={testAll}
+            loading={testingAll}
+            icon={<Play className="w-3.5 h-3.5 fill-current" />}
+            size="sm"
+            className="shadow-xs"
+          >
+            {testingAll ? 'Testing Endpoints...' : 'Test all connections'}
+          </Button>
+        </div>
+      </div>
+
+      {/* 2. KPI Cards Row (4 Columns in Responsive Grid) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPI 1: Total Executions */}
+        <KpiCard
+          title="Total Executions"
+          value={totalJobsCount}
+          subtext="Lifetime background pipelines"
+          icon={<Activity className="w-4 h-4" />}
+          variant="slate"
+          loading={loadingStats}
+        />
+
+        {/* KPI 2: Successful Executions with % Rate */}
+        <KpiCard
+          title="Successful"
+          value={completedJobsCount}
+          subtext={
+            <span>
+              <strong className="text-emerald-600 dark:text-emerald-400">{successRate}%</strong> success rate
+              {failedJobsCount > 0 && (
+                <span className="text-rose-600 dark:text-rose-400 ml-1 font-semibold">
+                  ({failedJobsCount} failed)
+                </span>
+              )}
+            </span>
+          }
+          icon={<CheckCircle2 className="w-4 h-4" />}
+          variant="emerald"
+          loading={loadingStats}
+        />
+
+        {/* KPI 3: Active Workers in Running Threadpool */}
+        <KpiCard
+          title="Active Workers"
+          value={runningJobsCount}
+          subtext={
+            runningJobsCount > 0
+              ? 'Jobs currently running in threadpool'
+              : 'Idle threadpool (awaiting jobs)'
+          }
+          icon={<RefreshCw className={`w-4 h-4 ${runningJobsCount > 0 ? 'animate-spin' : ''}`} />}
+          variant="teal"
+          loading={loadingStats}
+          badge={
+            runningJobsCount > 0 ? (
+              <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-950 text-teal-700 dark:text-teal-300 font-bold border border-teal-200 dark:border-teal-800">
+                RUNNING
+              </span>
+            ) : null
+          }
+        />
+
+        {/* KPI 4: Configured Servers (Single Source of Truth) */}
+        <KpiCard
+          title="Configured Servers"
+          value={`${summary.connectedCount} of ${summary.totalCount}`}
+          subtext={
+            summary.offlineCount > 0 ? (
+              <span className="text-rose-600 dark:text-rose-400 font-semibold">
+                {summary.offlineCount} server{summary.offlineCount > 1 ? 's' : ''} unreachable
+              </span>
+            ) : (
+              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                All target systems connected
+              </span>
+            )
+          }
+          icon={<Server className="w-4 h-4" />}
+          variant={summary.overallHealth === 'operational' ? 'emerald' : summary.overallHealth === 'degraded' ? 'amber' : 'rose'}
+          loading={connLoading}
+        />
+      </div>
+
+      {/* 3. Attention Needed Strip (Rendered ONLY if issues exist) */}
+      <AttentionNeeded
+        offlineServers={summary.offlineSystems}
+        failedJobs={failedJobsList}
+        onTestServer={testSingle}
       />
 
-      {/* Metrics Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-          <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-            Total Executions
-          </div>
-          <div className="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-1">
-            {stats?.job_stats?.total ?? jobs.length}
-          </div>
-          <div className="text-xs text-slate-500 mt-1">Background jobs</div>
+      {/* 4. Two-Column Operational Layout:
+          - Left (Wider, 7 or 8 columns): Recent Operations Table
+          - Right (Narrower, 5 or 4 columns): Server Status (grouped by category)
+      */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Recent Operations (8 Columns) */}
+        <div className="lg:col-span-7 xl:col-span-8 space-y-4">
+          <OperationsTable jobs={jobs} limit={7} />
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-          <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-            Successful
-          </div>
-          <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-300 mt-1">
-            {stats?.job_stats?.completed ?? jobs.filter(j => j.status === 'completed').length}
-          </div>
-          <div className="text-xs text-emerald-600/80 dark:text-emerald-400/80 mt-1">
-            Completed with success
-          </div>
-        </div>
-
-        {/* Active Workers with Explicit Computation Explanation */}
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative group">
+        {/* Right Column: Server Status grouped by category (4 Columns) */}
+        <div className="lg:col-span-5 xl:col-span-4 space-y-4">
           <div className="flex items-center justify-between">
-            <div className="text-xs font-semibold text-teal-600 dark:text-teal-400 uppercase tracking-wider">
-              Active Workers
+            <div className="flex items-center gap-2">
+              <Server className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                Server Status
+              </h2>
             </div>
-            <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+            <Link
+              to="/settings"
+              className="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 flex items-center gap-1"
+            >
+              <span>Manage Credentials</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
-          <div className="text-2xl font-bold text-teal-700 dark:text-teal-300 mt-1">
-            {jobs.filter(j => j.status === 'running').length}
-          </div>
-          <div className="text-xs text-teal-600/80 dark:text-teal-400/80 mt-1 truncate" title="Computed as backend jobs currently in 'running' execution state">
-            Jobs in running threadpool
-          </div>
-        </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-          <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-            Configured Servers
+          {/* Group 1: DHIS2 Instances */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs px-1 text-slate-500 dark:text-slate-400 font-medium">
+              <span className="uppercase tracking-[0.04em] text-[11px] font-bold">
+                {summary.groups.dhis2.title}
+              </span>
+              <span className="font-mono tabular-nums text-[11px]">
+                {summary.groups.dhis2.connected}/{summary.groups.dhis2.total} Connected
+              </span>
+            </div>
+            <div className="space-y-2">
+              {summary.groups.dhis2.systems.map((sys) => (
+                <ServerTile
+                  key={sys.key}
+                  server={sys}
+                  onTest={testSingle}
+                  isTesting={sys.isTesting}
+                />
+              ))}
+            </div>
           </div>
-          <div className="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-1">
-            {systemsList.filter((sys) => {
-              const c = connections[sys.key];
-              return c && c.configured === true && c.status !== 'not_configured';
-            }).length}
+
+          {/* Group 2: Clinical Systems */}
+          <div className="space-y-2 pt-2">
+            <div className="flex items-center justify-between text-xs px-1 text-slate-500 dark:text-slate-400 font-medium">
+              <span className="uppercase tracking-[0.04em] text-[11px] font-bold">
+                {summary.groups.clinical.title}
+              </span>
+              <span className="font-mono tabular-nums text-[11px]">
+                {summary.groups.clinical.connected}/{summary.groups.clinical.total} Connected
+              </span>
+            </div>
+            <div className="space-y-2">
+              {summary.groups.clinical.systems.map((sys) => (
+                <ServerTile
+                  key={sys.key}
+                  server={sys}
+                  onTest={testSingle}
+                  isTesting={sys.isTesting}
+                />
+              ))}
+            </div>
           </div>
-          <div className="text-xs text-slate-500 mt-1">
-            {systemsList.filter((sys) => {
-              const c = connections[sys.key];
-              return c && c.configured === true && c.status !== 'not_configured' && (c.status === 'connected' || c.result?.ok === true);
-            }).length} connected
+
+          {/* Group 3: Core Services */}
+          <div className="space-y-2 pt-2">
+            <div className="flex items-center justify-between text-xs px-1 text-slate-500 dark:text-slate-400 font-medium">
+              <span className="uppercase tracking-[0.04em] text-[11px] font-bold">
+                {summary.groups.core.title}
+              </span>
+              <span className="font-mono tabular-nums text-[11px]">
+                {summary.groups.core.connected}/{summary.groups.core.total} Connected
+              </span>
+            </div>
+            <div className="space-y-2">
+              {summary.groups.core.systems.map((sys) => (
+                <ServerTile
+                  key={sys.key}
+                  server={sys}
+                  onTest={testSingle}
+                  isTesting={sys.isTesting}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Server Connections Status Grid */}
-      <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+      {/* 5. Quick Actions Strip */}
+      <div className="space-y-3 pt-2">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">
-              Server Connections & Endpoints
-            </h2>
-          </div>
+          <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <Zap className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+            Quick Launch Modules
+          </h2>
+          <span className="text-xs text-slate-400">Launch workflows directly</span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
           <Link
-            to="/settings"
-            className="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 flex items-center gap-1"
+            to="/hmis"
+            className="p-4 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500 dark:hover:border-teal-500/80 hover:shadow-card-hover transition-all group flex flex-col justify-between"
           >
-            Manage Credentials <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {systemsList.map((sys) => {
-            const data = connections[sys.key];
-            const isConf = data?.configured !== false;
-            const isConnected = data?.status === 'connected' || data?.result?.ok === true;
-            const isUnreachable = isConf && (data?.status === 'unreachable' || data?.result?.ok === false);
-            const isTesting = testingSystem === sys.key;
-            const effectiveUrl = data?.effective_url || data?.base_url || '';
-            const sourceBadge = data?.source === 'vault' ? 'Saved in vault' : 'From environment';
-
-            return (
-              <div
-                key={sys.key}
-                className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition flex flex-col justify-between space-y-3"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="font-semibold text-sm text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                      <Server className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                      {sys.name}
-                    </div>
-                    <div className="text-[11px] text-slate-400 mt-0.5">{sys.desc}</div>
-                  </div>
-
-                  <div>
-                    {!isConf ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
-                        <MinusCircle className="w-3 h-3 text-slate-400" />
-                        Not Configured
-                      </span>
-                    ) : isConnected ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                        Connected
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
-                        <XCircle className="w-3 h-3 text-rose-600 dark:text-rose-400" />
-                        Offline
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Monospace Plain URL with Copy Button & Source Badge */}
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between text-[10px] text-slate-400">
-                    <span className="font-semibold uppercase tracking-wider">Effective URL</span>
-                    <span className="bg-slate-200 dark:bg-slate-700 px-1.5 py-0.2 rounded text-[10px] text-slate-600 dark:text-slate-300">
-                      {sourceBadge}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-1 px-2">
-                    <span className="text-xs font-mono text-slate-700 dark:text-slate-300 truncate flex-1">
-                      {effectiveUrl || '—'}
-                    </span>
-                    <button
-                      onClick={() => handleCopyUrl(sys.key, effectiveUrl)}
-                      className="p-1 text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 rounded transition"
-                      title="Copy URL"
-                    >
-                      {copiedKey === sys.key ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
-                        <Copy className="w-3.5 h-3.5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-200/60 dark:border-slate-800">
-                  <span className="text-slate-500 font-medium">
-                    {data?.result?.latency_ms ? `${data.result.latency_ms} ms` : '—'}
-                  </span>
-                  <button
-                    onClick={() => testSingle(sys.key)}
-                    disabled={isTesting}
-                    className="px-2.5 py-1 text-xs font-semibold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/40 hover:bg-teal-100 dark:hover:bg-teal-900/60 border border-teal-200 dark:border-teal-800 rounded transition flex items-center gap-1 cursor-pointer"
-                  >
-                    <RefreshCw className={`w-3 h-3 ${isTesting ? 'animate-spin' : ''}`} />
-                    <span>{isTesting ? 'Testing...' : 'Test'}</span>
-                  </button>
-                </div>
+            <div>
+              <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-950/60 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover:scale-105 transition-transform mb-2.5 border border-teal-200/60 dark:border-teal-900/40">
+                <FileSpreadsheet className="w-4 h-4" />
               </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Quick Launch Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-        <Link
-          to="/hmis"
-          className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500 hover:shadow-md transition group flex flex-col justify-between"
-        >
-          <div>
-            <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-950/60 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover:scale-105 transition mb-2.5">
-              <FileSpreadsheet className="w-4 h-4" />
+              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">HMIS Reporting</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                RMH, NCH, NICU, Delivery, and MOH Aggregate
+              </p>
             </div>
-            <h3 className="font-semibold text-xs text-slate-800 dark:text-slate-100">HMIS Reporting</h3>
-            <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">RMH, NCH, NICU, Delivery, and MOH Aggregate</p>
-          </div>
-        </Link>
-
-        <Link
-          to="/data-management"
-          className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500 hover:shadow-md transition group flex flex-col justify-between"
-        >
-          <div>
-            <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-950/60 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover:scale-105 transition mb-2.5">
-              <Database className="w-4 h-4" />
-            </div>
-            <h3 className="font-semibold text-xs text-slate-800 dark:text-slate-100">Data Management</h3>
-            <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">Exports, cleaning, sync, metadata, and linking</p>
-          </div>
-        </Link>
-
-        <Link
-          to="/interop"
-          className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500 hover:shadow-md transition group flex flex-col justify-between"
-        >
-          <div>
-            <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-950/60 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover:scale-105 transition mb-2.5">
-              <ArrowLeftRight className="w-4 h-4" />
-            </div>
-            <h3 className="font-semibold text-xs text-slate-800 dark:text-slate-100">Interoperability</h3>
-            <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">OpenMRS 3, Bahmni, mediator, and mappings</p>
-          </div>
-        </Link>
-
-        <Link
-          to="/smartcare"
-          className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500 hover:shadow-md transition group flex flex-col justify-between"
-        >
-          <div>
-            <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-950/60 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover:scale-105 transition mb-2.5">
-              <Zap className="w-4 h-4" />
-            </div>
-            <h3 className="font-semibold text-xs text-slate-800 dark:text-slate-100">SmartCare</h3>
-            <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">Legacy demographics to OpenMRS 3.x</p>
-          </div>
-        </Link>
-
-        <Link
-          to="/concepts"
-          className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500 hover:shadow-md transition group flex flex-col justify-between"
-        >
-          <div>
-            <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-950/60 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover:scale-105 transition mb-2.5">
-              <Boxes className="w-4 h-4" />
-            </div>
-            <h3 className="font-semibold text-xs text-slate-800 dark:text-slate-100">Concepts & Forms</h3>
-            <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">Schema tools, validators, and dictionaries</p>
-          </div>
-        </Link>
-      </div>
-
-      {/* Recent Jobs Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">Recent Operations</h2>
-          <Link to="/jobs" className="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:text-teal-700 flex items-center gap-1">
-            View All Jobs <ArrowRight className="w-3.5 h-3.5" />
           </Link>
-        </div>
-        <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
-          {!jobs || jobs.length === 0 ? (
-            <div className="p-8 text-center text-xs text-slate-400">
-              No recent jobs. Launch an operation from the sidebar modules.
+
+          <Link
+            to="/data-management"
+            className="p-4 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500 dark:hover:border-teal-500/80 hover:shadow-card-hover transition-all group flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-950/60 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover:scale-105 transition-transform mb-2.5 border border-teal-200/60 dark:border-teal-900/40">
+                <Database className="w-4 h-4" />
+              </div>
+              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">Data Management</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                Exports, cleaning, direct sync, and record linking
+              </p>
             </div>
-          ) : (
-            jobs.slice(0, 6).map((j) => {
-              const concreteAction = (j.action && j.action !== 'general') ? j.action : (j.pipeline || `${j.module}_pipeline`);
-              return (
-                <div key={j.id} className="p-4 px-6 flex items-center justify-between hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 font-mono text-xs font-bold">
-                      {j.id}
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">{concreteAction}</div>
-                      <div className="text-xs text-slate-400">Module: {j.module} · {j.created_at?.slice(0, 19).replace('T', ' ')}</div>
-                    </div>
-                  </div>
+          </Link>
 
-                  <div className="flex items-center gap-4">
-                    <div className="w-28 hidden sm:block">
-                      <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full ${
-                            j.status === 'completed'
-                              ? 'bg-emerald-500'
-                              : j.status === 'running'
-                              ? 'bg-blue-500 animate-pulse'
-                              : j.status === 'failed'
-                              ? 'bg-rose-500'
-                              : 'bg-slate-400'
-                          }`}
-                          style={{ width: `${j.progress || (j.status === 'completed' ? 100 : 0)}%` }}
-                        ></div>
-                      </div>
-                      <div className="text-[10px] text-right text-slate-400 mt-1">{j.progress}%</div>
-                    </div>
+          <Link
+            to="/interop"
+            className="p-4 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500 dark:hover:border-teal-500/80 hover:shadow-card-hover transition-all group flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-950/60 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover:scale-105 transition-transform mb-2.5 border border-teal-200/60 dark:border-teal-900/40">
+                <ArrowLeftRight className="w-4 h-4" />
+              </div>
+              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">Interoperability</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                OpenMRS 3, Bahmni, mediator, and mappings
+              </p>
+            </div>
+          </Link>
 
-                    <StatusBadge status={j.status} />
-                  </div>
-                </div>
-              );
-            })
-          )}
+          <Link
+            to="/smartcare"
+            className="p-4 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500 dark:hover:border-teal-500/80 hover:shadow-card-hover transition-all group flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-950/60 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover:scale-105 transition-transform mb-2.5 border border-teal-200/60 dark:border-teal-900/40">
+                <Zap className="w-4 h-4" />
+              </div>
+              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">SmartCare</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                Legacy demographics to OpenMRS 3.x
+              </p>
+            </div>
+          </Link>
+
+          <Link
+            to="/concepts"
+            className="p-4 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500 dark:hover:border-teal-500/80 hover:shadow-card-hover transition-all group flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-950/60 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover:scale-105 transition-transform mb-2.5 border border-teal-200/60 dark:border-teal-900/40">
+                <Boxes className="w-4 h-4" />
+              </div>
+              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">Concepts & Forms</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                Schema tools, validators, and dictionaries
+              </p>
+            </div>
+          </Link>
         </div>
       </div>
     </div>

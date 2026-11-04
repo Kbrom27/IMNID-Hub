@@ -14,8 +14,11 @@ import {
   ChevronDown,
   ChevronLeft,
   X,
+  Server,
+  ShieldCheck,
 } from 'lucide-react';
 import { Tooltip } from '../ui';
+import { useConnections } from '../context/ConnectionContext';
 import pkg from '../../package.json';
 
 const NAV_GROUPS = [
@@ -39,14 +42,15 @@ const NAV_GROUPS = [
         to: '/data-management',
         label: 'Data Management',
         icon: Database,
+        badgeCount: 10,
         subItems: [
           { label: 'DHIS2 Direct Sync', to: '/data-management/dhis2-sync' },
           { label: 'DHIS2 Tracker Data Import', to: '/data-management/csv-import' },
           { label: 'Metadata Importer', to: '/data-management/metadata-import' },
           { label: 'Data Transformation', to: '/data-management/cleaning' },
-          { label: 'Analysis Export', to: '/data-management/analysis-export' },
-          { label: 'Data export for syncing', to: '/data-management/data-export' },
-          { label: 'Data Dictionary', to: '/data-management/data-dictionary' },
+          { label: 'Analytical Data Export', to: '/data-management/analysis-export' },
+          { label: 'Data Export for Syncing', to: '/data-management/data-export' },
+          { label: 'Data Dictionary Generator', to: '/data-management/data-dictionary' },
           { label: 'DHIS to REDCap Sync', to: '/data-management/redcap-import' },
           { label: 'NCF to NID Sync', to: '/data-management/ncf-nid-sync' },
           { label: 'Mother-Neonate Linker', to: '/data-management/mother-neonate-linker' },
@@ -61,6 +65,7 @@ const NAV_GROUPS = [
         to: '/interop',
         label: 'EMR-DHIS2 Pipelines',
         icon: ArrowLeftRight,
+        badgeCount: 4,
         subItems: [
           { label: 'OpenMRS 3 Pipeline', to: '/interop/o3' },
           { label: 'Bahmni Pipeline', to: '/interop/bahmni' },
@@ -77,6 +82,7 @@ const NAV_GROUPS = [
         to: '/concepts',
         label: 'Concepts & Forms',
         icon: Boxes,
+        badgeCount: 2,
         subItems: [
           { label: 'OpenMRS 3.x Tools', to: '/concepts/3x' },
           { label: 'Legacy 2.1 Tools', to: '/concepts/legacy21' },
@@ -91,9 +97,10 @@ const NAV_GROUPS = [
         to: '/hmis',
         label: 'HMIS Reporting',
         icon: FileSpreadsheet,
+        badgeCount: 5,
         subItems: [
-          { label: 'HMIS RMH Report', to: '/hmis/rmh-report' },
-          { label: 'HMIS NCH Report', to: '/hmis/nch-report' },
+          { label: 'HMIS RMH Report (01.2)', to: '/hmis/rmh-report' },
+          { label: 'HMIS NCH Report (04.2)', to: '/hmis/nch-report' },
           { label: 'NICU Register', to: '/hmis/nicu-register' },
           { label: 'Delivery Register', to: '/hmis/delivery-register' },
           { label: 'MOH Aggregate Exporter', to: '/hmis/moh-aggregate' },
@@ -110,16 +117,23 @@ const NAV_GROUPS = [
 ];
 
 /**
- * Modern Responsive Sidebar
- * Implements single-open accordion behavior, fixed header/footer with scrolling middle,
- * reading version from package.json, and keyboard accessible submenus.
+ * Sidebar Component
+ * Health-tech operations navigation satisfying:
+ * - 40px nav rows, 20px icons
+ * - 3px left accent bar for active item + filled tinted background
+ * - Collapsible with tooltips on icon hover
+ * - High-contrast uppercase section labels
+ * - Expandable child count badges
+ * - Footer with environment tag and labeled system-health status
  */
 const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed }) => {
   const location = useLocation();
+  const { summary } = useConnections();
 
-  // Single open group for accordion behavior (Data Management collapsed by default)
+  // Active expandable group state
   const [openGroup, setOpenGroup] = useState(null);
 
+  // Auto-expand group containing the active route
   useEffect(() => {
     const current = location.pathname;
     if (current.startsWith('/data-management')) {
@@ -151,34 +165,38 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed })
 
   const sidebarContent = (
     <aside
-      className={`bg-slate-900 text-slate-300 flex flex-col h-full border-r border-slate-800 select-none transition-all duration-300 ${
+      className={`bg-slate-900 text-slate-300 flex flex-col h-full border-r border-slate-800 select-none transition-all duration-200 ${
         isCollapsed ? 'w-20' : 'w-72'
       }`}
     >
-      {/* Brand Header (Fixed) */}
+      {/* Brand Header */}
       <div className="h-16 flex items-center justify-between px-4 bg-slate-950/80 border-b border-slate-800/80 flex-shrink-0">
         <NavLink
           to="/"
           onClick={handleLinkClick}
-          className="flex items-center gap-3 overflow-hidden focus:outline-none"
+          className="flex items-center gap-3 overflow-hidden focus:outline-none group"
         >
-          <div className="w-10 h-10 flex-shrink-0 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 font-bold shadow-sm">
+          <div className="w-9 h-9 flex-shrink-0 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 font-bold shadow-xs group-hover:bg-teal-500/30 transition-colors">
             <Activity className="w-5 h-5 text-teal-400" />
           </div>
           {!isCollapsed && (
             <div className="truncate">
-              <h1 className="text-base font-bold text-white tracking-wide">IMNID Hub</h1>
-              <p className="text-xs text-teal-400 font-semibold">Interoperability Platform</p>
+              <h1 className="text-[15px] font-bold text-white tracking-tight flex items-center gap-2">
+                IMNID Hub
+              </h1>
+              <p className="text-[11px] text-teal-400 font-medium tracking-wide">
+                Interoperability Platform
+              </p>
             </div>
           )}
         </NavLink>
 
-        {/* Mobile close button or desktop collapse button */}
+        {/* Collapse toggle (min 32px hit area) */}
         <div className="flex items-center">
           {isMobileOpen ? (
             <button
               onClick={() => setIsMobileOpen(false)}
-              className="lg:hidden p-1.5 text-slate-400 hover:text-white rounded-lg focus:outline-none"
+              className="lg:hidden w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 focus:outline-none"
               aria-label="Close sidebar"
             >
               <X className="w-5 h-5" />
@@ -186,8 +204,9 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed })
           ) : (
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="hidden lg:flex p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition focus:outline-none"
+              className="hidden lg:flex w-8 h-8 items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
               title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
@@ -195,12 +214,12 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed })
         </div>
       </div>
 
-      {/* Nav Items List (Scrollable Middle Section) */}
-      <nav className="flex-1 overflow-y-auto px-3.5 py-4 space-y-4">
+      {/* Nav Items List (Scrollable Middle) */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
         {NAV_GROUPS.map((group) => (
           <div key={group.title} className="space-y-1">
             {!isCollapsed && (
-              <div className="px-3 pb-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
+              <div className="px-3 pb-1 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-400">
                 {group.title}
               </div>
             )}
@@ -216,37 +235,41 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed })
                     to={item.to}
                     end={!hasSubs}
                     onClick={handleLinkClick}
-                    className={({ isActive }) =>
-                      `flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                        (hasSubs ? isGroupActive : isActive)
-                          ? 'bg-teal-500/15 text-teal-300 font-bold border border-teal-500/20 shadow-xs'
-                          : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
-                      } ${isCollapsed ? 'justify-center px-0' : ''}`
-                    }
+                    className={({ isActive }) => {
+                      const active = hasSubs ? isGroupActive : isActive;
+                      return `flex items-center gap-3 px-3 h-10 min-h-[40px] rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${
+                        active
+                          ? 'bg-teal-500/15 text-teal-300 font-bold border-l-[3px] border-teal-500 shadow-xs'
+                          : 'text-slate-300 hover:text-white hover:bg-slate-800/70 border-l-[3px] border-transparent'
+                      } ${isCollapsed ? 'justify-center px-0' : ''}`;
+                    }}
                   >
-                    <Icon className="w-5 h-5 flex-shrink-0 text-teal-400" />
+                    <Icon className="w-5 h-5 flex-shrink-0 text-slate-400 group-hover:text-slate-200" />
                     {!isCollapsed && <span className="flex-1 truncate">{item.label}</span>}
+                    
                     {!isCollapsed && hasSubs && (
-                      <button
-                        type="button"
-                        onClick={(e) => toggleGroup(item.to, e)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            toggleGroup(item.to, e);
-                          }
-                        }}
-                        aria-expanded={isOpen}
-                        className="p-1 hover:bg-slate-700/50 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-400"
-                        aria-label={`Toggle ${item.label} submenu`}
-                      >
-                        {isOpen ? <ChevronDown className="w-4 h-4 text-slate-300" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
-                      </button>
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        {item.badgeCount && (
+                          <span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+                            {item.badgeCount}
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => toggleGroup(item.to, e)}
+                          aria-expanded={isOpen}
+                          className="w-6 h-6 flex items-center justify-center hover:bg-slate-700/60 rounded focus:outline-none text-slate-400 hover:text-slate-200"
+                          aria-label={`Toggle ${item.label} submenu`}
+                        >
+                          {isOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
                     )}
                   </NavLink>
                 );
 
                 return (
-                  <div key={item.to} className="space-y-1">
+                  <div key={item.to} className="space-y-0.5">
                     {isCollapsed ? (
                       <Tooltip content={item.label} position="right" className="w-full">
                         {linkElement}
@@ -257,7 +280,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed })
 
                     {/* Sub-items for expanded accordion item */}
                     {!isCollapsed && hasSubs && isOpen && (
-                      <div className="ml-6 pl-3 border-l-2 border-slate-800 space-y-1 py-1">
+                      <div className="ml-5 pl-2.5 border-l border-slate-800 space-y-0.5 py-1 animate-in fade-in duration-100">
                         {item.subItems.map((sub) => {
                           const isSubActive =
                             location.pathname === sub.to ||
@@ -268,9 +291,9 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed })
                               key={sub.to}
                               to={sub.to}
                               onClick={handleLinkClick}
-                              className={`block px-3 py-2 rounded-lg text-xs font-semibold transition-all truncate ${
+                              className={`block px-3 py-1.5 rounded-md text-xs font-medium transition-colors truncate focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal-400 ${
                                 isSubActive
-                                  ? 'text-teal-300 bg-teal-500/15 font-bold border border-teal-500/20'
+                                  ? 'text-teal-300 bg-teal-500/15 font-semibold'
                                   : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50'
                               }`}
                             >
@@ -288,14 +311,57 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed })
         ))}
       </nav>
 
-      {/* Footer Info (Fixed) */}
-      <div className="p-3.5 border-t border-slate-800/80 bg-slate-950/50 text-xs text-slate-400 font-medium flex items-center justify-between flex-shrink-0">
-        {!isCollapsed && (
-          <div className="truncate">
-            <span className="font-bold text-slate-300">IMNID Hub</span> v{pkg.version || '1.0.0'}
+      {/* Footer Info: Version, Environment, and Labeled System-Health Indicator */}
+      <div className="p-3 border-t border-slate-800 bg-slate-950/70 text-xs text-slate-400 flex flex-col gap-2 flex-shrink-0">
+        {!isCollapsed ? (
+          <>
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-slate-200 text-xs">
+                IMNID Hub <span className="font-mono text-slate-400 font-normal">v{pkg.version || '1.0.0'}</span>
+              </span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono uppercase font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                Local
+              </span>
+            </div>
+
+            {/* Labeled System Health Indicator */}
+            <div className="flex items-center gap-2 pt-1 border-t border-slate-800/80">
+              <span
+                className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                  summary.overallHealth === 'operational'
+                    ? 'bg-emerald-500 shadow-xs'
+                    : summary.overallHealth === 'degraded'
+                    ? 'bg-amber-400'
+                    : 'bg-rose-500'
+                }`}
+              />
+              <span className="text-[11px] font-medium text-slate-300 truncate">
+                {summary.overallHealth === 'operational'
+                  ? 'All systems operational'
+                  : summary.offlineCount > 0
+                  ? `${summary.offlineCount} server${summary.offlineCount > 1 ? 's' : ''} offline`
+                  : 'System degraded'}
+              </span>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-2">
+            <span
+              className={`w-2.5 h-2.5 rounded-full ${
+                summary.overallHealth === 'operational'
+                  ? 'bg-emerald-500'
+                  : summary.overallHealth === 'degraded'
+                  ? 'bg-amber-400'
+                  : 'bg-rose-500'
+              }`}
+              title={
+                summary.overallHealth === 'operational'
+                  ? 'All systems operational'
+                  : `${summary.offlineCount} servers offline`
+              }
+            />
           </div>
         )}
-        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block shadow-sm" title="System Online" />
       </div>
     </aside>
   );

@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import PageFooter from './PageFooter';
 
 /**
  * Main Application Shell Layout
- * Integrates responsive collapsible sidebar, dynamic topbar, and fluid content container.
+ * Integrates responsive collapsible sidebar, dynamic topbar, fluid 1440px content container,
+ * and unified page footer.
  */
 const Layout = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -28,11 +30,14 @@ const Layout = () => {
       />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Topbar onMenuClick={() => setIsMobileOpen(true)} />
-        <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="w-full max-w-[1400px] mx-auto space-y-6">
-            <Outlet />
-          </div>
-        </main>
+        <div className="flex-1 overflow-y-auto flex flex-col">
+          <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 w-full">
+            <div className="w-full max-w-[1440px] mx-auto space-y-6">
+              <Outlet />
+            </div>
+          </main>
+          <PageFooter />
+        </div>
       </div>
     </div>
   );
