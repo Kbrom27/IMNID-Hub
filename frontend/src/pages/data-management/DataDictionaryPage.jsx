@@ -214,7 +214,7 @@ const DataDictionaryPage = () => {
             />
           </div>
 
-          <div className="flex justify-end pt-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex justify-center pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button
               variant="primary"
               icon={<BookOpen className="w-4 h-4 mr-1.5" />}

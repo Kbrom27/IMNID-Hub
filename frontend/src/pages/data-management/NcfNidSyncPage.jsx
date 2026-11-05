@@ -556,8 +556,8 @@ const NcfNidSyncPage = () => {
             </div>
           </div>
 
-          {/* Action Buttons Right-Aligned */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+          {/* Action Buttons Centered */}
+          <div className="flex items-center justify-center gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button
               variant="secondary"
               icon={<Eye className="w-4 h-4 mr-1.5 text-slate-600" />}

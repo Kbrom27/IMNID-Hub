@@ -402,7 +402,7 @@ const Legacy21ToolsPage = () => {
               </div>
             )}
 
-            <div className="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               {isRunning && (
                 <Button
                   variant="danger"

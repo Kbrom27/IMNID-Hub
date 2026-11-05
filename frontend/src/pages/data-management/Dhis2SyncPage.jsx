@@ -572,7 +572,7 @@ const Dhis2SyncPage = () => {
             </div>
           )}
 
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex items-center justify-center gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button
               variant="secondary"
               icon={<Eye className="w-4 h-4 mr-1.5" />}

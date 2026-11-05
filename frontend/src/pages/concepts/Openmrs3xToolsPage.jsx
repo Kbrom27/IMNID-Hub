@@ -955,7 +955,7 @@ const Openmrs3xToolsPage = () => {
                     />
                   </div>
                 </div>
-                <div className="flex items-center justify-end pt-1">
+                <div className="flex items-center justify-center pt-1">
                   <Button
                     variant="secondary"
                     size="sm"
@@ -2200,7 +2200,7 @@ const Openmrs3xToolsPage = () => {
               </div>
             )}
 
-            <div className="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               {selectedToolId !== 'cm01_bahmni' && (
                 <Button
                   variant="secondary"

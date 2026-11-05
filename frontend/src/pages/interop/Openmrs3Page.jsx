@@ -388,7 +388,7 @@ const Openmrs3Page = () => {
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-center gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <Button
                 variant="primary"
                 icon={<Download className="w-4 h-4 mr-1.5" />}
@@ -479,7 +479,7 @@ const Openmrs3Page = () => {
               )}
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-center gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <Button
                 variant="primary"
                 icon={<Shuffle className="w-4 h-4 mr-1.5" />}
@@ -514,7 +514,7 @@ const Openmrs3Page = () => {
               placeholder="/data/exports/dhis2_tracker_import.csv"
             />
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-center gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <Button
                 variant="secondary"
                 icon={<FileCheck className="w-4 h-4 mr-1.5" />}
@@ -665,7 +665,7 @@ const Openmrs3Page = () => {
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-center gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <Button
                 variant="secondary"
                 icon={<FileCheck className="w-4 h-4 mr-1.5" />}
