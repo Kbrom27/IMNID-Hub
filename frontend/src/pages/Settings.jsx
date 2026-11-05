@@ -117,7 +117,11 @@ const Settings = () => {
     <div className="space-y-6 w-full">
       <PageHeader
         title="Server Connections & Credentials Vault"
-        description="Encrypted credentials, endpoint configurations, and connection testing"
+        subtitle="Encrypted credentials, endpoint configurations, and connection testing"
+        breadcrumbs={[
+          { label: 'Overview', to: '/' },
+          { label: 'Administration', to: '/settings' },
+        ]}
       />
 
       {!isOperator && (

@@ -5,6 +5,7 @@ import {
   ArrowRight,
   FileText,
   AlertCircle,
+  RotateCw,
 } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import Tooltip from './Tooltip';
@@ -68,12 +69,11 @@ function formatDuration(startIso, endIso) {
 
 /**
  * OperationsTable Component
- * High-legibility recent background jobs monitor conforming to health-tech operations UX:
- * - Monospace used strictly for Job IDs
- * - Normal font with tabular-nums for progress, percentages, durations, timestamps
- * - 160-200px wide progress bar
- * - Percentage hidden on Completed/Failed; visible only on Running
- * - Job ID, module chip, and name clearly separated
+ * High-legibility recent background jobs monitor conforming to Section B criteria:
+ * - Fixed-width grid for status badge, progress bar, and actions so rows align perfectly
+ * - Repeated "Progress" label removed
+ * - Cancelled jobs show neutral gray bar (never full green)
+ * - Failed jobs show one-line truncated error plus Retry and Logs buttons
  */
 export const OperationsTable = ({
   jobs = [],
@@ -171,27 +171,32 @@ export const OperationsTable = ({
             {filteredJobs.map((j) => {
               const concreteAction =
                 j.action && j.action !== 'general' ? j.action : j.pipeline || `${j.module}_pipeline`;
+              const isFailed = (j.status || '').toLowerCase() === 'failed';
+              const isRunning = (j.status || '').toLowerCase() === 'running';
+              const isCompleted = (j.status || '').toLowerCase() === 'completed';
+              const isCancelled = (j.status || '').toLowerCase() === 'cancelled' || (j.status || '').toLowerCase() === 'canceled';
+
               const progressPct =
                 typeof j.progress === 'number'
                   ? j.progress
-                  : j.status === 'completed'
+                  : isCompleted
+                  ? 100
+                  : isCancelled
                   ? 100
                   : 0;
+
               const fullTime = formatDateTime(j.created_at || j.started_at);
               const relTime = formatRelativeTime(j.created_at || j.started_at);
               const duration = formatDuration(j.created_at || j.started_at, j.completed_at);
-              const isFailed = j.status === 'failed';
-              const isRunning = j.status === 'running';
               const errorText = j.error_message || j.error || j.status_message;
 
               return (
                 <div
                   key={j.id}
-                  className="p-4 px-5 hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  className="p-4 px-5 hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors flex flex-col lg:flex-row lg:items-center justify-between gap-4"
                 >
-                  {/* Left: Clearly Separated Job ID + Module Chip + Name + Timestamps */}
+                  {/* Left Column: Job ID + Module + Name + Timestamps + Truncated Error */}
                   <div className="flex items-start gap-3 min-w-0 flex-1">
-                    {/* Job ID: Monospace pill */}
                     <Tooltip content={`Job ID: ${j.id}`}>
                       <span className="font-mono text-xs font-semibold px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex-shrink-0 mt-0.5 select-all">
                         {String(j.id).slice(0, 8)}
@@ -199,17 +204,15 @@ export const OperationsTable = ({
                     </Tooltip>
 
                     <div className="min-w-0 flex-1">
-                      {/* Module Chip and Action Name clearly separated */}
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 capitalize flex-shrink-0">
                           {j.module || 'System'}
                         </span>
-                        <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
                           {concreteAction}
                         </span>
                       </div>
 
-                      {/* Timestamps in normal font with tabular-nums */}
                       <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium font-sans">
                         <Tooltip content={`Started at ${fullTime}`}>
                           <span className="cursor-help flex items-center gap-1">
@@ -221,38 +224,37 @@ export const OperationsTable = ({
                         <span className="tabular-nums">Duration: {duration}</span>
                       </div>
 
-                      {/* Error Summary on Failure */}
+                      {/* Truncated one-line error on failure */}
                       {isFailed && errorText && (
-                        <div className="mt-2 p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-700 dark:text-rose-300 flex items-start gap-2 font-medium">
-                          <AlertCircle className="w-3.5 h-3.5 text-rose-500 flex-shrink-0 mt-0.5" />
+                        <div className="mt-1.5 flex items-center gap-1.5 text-xs text-rose-700 dark:text-rose-300 font-medium truncate max-w-xl">
+                          <AlertCircle className="w-3.5 h-3.5 text-rose-500 flex-shrink-0" />
                           <span className="truncate">{errorText}</span>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {/* Right: Progress Bar (176px wide) + Status Badge + Action */}
-                  <div className="flex items-center gap-4 flex-shrink-0 sm:self-center">
-                    {/* Widen progress bar to 176-192px (w-44 / w-48) */}
-                    <div className="w-44 lg:w-48 hidden md:block">
-                      <div className="flex items-center justify-between text-xs font-sans text-slate-600 dark:text-slate-400 mb-1">
-                        <span className="font-medium">Progress</span>
-                        {/* Hide percentage on Completed/Failed; show ONLY for Running */}
-                        {isRunning && (
-                          <span className="tabular-nums font-semibold text-teal-600 dark:text-teal-400">
-                            {progressPct}%
-                          </span>
-                        )}
-                      </div>
+                  {/* Right Column: FIXED-WIDTH GRID for Progress Bar (180px), Status Badge (100px), and Actions (60px) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-[180px_100px_60px] items-center gap-3 flex-shrink-0 self-end lg:self-center">
+                    
+                    {/* Fixed 180px Progress Bar Column (No repeated 'Progress' label) */}
+                    <div className="w-full sm:w-[180px]">
+                      {isRunning && (
+                        <div className="text-right text-xs font-sans tabular-nums font-semibold text-teal-600 dark:text-teal-400 mb-1">
+                          {progressPct}%
+                        </div>
+                      )}
                       <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                         <div
                           className={`h-full transition-all duration-300 ${
-                            j.status === 'completed'
+                            isCompleted
                               ? 'bg-emerald-500'
                               : isRunning
                               ? 'bg-teal-500 animate-pulse'
                               : isFailed
                               ? 'bg-rose-500'
+                              : isCancelled
+                              ? 'bg-slate-400 dark:bg-slate-500' // neutral gray bar for cancelled
                               : 'bg-slate-400'
                           }`}
                           style={{ width: `${progressPct}%` }}
@@ -260,18 +262,36 @@ export const OperationsTable = ({
                       </div>
                     </div>
 
-                    <StatusBadge status={j.status} />
+                    {/* Fixed 100px Status Badge Column */}
+                    <div className="w-full sm:w-[100px] flex sm:justify-center">
+                      <StatusBadge status={j.status} />
+                    </div>
 
-                    {/* View Logs Action Link */}
-                    <Tooltip content="Inspect live logs and job execution details">
-                      <Link
-                        to={`/jobs?jobId=${j.id}`}
-                        className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                        aria-label={`View logs for job ${j.id}`}
-                      >
-                        <FileText className="w-4 h-4" />
-                      </Link>
-                    </Tooltip>
+                    {/* Fixed 60px Actions Column (Retry + Logs for failed, Logs for others) */}
+                    <div className="w-full sm:w-[60px] flex items-center justify-end gap-1.5">
+                      {isFailed && (
+                        <Tooltip content="Retry this failed operation in Job Monitor">
+                          <Link
+                            to={`/jobs?jobId=${j.id}&action=retry`}
+                            className="p-1.5 rounded-lg border border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/60 transition-colors cursor-pointer"
+                            aria-label={`Retry job ${j.id}`}
+                          >
+                            <RotateCw className="w-3.5 h-3.5" />
+                          </Link>
+                        </Tooltip>
+                      )}
+
+                      <Tooltip content="Inspect live logs and job execution details">
+                        <Link
+                          to={`/jobs?jobId=${j.id}`}
+                          className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                          aria-label={`View logs for job ${j.id}`}
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                        </Link>
+                      </Tooltip>
+                    </div>
+
                   </div>
                 </div>
               );

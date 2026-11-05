@@ -71,8 +71,10 @@ const HmisIndex = () => {
     <div className="space-y-6 w-full">
       <PageHeader
         title="HMIS Reporting & Analytics"
+        subtitle="Generate national monthly aggregate reports (RMH, NCH), clinical admission registers, and analytics exports"
         breadcrumbs={[
-          { label: 'Reporting', href: '/hmis' },
+          { label: 'Overview', to: '/' },
+          { label: 'HMIS Reporting', to: '/hmis' },
         ]}
       />
 

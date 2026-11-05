@@ -42,7 +42,11 @@ const ConceptsIndex = () => {
     <div className="space-y-6 w-full">
       <PageHeader
         title="Concepts & Forms Management"
-        description="Comprehensive concept dictionary and form engineering utilities for OpenMRS"
+        subtitle="Comprehensive concept dictionary and form engineering utilities for OpenMRS"
+        breadcrumbs={[
+          { label: 'Overview', to: '/' },
+          { label: 'Concepts & Forms', to: '/concepts' },
+        ]}
       />
 
       {/* Hub Cards Grid */}

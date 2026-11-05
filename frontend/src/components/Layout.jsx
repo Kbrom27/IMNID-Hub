@@ -6,8 +6,10 @@ import PageFooter from './PageFooter';
 
 /**
  * Main Application Shell Layout
- * Integrates responsive collapsible sidebar, dynamic topbar, fluid 1440px content container,
- * and unified page footer.
+ * Section A Architecture:
+ * - Full-width dark Topbar across the very top (56-64px) with brand, collapse toggle, and global controls
+ * - Inner frame below Topbar: Collapsible Sidebar + Scrollable Content Main
+ * - Fluid 1440px content container with equal 24-32px padding and unified PageFooter
  */
 const Layout = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -21,16 +23,24 @@ const Layout = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors">
-      <Sidebar
-        isMobileOpen={isMobileOpen}
-        setIsMobileOpen={setIsMobileOpen}
+    <div className="flex flex-col h-screen overflow-hidden bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors">
+      {/* 1. Full-Width Dark Top Bar with Brand (pinned at top) */}
+      <Topbar
+        onMenuClick={() => setIsMobileOpen(true)}
         isCollapsed={isCollapsed}
-        setIsCollapsed={handleToggleCollapse}
+        onToggleCollapse={() => handleToggleCollapse(!isCollapsed)}
       />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Topbar onMenuClick={() => setIsMobileOpen(true)} />
-        <div className="flex-1 overflow-y-auto flex flex-col">
+
+      {/* 2. Main Frame below Topbar: Sidebar + Content Area */}
+      <div className="flex-1 flex min-h-0 overflow-hidden">
+        <Sidebar
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
+          isCollapsed={isCollapsed}
+          setIsCollapsed={handleToggleCollapse}
+        />
+
+        <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
           <main className="flex-1 px-6 lg:px-8 py-6 w-full">
             <div className="w-full max-w-[1440px] mx-auto space-y-6">
               <Outlet />

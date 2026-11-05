@@ -104,61 +104,56 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6 w-full">
-      {/* 1. Page Header + Primary Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h1 className="text-2xl sm:text-[28px] font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-            System Overview
-          </h1>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
-            Unified health data integration, pipelines, and server connections monitor
-          </p>
-        </div>
-
-        {/* Primary Page Actions */}
-        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
-          {/* Secondary Job Monitor Link */}
-          <Link
-            to="/jobs"
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 shadow-xs transition-colors"
-          >
-            <Activity className="w-3.5 h-3.5 text-slate-500" />
-            <span>Job Monitor</span>
-          </Link>
-
-          {/* Refresh Control with Relative Time indicator */}
-          <Tooltip content={`Telemetry last refreshed ${secondsAgo}s ago. Click to refresh now.`}>
-            <button
-              type="button"
-              onClick={handleRefreshAll}
-              disabled={loadingStats || connLoading}
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 shadow-xs transition-colors"
-              aria-label="Refresh telemetry"
+      {/* 1. Shared PageHeader with Breadcrumb, Title, Subtitle, and Primary Actions */}
+      <PageHeader
+        title="System Overview"
+        subtitle="Unified health data integration, pipelines, and server connections monitor"
+        breadcrumbs={[{ label: 'Overview', to: '/' }]}
+        actions={
+          <>
+            {/* Secondary Job Monitor Link */}
+            <Link
+              to="/jobs"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 shadow-xs transition-colors"
             >
-              <RefreshCw
-                className={`w-3.5 h-3.5 ${
-                  loadingStats || connLoading ? 'animate-spin text-teal-600' : 'text-slate-500'
-                }`}
-              />
-              <span className="hidden sm:inline font-mono tabular-nums text-slate-500">
-                {secondsAgo}s ago
-              </span>
-            </button>
-          </Tooltip>
+              <Activity className="w-3.5 h-3.5 text-slate-500" />
+              <span>Job Monitor</span>
+            </Link>
 
-          {/* Primary Action Button: Test All Connections */}
-          <Button
-            variant="primary"
-            onClick={testAll}
-            loading={testingAll}
-            icon={<Play className="w-3.5 h-3.5 fill-current" />}
-            size="sm"
-            className="shadow-xs"
-          >
-            {testingAll ? 'Testing Endpoints...' : 'Test all connections'}
-          </Button>
-        </div>
-      </div>
+            {/* Refresh Control with Relative Time indicator */}
+            <Tooltip content={`Telemetry last refreshed ${secondsAgo}s ago. Click to refresh now.`}>
+              <button
+                type="button"
+                onClick={handleRefreshAll}
+                disabled={loadingStats || connLoading}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 shadow-xs transition-colors cursor-pointer"
+                aria-label="Refresh telemetry"
+              >
+                <RefreshCw
+                  className={`w-3.5 h-3.5 ${
+                    loadingStats || connLoading ? 'animate-spin text-teal-600' : 'text-slate-500'
+                  }`}
+                />
+                <span className="hidden sm:inline font-sans tabular-nums text-slate-500 dark:text-slate-400">
+                  {secondsAgo}s ago
+                </span>
+              </button>
+            </Tooltip>
+
+            {/* Primary Action Button: Test All Connections */}
+            <Button
+              variant="primary"
+              onClick={testAll}
+              loading={testingAll}
+              icon={<Play className="w-3.5 h-3.5 fill-current" />}
+              size="sm"
+              className="shadow-xs"
+            >
+              {testingAll ? 'Testing Endpoints...' : 'Test all connections'}
+            </Button>
+          </>
+        }
+      />
 
       {/* 2. KPI Cards Row (4 Columns in Responsive Grid) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

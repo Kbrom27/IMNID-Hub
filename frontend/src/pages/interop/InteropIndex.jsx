@@ -58,7 +58,11 @@ const InteropIndex = () => {
     <div className="space-y-6 w-full">
       <PageHeader
         title="EMR-DHIS2 Tracker Interoperability"
-        description="Automated clinical pipelines bridging OpenMRS 3, Bahmni 2.x, and DHIS2 Tracker"
+        subtitle="Automated clinical pipelines bridging OpenMRS 3, Bahmni 2.x, and DHIS2 Tracker"
+        breadcrumbs={[
+          { label: 'Overview', to: '/' },
+          { label: 'Pipelines', to: '/interop' },
+        ]}
       />
 
       {/* Hub Cards Grid */}

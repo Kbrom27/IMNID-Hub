@@ -29,9 +29,9 @@ const STATUS_STYLES = {
     label: 'Running',
   },
   testing: {
-    badge: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800/80',
+    badge: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
     icon: RefreshCw,
-    iconClass: 'text-amber-600 dark:text-amber-400 animate-spin',
+    iconClass: 'text-slate-600 dark:text-slate-400 animate-spin',
     label: 'Testing...',
   },
   pending: {
@@ -45,6 +45,12 @@ const STATUS_STYLES = {
     icon: XCircle,
     iconClass: 'text-rose-600 dark:text-rose-400',
     label: 'Failed',
+  },
+  offline: {
+    badge: 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800/80',
+    icon: XCircle,
+    iconClass: 'text-rose-600 dark:text-rose-400',
+    label: 'Offline',
   },
   unreachable: {
     badge: 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800/80',

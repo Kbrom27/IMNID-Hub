@@ -12,10 +12,7 @@ import {
   Activity,
   ChevronRight,
   ChevronDown,
-  ChevronLeft,
   X,
-  Server,
-  ShieldCheck,
 } from 'lucide-react';
 import { Tooltip } from '../ui';
 import { useConnections } from '../context/ConnectionContext';
@@ -108,32 +105,27 @@ const NAV_GROUPS = [
       },
     ],
   },
-  {
-    title: 'Administration',
-    items: [
-      { to: '/settings', label: 'Settings & Connections', icon: Settings },
-    ],
-  },
 ];
 
 /**
  * Sidebar Component
- * Health-tech operations navigation satisfying:
- * - 40px nav rows, 20px icons
- * - 3px left accent bar for active item + filled tinted background
- * - Collapsible with tooltips on icon hover
- * - High-contrast uppercase section labels
- * - Expandable child count badges
- * - Footer with environment tag and labeled system-health status
+ * Health-tech operations navigation satisfying Section A criteria:
+ * - Starts below the top bar (no duplicate brand block)
+ * - Scrolls independently with pinned administration block and pinned footer
+ * - Strict accordion behavior: opening one group collapses all others
+ * - Auto-opens the group containing the active route
+ * - Expanded child items: 13px, readable contrast, 36px row height, indented under thin guide line
+ * - Pinned Settings & Connections above footer, always reachable
+ * - Retains active left accent bar, count badges, untruncated labels, and tooltips
  */
-const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed }) => {
+export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
   const location = useLocation();
   const { summary } = useConnections();
 
-  // Active expandable group state
+  // Active open accordion group key (single open group at a time)
   const [openGroup, setOpenGroup] = useState(null);
 
-  // Auto-expand group containing the active route
+  // Auto-expand group containing the active route (and collapse others)
   useEffect(() => {
     const current = location.pathname;
     if (current.startsWith('/data-management')) {
@@ -145,10 +137,12 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed })
     } else if (current.startsWith('/hmis')) {
       setOpenGroup('/hmis');
     } else {
+      // In overview / smartcare / settings, keep other accordions closed
       setOpenGroup(null);
     }
   }, [location.pathname]);
 
+  // Strict accordion toggle: opening one closes all other groups
   const toggleGroup = (key, e) => {
     if (e) {
       e.preventDefault();
@@ -169,172 +163,172 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed })
         isCollapsed ? 'w-20' : 'w-[278px]'
       }`}
     >
-      {/* Brand Header */}
-      <div className="h-16 flex items-center justify-between px-4 bg-slate-950/80 border-b border-slate-800/80 flex-shrink-0">
-        <NavLink
-          to="/"
-          onClick={handleLinkClick}
-          className="flex items-center gap-3 overflow-hidden focus:outline-none group"
-        >
-          <div className="w-9 h-9 flex-shrink-0 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 font-bold shadow-xs group-hover:bg-teal-500/30 transition-colors">
-            <Activity className="w-5 h-5 text-teal-400" />
-          </div>
-          {!isCollapsed && (
-            <div className="min-w-0">
-              <h1 className="text-[15px] font-bold text-white tracking-tight flex items-center gap-2">
-                IMNID Hub
-              </h1>
-              <p className="text-xs text-teal-400 font-medium tracking-wide">
-                Interoperability Platform
-              </p>
-            </div>
-          )}
-        </NavLink>
+      {/* Scrollable Navigation Area with edge fades */}
+      <div className="relative flex-1 min-h-0 flex flex-col">
+        {/* Subtle Top Scroll Edge Fade */}
+        <div className="pointer-events-none absolute top-0 left-0 right-0 h-3 bg-gradient-to-b from-slate-900 to-transparent z-10" />
 
-        {/* Collapse toggle (min 32px hit area) */}
-        <div className="flex items-center">
-          {isMobileOpen ? (
-            <button
-              onClick={() => setIsMobileOpen(false)}
-              className="lg:hidden w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 focus:outline-none"
-              aria-label="Close sidebar"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          ) : (
-            <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              className="hidden lg:flex w-8 h-8 items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
-              title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            >
-              {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-            </button>
-          )}
-        </div>
+        <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.title} className="space-y-1">
+              {!isCollapsed && (
+                <div className="px-3 pb-1 text-xs font-bold uppercase tracking-[0.04em] text-slate-400">
+                  {group.title}
+                </div>
+              )}
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const hasSubs = item.subItems && item.subItems.length > 0;
+                  const isGroupActive =
+                    location.pathname === item.to || location.pathname.startsWith(item.to + '/');
+                  const isOpen = openGroup === item.to;
+
+                  const linkElement = (
+                    <NavLink
+                      to={item.to}
+                      end={!hasSubs}
+                      onClick={handleLinkClick}
+                      className={({ isActive }) => {
+                        const active = hasSubs ? isGroupActive : isActive;
+                        return `relative flex items-center gap-2.5 px-3 h-10 min-h-[40px] rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${
+                          active
+                            ? 'bg-teal-500/15 text-teal-300 font-semibold shadow-xs'
+                            : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
+                        } ${isCollapsed ? 'justify-center px-0' : ''}`;
+                      }}
+                    >
+                      {({ isActive }) => {
+                        const active = hasSubs ? isGroupActive : isActive;
+                        return (
+                          <>
+                            {/* Distinct Left Accent Bar for Active Item */}
+                            {active && (
+                              <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-teal-400 rounded-r shadow-xs" />
+                            )}
+
+                            <Icon className="w-5 h-5 flex-shrink-0 text-slate-400 group-hover:text-slate-200" />
+                            {!isCollapsed && (
+                              <span className="flex-1 whitespace-nowrap text-left text-sm leading-tight">
+                                {item.label}
+                              </span>
+                            )}
+
+                            {!isCollapsed && hasSubs && (
+                              <div className="flex items-center gap-1.5 flex-shrink-0">
+                                {item.badgeCount && (
+                                  <span className="text-xs font-sans tabular-nums font-semibold px-1.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/80 leading-none">
+                                    {item.badgeCount}
+                                  </span>
+                                )}
+                                <span
+                                  role="button"
+                                  tabIndex={0}
+                                  onClick={(e) => toggleGroup(item.to, e)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      toggleGroup(item.to, e);
+                                    }
+                                  }}
+                                  aria-expanded={isOpen}
+                                  className="w-5 h-5 flex items-center justify-center hover:bg-slate-700/60 rounded text-slate-400 hover:text-slate-200 cursor-pointer"
+                                  aria-label={`Toggle ${item.label} submenu`}
+                                >
+                                  {isOpen ? (
+                                    <ChevronDown className="w-3.5 h-3.5" />
+                                  ) : (
+                                    <ChevronRight className="w-3.5 h-3.5" />
+                                  )}
+                                </span>
+                              </div>
+                            )}
+                          </>
+                        );
+                      }}
+                    </NavLink>
+                  );
+
+                  return (
+                    <div key={item.to} className="space-y-0.5">
+                      {isCollapsed ? (
+                        <Tooltip content={item.label} position="right" className="w-full">
+                          {linkElement}
+                        </Tooltip>
+                      ) : (
+                        linkElement
+                      )}
+
+                      {/* Sub-items for accordion group: 13px, 36px row height, indented under thin guide line */}
+                      {!isCollapsed && hasSubs && isOpen && (
+                        <div className="ml-5 pl-2.5 border-l border-slate-700/60 space-y-0.5 py-1 animate-in fade-in duration-100">
+                          {item.subItems.map((sub) => {
+                            const isSubActive =
+                              location.pathname === sub.to ||
+                              (location.search && sub.to.includes(location.search));
+
+                            return (
+                              <NavLink
+                                key={sub.to}
+                                to={sub.to}
+                                onClick={handleLinkClick}
+                                className={`flex items-center px-3 h-9 min-h-[36px] rounded-md text-[13px] font-medium transition-colors truncate focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal-400 ${
+                                  isSubActive
+                                    ? 'text-teal-300 bg-teal-500/15 font-semibold'
+                                    : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                                }`}
+                              >
+                                {sub.label}
+                              </NavLink>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* Subtle Bottom Scroll Edge Fade */}
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-slate-900 to-transparent z-10" />
       </div>
 
-      {/* Nav Items List (Scrollable Middle) */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
-        {NAV_GROUPS.map((group) => (
-          <div key={group.title} className="space-y-1">
-            {!isCollapsed && (
-              <div className="px-3 pb-1 text-xs font-bold uppercase tracking-[0.04em] text-slate-400">
-                {group.title}
-              </div>
-            )}
-            <div className="space-y-1">
-              {group.items.map((item) => {
-                const Icon = item.icon;
-                const hasSubs = item.subItems && item.subItems.length > 0;
-                const isGroupActive = location.pathname === item.to || location.pathname.startsWith(item.to + '/');
-                const isOpen = openGroup === item.to;
-
-                const linkElement = (
-                  <NavLink
-                    to={item.to}
-                    end={!hasSubs}
-                    onClick={handleLinkClick}
-                    className={({ isActive }) => {
-                      const active = hasSubs ? isGroupActive : isActive;
-                      return `relative flex items-center gap-2.5 px-3 h-10 min-h-[40px] rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${
-                        active
-                          ? 'bg-teal-500/15 text-teal-300 font-semibold shadow-xs'
-                          : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
-                      } ${isCollapsed ? 'justify-center px-0' : ''}`;
-                    }}
-                  >
-                    {({ isActive }) => {
-                      const active = hasSubs ? isGroupActive : isActive;
-                      return (
-                        <>
-                          {/* Distinct Left Accent Bar for Active Item */}
-                          {active && (
-                            <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-teal-400 rounded-r shadow-xs" />
-                          )}
-
-                          <Icon className="w-5 h-5 flex-shrink-0 text-slate-400 group-hover:text-slate-200" />
-                          {!isCollapsed && (
-                            <span className="flex-1 whitespace-nowrap text-left text-sm leading-tight">
-                              {item.label}
-                            </span>
-                          )}
-                          
-                          {!isCollapsed && hasSubs && (
-                            <div className="flex items-center gap-1.5 flex-shrink-0">
-                              {item.badgeCount && (
-                                <span className="text-xs font-sans tabular-nums font-semibold px-1.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/80 leading-none">
-                                  {item.badgeCount}
-                                </span>
-                              )}
-                              <span
-                                role="button"
-                                tabIndex={0}
-                                onClick={(e) => toggleGroup(item.to, e)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter' || e.key === ' ') {
-                                    toggleGroup(item.to, e);
-                                  }
-                                }}
-                                aria-expanded={isOpen}
-                                className="w-5 h-5 flex items-center justify-center hover:bg-slate-700/60 rounded text-slate-400 hover:text-slate-200 cursor-pointer"
-                                aria-label={`Toggle ${item.label} submenu`}
-                              >
-                                {isOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                              </span>
-                            </div>
-                          )}
-                        </>
-                      );
-                    }}
-                  </NavLink>
-                );
-
-                return (
-                  <div key={item.to} className="space-y-0.5">
-                    {isCollapsed ? (
-                      <Tooltip content={item.label} position="right" className="w-full">
-                        {linkElement}
-                      </Tooltip>
-                    ) : (
-                      linkElement
-                    )}
-
-                    {/* Sub-items for expanded accordion item */}
-                    {!isCollapsed && hasSubs && isOpen && (
-                      <div className="ml-5 pl-2.5 border-l border-slate-800 space-y-0.5 py-1 animate-in fade-in duration-100">
-                        {item.subItems.map((sub) => {
-                          const isSubActive =
-                            location.pathname === sub.to ||
-                            (location.search && sub.to.includes(location.search));
-
-                          return (
-                            <NavLink
-                              key={sub.to}
-                              to={sub.to}
-                              onClick={handleLinkClick}
-                              className={`block px-3 py-1.5 rounded-md text-xs font-medium transition-colors truncate focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal-400 ${
-                                isSubActive
-                                  ? 'text-teal-300 bg-teal-500/15 font-semibold'
-                                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50'
-                              }`}
-                            >
-                              {sub.label}
-                            </NavLink>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+      {/* Pinned Administration Block: Always reachable above footer */}
+      <div className="p-3 border-t border-slate-800 bg-slate-950/40 flex-shrink-0">
+        {!isCollapsed && (
+          <div className="px-3 pb-1 text-xs font-bold uppercase tracking-[0.04em] text-slate-400">
+            Administration
           </div>
-        ))}
-      </nav>
+        )}
+        <NavLink
+          to="/settings"
+          onClick={handleLinkClick}
+          className={({ isActive }) => `relative flex items-center gap-2.5 px-3 h-10 min-h-[40px] rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${
+            isActive
+              ? 'bg-teal-500/15 text-teal-300 font-semibold shadow-xs'
+              : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
+          } ${isCollapsed ? 'justify-center px-0' : ''}`}
+        >
+          {({ isActive }) => (
+            <>
+              {isActive && (
+                <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-teal-400 rounded-r shadow-xs" />
+              )}
+              <Settings className="w-5 h-5 flex-shrink-0 text-slate-400 group-hover:text-slate-200" />
+              {!isCollapsed && (
+                <span className="flex-1 whitespace-nowrap text-left text-sm leading-tight">
+                  Settings & Connections
+                </span>
+              )}
+            </>
+          )}
+        </NavLink>
+      </div>
 
-      {/* Footer Info: Version, Environment, and Labeled System-Health Indicator */}
-      <div className="p-3 border-t border-slate-800 bg-slate-950/70 text-xs text-slate-400 flex flex-col gap-2 flex-shrink-0">
+      {/* Pinned Footer: Version, Environment, System Health */}
+      <div className="p-3 border-t border-slate-800 bg-slate-950 text-xs text-slate-400 flex flex-col gap-2 flex-shrink-0">
         {!isCollapsed ? (
           <>
             <div className="flex items-center justify-between">
