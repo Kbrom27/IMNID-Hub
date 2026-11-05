@@ -31,7 +31,7 @@ const Layout = () => {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Topbar onMenuClick={() => setIsMobileOpen(true)} />
         <div className="flex-1 overflow-y-auto flex flex-col">
-          <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 w-full">
+          <main className="flex-1 px-6 lg:px-8 py-6 w-full">
             <div className="w-full max-w-[1440px] mx-auto space-y-6">
               <Outlet />
             </div>

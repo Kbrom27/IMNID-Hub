@@ -197,8 +197,8 @@ const Topbar = ({ onMenuClick }) => {
 
   return (
     <>
-      <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-30 transition-colors flex-shrink-0 sticky top-0">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 w-full h-full flex items-center justify-between gap-4">
+      <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-30 transition-colors flex-shrink-0 sticky top-0 px-6 lg:px-8">
+        <div className="max-w-[1440px] mx-auto w-full h-full flex items-center justify-between gap-4">
           
           {/* Left: Mobile hamburger & aligned breadcrumb */}
           <div className="flex items-center gap-3 min-w-0">
@@ -309,7 +309,7 @@ const Topbar = ({ onMenuClick }) => {
 
               {/* Popover Dropdown listing all 7 canonical servers */}
               {showConnPopover && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 py-3.5 px-4 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-32px)] bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 py-3.5 px-4 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                     <div>
                       <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
@@ -321,7 +321,7 @@ const Topbar = ({ onMenuClick }) => {
                         {summary.offlineCount > 0 && (
                           <span className="text-rose-600 dark:text-rose-400 ml-1">· {summary.offlineCount} offline</span>
                         )}
-                        <span className="text-slate-400 ml-1.5">({secondsAgo}s ago)</span>
+                        <span className="text-slate-400 ml-1.5 font-sans tabular-nums">({secondsAgo}s ago)</span>
                       </p>
                     </div>
 
@@ -329,7 +329,7 @@ const Topbar = ({ onMenuClick }) => {
                       <button
                         onClick={testAll}
                         disabled={testingAll}
-                        className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-teal-50 dark:bg-teal-950/50 hover:bg-teal-100 dark:hover:bg-teal-900/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 transition flex items-center gap-1"
+                        className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-teal-50 dark:bg-teal-950/50 hover:bg-teal-100 dark:hover:bg-teal-900/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 transition flex items-center gap-1 cursor-pointer"
                         title="Test all server endpoints"
                       >
                         <RefreshCw className={`w-3 h-3 ${testingAll ? 'animate-spin' : ''}`} />
@@ -358,26 +358,26 @@ const Topbar = ({ onMenuClick }) => {
                               <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate">
                                 {sys.name}
                               </span>
-                              <span className="text-[10px] px-1.5 py-0.2 rounded font-medium bg-slate-100 dark:bg-slate-800 text-slate-500">
+                              <span className="text-xs px-2 py-0.5 rounded font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/60">
                                 {sys.source}
                               </span>
                             </div>
-                            <div className="font-mono text-[11px] text-slate-400 truncate mt-0.5 pl-4">
+                            <div className="font-mono text-xs text-slate-400 truncate mt-0.5 pl-4">
                               {sys.effectiveUrl || 'Not configured'}
                             </div>
                           </div>
 
                           <div className="flex items-center gap-2 flex-shrink-0">
                             {sys.latencyMs !== null && sys.latencyMs > 0 && (
-                              <span className="text-[11px] font-mono tabular-nums text-slate-500 dark:text-slate-400">
-                                {sys.latencyMs}ms
+                              <span className="text-xs font-sans tabular-nums font-medium text-slate-600 dark:text-slate-400">
+                                {sys.latencyMs} ms
                               </span>
                             )}
                             <button
                               type="button"
                               onClick={() => testSingle(sys.key)}
                               disabled={sys.isTesting}
-                              className="p-1 rounded text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                              className="p-1 rounded text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
                               title={`Test connection for ${sys.name}`}
                               aria-label={`Test connection for ${sys.name}`}
                             >
@@ -428,7 +428,7 @@ const Topbar = ({ onMenuClick }) => {
               </button>
 
               {showBellPopover && (
-                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 py-3 px-4 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-32px)] bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 py-3 px-4 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
                   <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-800">
                     <h3 className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm">
                       Recent Activity
@@ -494,22 +494,22 @@ const Topbar = ({ onMenuClick }) => {
             </Tooltip>
 
             {/* 5. User Avatar & Profile Dropdown */}
-            <div className="relative pl-1 sm:pl-2 border-l border-slate-200 dark:border-slate-800" ref={userMenuRef}>
+            <div className="relative pl-1 sm:pl-2 border-l border-slate-200 dark:border-slate-800 flex-shrink-0" ref={userMenuRef}>
               <button
                 type="button"
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 cursor-pointer"
+                className="flex items-center gap-2 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 cursor-pointer flex-shrink-0"
                 title={`${user?.username || 'User'} (${user?.role || 'Admin'})`}
                 aria-label="User account menu"
               >
-                <div className="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                <div className="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-xs shadow-xs flex-shrink-0">
                   {user?.username ? user.username.slice(0, 2).toUpperCase() : 'AD'}
                 </div>
                 <div className="hidden md:flex flex-col text-left">
                   <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-tight">
                     {user?.username || 'admin'}
                   </span>
-                  <span className="text-[10px] text-slate-400 capitalize leading-tight">
+                  <span className="text-xs text-slate-400 capitalize leading-tight">
                     {user?.role || 'administrator'}
                   </span>
                 </div>
@@ -518,12 +518,12 @@ const Topbar = ({ onMenuClick }) => {
 
               {/* User Menu Dropdown */}
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 py-1.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                <div className="absolute right-0 mt-2 w-56 max-w-[calc(100vw-32px)] bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 py-1.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
                   <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800">
                     <p className="text-xs font-bold text-slate-900 dark:text-slate-100">
                       {user?.username || 'admin'}
                     </p>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 capitalize">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">
                       Role: {user?.role || 'Administrator'}
                     </p>
                   </div>

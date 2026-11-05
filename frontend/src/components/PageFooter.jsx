@@ -8,12 +8,12 @@ export const PageFooter = () => {
   const { summary, secondsAgo } = useConnections();
 
   return (
-    <footer className="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 py-3 px-4 sm:px-6 lg:px-8 transition-colors">
+    <footer className="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 py-3 px-6 lg:px-8 transition-colors">
       <div className="max-w-[1440px] mx-auto w-full flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs text-slate-500 dark:text-slate-400">
         
         <div className="flex items-center gap-3">
           <span className="font-semibold text-slate-700 dark:text-slate-300">
-            IMNID Hub <span className="font-mono text-slate-400 font-normal">v{pkg.version || '1.0.0'}</span>
+            IMNID Hub <span className="font-sans tabular-nums text-slate-400 font-normal">v{pkg.version || '1.0.0'}</span>
           </span>
           <span className="text-slate-300 dark:text-slate-700">·</span>
           <span className="inline-flex items-center gap-1.5">
@@ -26,14 +26,14 @@ export const PageFooter = () => {
                   : 'bg-rose-500'
               }`}
             />
-            <span className="text-slate-600 dark:text-slate-300">
+            <span className="text-slate-600 dark:text-slate-300 font-medium">
               {summary.overallHealth === 'operational'
                 ? 'All systems operational'
                 : `${summary.connectedCount} of ${summary.totalCount} operational`}
             </span>
           </span>
           <span className="text-slate-300 dark:text-slate-700 hidden md:inline">·</span>
-          <span className="text-[11px] text-slate-400 hidden md:inline">
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-sans tabular-nums hidden md:inline">
             Status checked {secondsAgo}s ago
           </span>
         </div>
@@ -68,3 +68,4 @@ export const PageFooter = () => {
 };
 
 export default PageFooter;
+

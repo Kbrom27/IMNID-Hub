@@ -1,71 +1,88 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Activity,
-  ArrowRight,
   Clock,
-  RotateCcw,
+  ArrowRight,
   FileText,
   AlertCircle,
-  ExternalLink,
 } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import Tooltip from './Tooltip';
 
-export function formatDateTime(isoString) {
-  if (!isoString) return '—';
-  let clean = String(isoString).replace('T', ' ');
-  if (clean.includes('.')) clean = clean.split('.')[0];
-  clean = clean.replace(/(\d{4}-\d{2}-\d{2})(\d{2}:\d{2}:\d{2})/, '$1 $2');
-  return clean;
-}
-
-export function formatRelativeTime(isoString) {
-  if (!isoString) return '—';
+/**
+ * Format timestamp into relative display string
+ */
+function formatRelativeTime(isoString) {
+  if (!isoString) return 'Just now';
   try {
-    const date = new Date(isoString);
-    const now = new Date();
-    const diffSec = Math.floor((now.getTime() - date.getTime()) / 1000);
-    if (diffSec < 0 || isNaN(diffSec)) return formatDateTime(isoString);
+    const diffSec = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
     if (diffSec < 60) return `${Math.max(1, diffSec)}s ago`;
     const diffMin = Math.floor(diffSec / 60);
     if (diffMin < 60) return `${diffMin}m ago`;
-    const diffHours = Math.floor(diffMin / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
-    const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays}d ago`;
+    const diffHr = Math.floor(diffMin / 60);
+    if (diffHr < 24) return `${diffHr}h ago`;
+    const diffDay = Math.floor(diffHr / 24);
+    return `${diffDay}d ago`;
   } catch {
-    return formatDateTime(isoString);
+    return 'Recently';
   }
 }
 
-export function formatDuration(startedAt, completedAt) {
-  if (!startedAt) return '—';
+/**
+ * Format timestamp into exact human-readable date & time
+ */
+function formatDateTime(isoString) {
+  if (!isoString) return 'N/A';
   try {
-    const start = new Date(startedAt).getTime();
-    const end = completedAt ? new Date(completedAt).getTime() : Date.now();
-    const sec = Math.max(0, Math.floor((end - start) / 1000));
-    if (sec < 60) return `${sec}s`;
-    const min = Math.floor(sec / 60);
-    const remSec = sec % 60;
-    return `${min}m ${remSec}s`;
+    const d = new Date(isoString);
+    return d.toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
   } catch {
-    return '—';
+    return isoString;
+  }
+}
+
+/**
+ * Calculate operation duration
+ */
+function formatDuration(startIso, endIso) {
+  if (!startIso) return '-';
+  try {
+    const start = new Date(startIso).getTime();
+    const end = endIso ? new Date(endIso).getTime() : Date.now();
+    const durationSec = Math.max(0, Math.floor((end - start) / 1000));
+    if (durationSec < 60) return `${durationSec}s`;
+    const min = Math.floor(durationSec / 60);
+    const sec = durationSec % 60;
+    return `${min}m ${sec}s`;
+  } catch {
+    return '-';
   }
 }
 
 /**
  * OperationsTable Component
- * High-legibility recent background jobs monitor with filter chips,
- * wide progress bars, monospace ID chips, and error action summaries.
+ * High-legibility recent background jobs monitor conforming to health-tech operations UX:
+ * - Monospace used strictly for Job IDs
+ * - Normal font with tabular-nums for progress, percentages, durations, timestamps
+ * - 160-200px wide progress bar
+ * - Percentage hidden on Completed/Failed; visible only on Running
+ * - Job ID, module chip, and name clearly separated
  */
 export const OperationsTable = ({
   jobs = [],
-  limit = 8,
+  title = 'Recent Operations',
+  limit = 7,
   showFilters = true,
   className = '',
 }) => {
-  const [filter, setFilter] = useState('all'); // 'all' | 'running' | 'completed' | 'failed'
+  const [filter, setFilter] = useState('all');
 
   const filteredJobs = useMemo(() => {
     let list = Array.isArray(jobs) ? jobs : [];
@@ -87,14 +104,13 @@ export const OperationsTable = ({
 
   return (
     <div className={`space-y-3.5 ${className}`}>
-      {/* Table Header & Filter Chips */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Header with Title and Filter Chips */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-          <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
-            Recent Operations
+          <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+            {title}
           </h2>
-          <span className="text-xs font-mono font-medium text-slate-400 dark:text-slate-500 ml-1">
+          <span className="text-xs font-sans tabular-nums text-slate-500 dark:text-slate-400 font-medium">
             ({jobs.length})
           </span>
         </div>
@@ -113,7 +129,7 @@ export const OperationsTable = ({
                   key={tab.id}
                   type="button"
                   onClick={() => setFilter(tab.id)}
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 ${
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 cursor-pointer ${
                     active
                       ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-xs'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
@@ -121,10 +137,10 @@ export const OperationsTable = ({
                 >
                   <span>{tab.label}</span>
                   <span
-                    className={`font-mono text-[10px] px-1 rounded ${
+                    className={`font-sans tabular-nums text-xs font-medium px-1.5 py-0.2 rounded-full ${
                       active
                         ? 'bg-white/20 dark:bg-black/20 text-white dark:text-slate-900'
-                        : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                        : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
                     }`}
                   >
                     {tab.count}
@@ -137,14 +153,14 @@ export const OperationsTable = ({
       </div>
 
       {/* Operations List Container */}
-      <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden">
         {filteredJobs.length === 0 ? (
           <div className="p-10 text-center space-y-2">
             <Clock className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto" />
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
               No operations found
             </p>
-            <p className="text-xs text-slate-400 dark:text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               {filter === 'all'
                 ? 'No background tasks have been executed yet. Launch a pipeline from the modules.'
                 : `No operations matching the "${filter}" filter state.`}
@@ -165,46 +181,49 @@ export const OperationsTable = ({
               const relTime = formatRelativeTime(j.created_at || j.started_at);
               const duration = formatDuration(j.created_at || j.started_at, j.completed_at);
               const isFailed = j.status === 'failed';
+              const isRunning = j.status === 'running';
               const errorText = j.error_message || j.error || j.status_message;
 
               return (
                 <div
                   key={j.id}
-                  className="p-4 px-5 hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3.5"
+                  className="p-4 px-5 hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
-                  {/* Left: Monospace ID Chip + Job Name + Module + Timestamps */}
+                  {/* Left: Clearly Separated Job ID + Module Chip + Name + Timestamps */}
                   <div className="flex items-start gap-3 min-w-0 flex-1">
+                    {/* Job ID: Monospace pill */}
                     <Tooltip content={`Job ID: ${j.id}`}>
-                      <span className="font-mono text-xs font-semibold px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex-shrink-0 mt-0.5">
+                      <span className="font-mono text-xs font-semibold px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex-shrink-0 mt-0.5 select-all">
                         {String(j.id).slice(0, 8)}
                       </span>
                     </Tooltip>
 
                     <div className="min-w-0 flex-1">
+                      {/* Module Chip and Action Name clearly separated */}
                       <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 capitalize flex-shrink-0">
+                          {j.module || 'System'}
+                        </span>
                         <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                           {concreteAction}
                         </span>
-                        <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 capitalize">
-                          {j.module || 'Data Hub'}
-                        </span>
                       </div>
 
-                      {/* Timestamps with full date on hover */}
-                      <div className="flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500 mt-1 font-medium">
+                      {/* Timestamps in normal font with tabular-nums */}
+                      <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium font-sans">
                         <Tooltip content={`Started at ${fullTime}`}>
                           <span className="cursor-help flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-slate-400" />
-                            <span>{relTime}</span>
+                            <Clock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                            <span className="tabular-nums">{relTime}</span>
                           </span>
                         </Tooltip>
-                        <span>·</span>
+                        <span className="text-slate-300 dark:text-slate-600">·</span>
                         <span className="tabular-nums">Duration: {duration}</span>
                       </div>
 
-                      {/* Truncated Error Summary on Failure */}
+                      {/* Error Summary on Failure */}
                       {isFailed && errorText && (
-                        <div className="mt-2 p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-700 dark:text-rose-300 flex items-start gap-2">
+                        <div className="mt-2 p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-700 dark:text-rose-300 flex items-start gap-2 font-medium">
                           <AlertCircle className="w-3.5 h-3.5 text-rose-500 flex-shrink-0 mt-0.5" />
                           <span className="truncate">{errorText}</span>
                         </div>
@@ -212,22 +231,27 @@ export const OperationsTable = ({
                     </div>
                   </div>
 
-                  {/* Right: Wider Progress Bar + Status Badge + Actions */}
+                  {/* Right: Progress Bar (176px wide) + Status Badge + Action */}
                   <div className="flex items-center gap-4 flex-shrink-0 sm:self-center">
-                    {/* Progress Bar (min 120px) */}
-                    <div className="w-32 hidden md:block">
-                      <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-1">
-                        <span>Progress</span>
-                        <span className="tabular-nums font-semibold">{progressPct}%</span>
+                    {/* Widen progress bar to 176-192px (w-44 / w-48) */}
+                    <div className="w-44 lg:w-48 hidden md:block">
+                      <div className="flex items-center justify-between text-xs font-sans text-slate-600 dark:text-slate-400 mb-1">
+                        <span className="font-medium">Progress</span>
+                        {/* Hide percentage on Completed/Failed; show ONLY for Running */}
+                        {isRunning && (
+                          <span className="tabular-nums font-semibold text-teal-600 dark:text-teal-400">
+                            {progressPct}%
+                          </span>
+                        )}
                       </div>
                       <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                         <div
                           className={`h-full transition-all duration-300 ${
                             j.status === 'completed'
                               ? 'bg-emerald-500'
-                              : j.status === 'running'
+                              : isRunning
                               ? 'bg-teal-500 animate-pulse'
-                              : j.status === 'failed'
+                              : isFailed
                               ? 'bg-rose-500'
                               : 'bg-slate-400'
                           }`}
@@ -238,11 +262,11 @@ export const OperationsTable = ({
 
                     <StatusBadge status={j.status} />
 
-                    {/* View Logs / Job Monitor Action Link */}
+                    {/* View Logs Action Link */}
                     <Tooltip content="Inspect live logs and job execution details">
                       <Link
                         to={`/jobs?jobId=${j.id}`}
-                        className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                         aria-label={`View logs for job ${j.id}`}
                       >
                         <FileText className="w-4 h-4" />
@@ -257,7 +281,7 @@ export const OperationsTable = ({
 
         {/* Table Footer Link */}
         <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 flex items-center justify-between text-xs">
-          <span className="text-slate-500 dark:text-slate-400">
+          <span className="text-slate-500 dark:text-slate-400 font-sans tabular-nums font-medium">
             Showing latest {filteredJobs.length} of {jobs.length} executions
           </span>
           <Link

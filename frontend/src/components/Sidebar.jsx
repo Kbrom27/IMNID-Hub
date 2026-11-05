@@ -166,7 +166,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed })
   const sidebarContent = (
     <aside
       className={`bg-slate-900 text-slate-300 flex flex-col h-full border-r border-slate-800 select-none transition-all duration-200 ${
-        isCollapsed ? 'w-20' : 'w-72'
+        isCollapsed ? 'w-20' : 'w-[278px]'
       }`}
     >
       {/* Brand Header */}
@@ -180,11 +180,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed })
             <Activity className="w-5 h-5 text-teal-400" />
           </div>
           {!isCollapsed && (
-            <div className="truncate">
+            <div className="min-w-0">
               <h1 className="text-[15px] font-bold text-white tracking-tight flex items-center gap-2">
                 IMNID Hub
               </h1>
-              <p className="text-[11px] text-teal-400 font-medium tracking-wide">
+              <p className="text-xs text-teal-400 font-medium tracking-wide">
                 Interoperability Platform
               </p>
             </div>
@@ -219,7 +219,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed })
         {NAV_GROUPS.map((group) => (
           <div key={group.title} className="space-y-1">
             {!isCollapsed && (
-              <div className="px-3 pb-1 text-[11px] font-bold uppercase tracking-[0.04em] text-slate-400">
+              <div className="px-3 pb-1 text-xs font-bold uppercase tracking-[0.04em] text-slate-400">
                 {group.title}
               </div>
             )}
@@ -237,34 +237,56 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed })
                     onClick={handleLinkClick}
                     className={({ isActive }) => {
                       const active = hasSubs ? isGroupActive : isActive;
-                      return `flex items-center gap-3 px-3 h-10 min-h-[40px] rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${
+                      return `relative flex items-center gap-2.5 px-3 h-10 min-h-[40px] rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${
                         active
-                          ? 'bg-teal-500/15 text-teal-300 font-bold border-l-[3px] border-teal-500 shadow-xs'
-                          : 'text-slate-300 hover:text-white hover:bg-slate-800/70 border-l-[3px] border-transparent'
+                          ? 'bg-teal-500/15 text-teal-300 font-semibold shadow-xs'
+                          : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
                       } ${isCollapsed ? 'justify-center px-0' : ''}`;
                     }}
                   >
-                    <Icon className="w-5 h-5 flex-shrink-0 text-slate-400 group-hover:text-slate-200" />
-                    {!isCollapsed && <span className="flex-1 truncate">{item.label}</span>}
-                    
-                    {!isCollapsed && hasSubs && (
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        {item.badgeCount && (
-                          <span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
-                            {item.badgeCount}
-                          </span>
-                        )}
-                        <button
-                          type="button"
-                          onClick={(e) => toggleGroup(item.to, e)}
-                          aria-expanded={isOpen}
-                          className="w-6 h-6 flex items-center justify-center hover:bg-slate-700/60 rounded focus:outline-none text-slate-400 hover:text-slate-200"
-                          aria-label={`Toggle ${item.label} submenu`}
-                        >
-                          {isOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-                    )}
+                    {({ isActive }) => {
+                      const active = hasSubs ? isGroupActive : isActive;
+                      return (
+                        <>
+                          {/* Distinct Left Accent Bar for Active Item */}
+                          {active && (
+                            <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-teal-400 rounded-r shadow-xs" />
+                          )}
+
+                          <Icon className="w-5 h-5 flex-shrink-0 text-slate-400 group-hover:text-slate-200" />
+                          {!isCollapsed && (
+                            <span className="flex-1 whitespace-nowrap text-left text-sm leading-tight">
+                              {item.label}
+                            </span>
+                          )}
+                          
+                          {!isCollapsed && hasSubs && (
+                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                              {item.badgeCount && (
+                                <span className="text-xs font-sans tabular-nums font-semibold px-1.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/80 leading-none">
+                                  {item.badgeCount}
+                                </span>
+                              )}
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                onClick={(e) => toggleGroup(item.to, e)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    toggleGroup(item.to, e);
+                                  }
+                                }}
+                                aria-expanded={isOpen}
+                                className="w-5 h-5 flex items-center justify-center hover:bg-slate-700/60 rounded text-slate-400 hover:text-slate-200 cursor-pointer"
+                                aria-label={`Toggle ${item.label} submenu`}
+                              >
+                                {isOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                              </span>
+                            </div>
+                          )}
+                        </>
+                      );
+                    }}
                   </NavLink>
                 );
 
@@ -317,9 +339,9 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed })
           <>
             <div className="flex items-center justify-between">
               <span className="font-semibold text-slate-200 text-xs">
-                IMNID Hub <span className="font-mono text-slate-400 font-normal">v{pkg.version || '1.0.0'}</span>
+                IMNID Hub <span className="font-sans tabular-nums text-slate-400 font-normal">v{pkg.version || '1.0.0'}</span>
               </span>
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-mono uppercase font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+              <span className="px-2 py-0.5 rounded text-xs font-sans uppercase font-semibold bg-slate-800 text-slate-300 border border-slate-700/80">
                 Local
               </span>
             </div>
@@ -335,7 +357,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed })
                     : 'bg-rose-500'
                 }`}
               />
-              <span className="text-[11px] font-medium text-slate-300 truncate">
+              <span className="text-xs font-medium text-slate-300 truncate">
                 {summary.overallHealth === 'operational'
                   ? 'All systems operational'
                   : summary.offlineCount > 0

@@ -180,8 +180,8 @@ const Dashboard = () => {
             <span>
               <strong className="text-emerald-600 dark:text-emerald-400">{successRate}%</strong> success rate
               {failedJobsCount > 0 && (
-                <span className="text-rose-600 dark:text-rose-400 ml-1 font-semibold">
-                  ({failedJobsCount} failed)
+                <span className="text-slate-500 dark:text-slate-400 ml-1">
+                  · <span className="text-rose-600 dark:text-rose-400 font-medium">{failedJobsCount} failed</span> (lifetime)
                 </span>
               )}
             </span>
@@ -205,7 +205,7 @@ const Dashboard = () => {
           loading={loadingStats}
           badge={
             runningJobsCount > 0 ? (
-              <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-950 text-teal-700 dark:text-teal-300 font-bold border border-teal-200 dark:border-teal-800">
+              <span className="inline-flex items-center gap-1 text-xs font-sans px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-950 text-teal-700 dark:text-teal-300 font-bold border border-teal-200 dark:border-teal-800">
                 RUNNING
               </span>
             ) : null
@@ -233,7 +233,7 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* 3. Attention Needed Strip (Rendered ONLY if issues exist) */}
+      {/* 3. Attention Needed Strip (Rendered ONLY if issues exist, compact by default) */}
       <AttentionNeeded
         offlineServers={summary.offlineSystems}
         failedJobs={failedJobsList}
@@ -241,17 +241,17 @@ const Dashboard = () => {
       />
 
       {/* 4. Two-Column Operational Layout:
-          - Left (Wider, 7 or 8 columns): Recent Operations Table
-          - Right (Narrower, 5 or 4 columns): Server Status (grouped by category)
+          - Left (7 of 12 columns): Recent Operations Table
+          - Right (5 of 12 columns): Server Status (grouped by category)
       */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Recent Operations (8 Columns) */}
-        <div className="lg:col-span-7 xl:col-span-8 space-y-4">
+        {/* Left Column: Recent Operations (7 Columns) */}
+        <div className="lg:col-span-7 xl:col-span-7 space-y-4">
           <OperationsTable jobs={jobs} limit={7} />
         </div>
 
-        {/* Right Column: Server Status grouped by category (4 Columns) */}
-        <div className="lg:col-span-5 xl:col-span-4 space-y-4">
+        {/* Right Column: Server Status grouped by category (5 Columns) */}
+        <div className="lg:col-span-5 xl:col-span-5 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Server className="w-4 h-4 text-teal-600 dark:text-teal-400" />
@@ -270,11 +270,11 @@ const Dashboard = () => {
 
           {/* Group 1: DHIS2 Instances */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs px-1 text-slate-500 dark:text-slate-400 font-medium">
-              <span className="uppercase tracking-[0.04em] text-[11px] font-bold">
+            <div className="flex items-center justify-between text-xs px-1 text-slate-600 dark:text-slate-300 font-medium">
+              <span className="uppercase tracking-[0.04em] text-xs font-bold">
                 {summary.groups.dhis2.title}
               </span>
-              <span className="font-mono tabular-nums text-[11px]">
+              <span className="font-sans tabular-nums text-xs">
                 {summary.groups.dhis2.connected}/{summary.groups.dhis2.total} Connected
               </span>
             </div>
@@ -292,11 +292,11 @@ const Dashboard = () => {
 
           {/* Group 2: Clinical Systems */}
           <div className="space-y-2 pt-2">
-            <div className="flex items-center justify-between text-xs px-1 text-slate-500 dark:text-slate-400 font-medium">
-              <span className="uppercase tracking-[0.04em] text-[11px] font-bold">
+            <div className="flex items-center justify-between text-xs px-1 text-slate-600 dark:text-slate-300 font-medium">
+              <span className="uppercase tracking-[0.04em] text-xs font-bold">
                 {summary.groups.clinical.title}
               </span>
-              <span className="font-mono tabular-nums text-[11px]">
+              <span className="font-sans tabular-nums text-xs">
                 {summary.groups.clinical.connected}/{summary.groups.clinical.total} Connected
               </span>
             </div>
@@ -314,11 +314,11 @@ const Dashboard = () => {
 
           {/* Group 3: Core Services */}
           <div className="space-y-2 pt-2">
-            <div className="flex items-center justify-between text-xs px-1 text-slate-500 dark:text-slate-400 font-medium">
-              <span className="uppercase tracking-[0.04em] text-[11px] font-bold">
+            <div className="flex items-center justify-between text-xs px-1 text-slate-600 dark:text-slate-300 font-medium">
+              <span className="uppercase tracking-[0.04em] text-xs font-bold">
                 {summary.groups.core.title}
               </span>
-              <span className="font-mono tabular-nums text-[11px]">
+              <span className="font-sans tabular-nums text-xs">
                 {summary.groups.core.connected}/{summary.groups.core.total} Connected
               </span>
             </div>

@@ -93,7 +93,7 @@ export const StatusBadge = ({
 
   const sizeClass =
     size === 'xs'
-      ? 'text-[11px] px-2 py-0.5 gap-1'
+      ? 'text-xs px-2 py-0.5 gap-1'
       : size === 'md'
       ? 'text-xs px-3 py-1 gap-1.5'
       : 'text-xs px-2.5 py-0.5 gap-1.5';
