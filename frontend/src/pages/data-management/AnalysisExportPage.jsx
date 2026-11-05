@@ -35,7 +35,7 @@ const AnalysisExportPage = () => {
     resetJob,
   } = useDataManagementJob();
 
-  const [sourceInstance, setSourceInstance] = useState('dhis2_offline');
+  const [sourceInstance, setSourceInstance] = useState(null);
   const [programName, setProgramName] = useState('Newborn Inpatient Data');
   const [orgMode, setOrgMode] = useState('ALL');
   const [orgUnitId, setOrgUnitId] = useState('');
@@ -98,10 +98,19 @@ const AnalysisExportPage = () => {
   }, [authHeader]);
 
   useEffect(() => {
-    fetchOrgUnits(sourceInstance);
+    if (sourceInstance) {
+      fetchOrgUnits(sourceInstance);
+    } else {
+      setOrgUnits([]);
+      setOrgUnitId('');
+    }
   }, [sourceInstance, fetchOrgUnits]);
 
   const handleExport = async () => {
+    if (!sourceInstance) {
+      showToast('Please select a source DHIS2 instance (Offline or Online)', 'error');
+      return;
+    }
     if (orgMode === 'SELECTED' && !orgUnitId) {
       showToast('Please select a specific organisation unit before starting export', 'error');
       return;
@@ -325,7 +334,7 @@ const AnalysisExportPage = () => {
               variant="primary"
               icon={<Download className="w-4 h-4 mr-1.5" />}
               loading={loading}
-              disabled={isViewer}
+              disabled={isViewer || !sourceInstance}
               onClick={handleExport}
             >
               Start Analytical Export

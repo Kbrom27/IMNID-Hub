@@ -81,7 +81,7 @@ const NcfNidSyncPage = () => {
   } = useDataManagementJob();
 
   // ── Instance selection (Online vs Offline) ─────────────────────
-  const [dhis2Instance, setDhis2Instance] = useState('dhis2_offline');
+  const [dhis2Instance, setDhis2Instance] = useState(null);
   const [connecting, setConnecting] = useState(false);
   const [connState, setConnState] = useState({
     connected: false,
@@ -159,9 +159,14 @@ const NcfNidSyncPage = () => {
     }
   }, [dhis2Instance, showOverrides, customUrl, customUser, customPass, authHeader, showToast]);
 
-  // Auto-connect and load org units on initial mount or when instance changes
+  // Auto-connect and load org units when instance changes (only if selected)
   useEffect(() => {
-    handleLoadOrgUnits(dhis2Instance);
+    if (dhis2Instance) {
+      handleLoadOrgUnits(dhis2Instance);
+    } else {
+      setOrgUnits([]);
+      setConnState({ connected: false, user: '', server: '', error: '' });
+    }
   }, [dhis2Instance, handleLoadOrgUnits]);
 
   // Filter org units based on search input
@@ -202,6 +207,10 @@ const NcfNidSyncPage = () => {
   };
 
   const validateInputs = () => {
+    if (!dhis2Instance) {
+      showToast('Please select a target DHIS2 instance (Online or Offline).', 'warning');
+      return false;
+    }
     if (orgMode === 'SPECIFIC' && !selectedOu) {
       showToast('Please select a specific organization unit from the list.', 'warning');
       return false;
@@ -294,8 +303,8 @@ const NcfNidSyncPage = () => {
                 size="sm"
                 icon={<RefreshCw className={`w-3.5 h-3.5 ${connecting ? 'animate-spin' : ''}`} />}
                 loading={connecting}
-                disabled={connecting}
-                onClick={() => handleLoadOrgUnits(dhis2Instance)}
+                disabled={connecting || !dhis2Instance}
+                onClick={() => dhis2Instance && handleLoadOrgUnits(dhis2Instance)}
                 className="text-xs h-7"
               >
                 Reload Facilities
@@ -553,7 +562,7 @@ const NcfNidSyncPage = () => {
               variant="secondary"
               icon={<Eye className="w-4 h-4 mr-1.5 text-slate-600" />}
               loading={loading}
-              disabled={isViewer || loading}
+              disabled={isViewer || loading || !dhis2Instance}
               onClick={() => executeSync(true)}
             >
               Validate & Preview (Dry-Run)
@@ -562,7 +571,7 @@ const NcfNidSyncPage = () => {
               variant="primary"
               icon={<Play className="w-4 h-4 mr-1.5" />}
               loading={loading}
-              disabled={isViewer || loading}
+              disabled={isViewer || loading || !dhis2Instance}
               onClick={() => {
                 if (validateInputs()) {
                   setShowConfirm(true);

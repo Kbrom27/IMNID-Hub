@@ -52,7 +52,7 @@ const MetadataImportPage = () => {
   } = useDataManagementJob();
 
   // Target DHIS2 Instance (Online vs Offline from saved vault/env)
-  const [targetInstance, setTargetInstance] = useState('dhis2_online');
+  const [targetInstance, setTargetInstance] = useState(null);
 
   // File & Upload State
   const [file, setFile] = useState(null);
@@ -148,6 +148,10 @@ const MetadataImportPage = () => {
       showToast('Please select a metadata file first.', 'warning');
       return;
     }
+    if (!targetInstance) {
+      showToast('Please select a target DHIS2 instance (Online or Offline)', 'error');
+      return;
+    }
     setLoading(true);
     try {
       const serverPath = await ensureUploaded();
@@ -180,6 +184,10 @@ const MetadataImportPage = () => {
   const handleCommit = async () => {
     if (!file) {
       showToast('Please select a metadata file first.', 'warning');
+      return;
+    }
+    if (!targetInstance) {
+      showToast('Please select a target DHIS2 instance (Online or Offline)', 'error');
       return;
     }
     setLoading(true);
@@ -217,6 +225,10 @@ const MetadataImportPage = () => {
       showToast('Please select a metadata file first.', 'warning');
       return;
     }
+    if (!targetInstance) {
+      showToast('Please select a target DHIS2 instance (Online or Offline)', 'error');
+      return;
+    }
     if (importMode === 'COMMIT') {
       setShowConfirm(true);
     } else {
@@ -224,7 +236,7 @@ const MetadataImportPage = () => {
     }
   };
 
-  const destName = targetInstance === 'dhis2_offline' ? 'Offline DHIS2' : 'Online DHIS2';
+  const destName = targetInstance === 'dhis2_offline' ? 'Offline DHIS2' : targetInstance === 'dhis2_online' ? 'Online DHIS2' : 'DHIS2';
 
   const filteredContents = fileInfoData?.contents
     ? Object.entries(fileInfoData.contents).filter(([key]) =>
@@ -420,7 +432,7 @@ const MetadataImportPage = () => {
                 variant="secondary"
                 icon={<Eye className="w-4 h-4 mr-1.5 text-slate-600" />}
                 loading={loading}
-                disabled={!file || fileUploading || isViewer}
+                disabled={!file || !targetInstance || fileUploading || isViewer}
                 onClick={handleValidate}
               >
                 Validate First (Dry-Run)
@@ -431,7 +443,7 @@ const MetadataImportPage = () => {
               variant="primary"
               icon={importMode === 'COMMIT' ? <Play className="w-4 h-4 mr-1.5" /> : <Eye className="w-4 h-4 mr-1.5" />}
               loading={loading || fileUploading}
-              disabled={!file || fileUploading || isViewer}
+              disabled={!file || !targetInstance || fileUploading || isViewer}
               onClick={handlePrimaryAction}
             >
               {fileUploading

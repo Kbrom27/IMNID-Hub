@@ -35,7 +35,7 @@ const CsvImportPage = () => {
   } = useDataManagementJob();
 
   const [file, setFile] = useState(null);
-  const [targetInstance, setTargetInstance] = useState('dhis2_online');
+  const [targetInstance, setTargetInstance] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -44,6 +44,10 @@ const CsvImportPage = () => {
 
   const handleDryRun = async () => {
     if (!file) return;
+    if (!targetInstance) {
+      showToast('Please select a target DHIS2 instance (Online or Offline)', 'error');
+      return;
+    }
     setLoading(true);
     try {
       const up = await uploadFile(file);
@@ -65,6 +69,10 @@ const CsvImportPage = () => {
 
   const handleCommit = async () => {
     if (!file) return;
+    if (!targetInstance) {
+      showToast('Please select a target DHIS2 instance (Online or Offline)', 'error');
+      return;
+    }
     setLoading(true);
     try {
       const up = await uploadFile(file);
@@ -85,7 +93,7 @@ const CsvImportPage = () => {
     }
   };
 
-  const destName = targetInstance === 'dhis2_offline' ? 'Offline DHIS2' : 'Online DHIS2';
+  const destName = targetInstance === 'dhis2_offline' ? 'Offline DHIS2' : targetInstance === 'dhis2_online' ? 'Online DHIS2' : 'DHIS2';
 
   return (
     <div className="space-y-6 w-full">
@@ -170,7 +178,7 @@ const CsvImportPage = () => {
               variant="secondary"
               icon={<Eye className="w-4 h-4 mr-1.5" />}
               loading={loading}
-              disabled={!file || isViewer}
+              disabled={!file || !targetInstance || isViewer}
               onClick={handleDryRun}
             >
               Validate & Preview (Dry-Run)
@@ -179,7 +187,7 @@ const CsvImportPage = () => {
               variant="primary"
               icon={<Play className="w-4 h-4 mr-1.5" />}
               loading={loading}
-              disabled={!file || isViewer}
+              disabled={!file || !targetInstance || isViewer}
               onClick={() => setShowConfirm(true)}
             >
               Import to DHIS2

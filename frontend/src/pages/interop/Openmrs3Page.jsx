@@ -27,6 +27,7 @@ import {
   Alert,
 } from '../../ui';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../ui/ToastProvider';
 import { useInteropJob } from './useInteropJob';
 import { useVisitTypes } from './useVisitTypes';
 import DirectoryPicker from './DirectoryPicker';
@@ -46,6 +47,7 @@ const SUB_TABS = [
  */
 const Openmrs3Page = () => {
   const { isViewer, authHeader } = useAuth();
+  const { showToast } = useToast();
   const {
     facilities,
     vaultConns,
@@ -61,8 +63,8 @@ const Openmrs3Page = () => {
   const { visitTypes, loadingVisitTypes, visitTypeMsg, handleLoadVisitTypes } = useVisitTypes('o3');
 
   const [subTab, setSubTab] = useState('export');
-  const [importTarget, setImportTarget] = useState('online');
-  const [syncTarget, setSyncTarget] = useState('online');
+  const [importTarget, setImportTarget] = useState(null);
+  const [syncTarget, setSyncTarget] = useState(null);
   const [showCredsOverride, setShowCredsOverride] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmPayload, setConfirmPayload] = useState(null);
@@ -162,6 +164,10 @@ const Openmrs3Page = () => {
   };
 
   const handleImportSubmit = (dryRun = false) => {
+    if (!importTarget) {
+      showToast('Please select a DHIS2 destination instance (Online or Offline)', 'error');
+      return;
+    }
     if (dryRun) {
       executeApiJob('/api/v1/interop/o3/import', { ...importForm, dry_run: true, target: importTarget });
     } else {
@@ -177,6 +183,10 @@ const Openmrs3Page = () => {
   };
 
   const handleSyncSubmit = (dryRun = false) => {
+    if (!syncTarget) {
+      showToast('Please select a DHIS2 destination instance (Online or Offline)', 'error');
+      return;
+    }
     if (dryRun) {
       executeApiJob('/api/v1/interop/o3/sync', { ...syncForm, dry_run: true, target: syncTarget });
     } else {
@@ -509,7 +519,7 @@ const Openmrs3Page = () => {
                 variant="secondary"
                 icon={<FileCheck className="w-4 h-4 mr-1.5" />}
                 loading={isStreaming}
-                disabled={isViewer || !importForm.input_csv}
+                disabled={isViewer || !importForm.input_csv || !importTarget}
                 onClick={() => handleImportSubmit(true)}
               >
                 Validate (Dry-Run)
@@ -518,7 +528,7 @@ const Openmrs3Page = () => {
                 variant="primary"
                 icon={<Upload className="w-4 h-4 mr-1.5" />}
                 loading={isStreaming}
-                disabled={isViewer || !importForm.input_csv}
+                disabled={isViewer || !importForm.input_csv || !importTarget}
                 onClick={() => handleImportSubmit(false)}
               >
                 Import to DHIS2
@@ -660,7 +670,7 @@ const Openmrs3Page = () => {
                 variant="secondary"
                 icon={<FileCheck className="w-4 h-4 mr-1.5" />}
                 loading={isStreaming}
-                disabled={isViewer}
+                disabled={isViewer || !syncTarget}
                 onClick={() => handleSyncSubmit(true)}
               >
                 Validate (Dry-Run)
@@ -669,7 +679,7 @@ const Openmrs3Page = () => {
                 variant="primary"
                 icon={<RotateCw className="w-4 h-4 mr-1.5" />}
                 loading={isStreaming}
-                disabled={isViewer}
+                disabled={isViewer || !syncTarget}
                 onClick={() => handleSyncSubmit(false)}
               >
                 Run Full O3 Sync

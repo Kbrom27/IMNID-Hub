@@ -40,9 +40,7 @@ export const HmisConnectionCard = ({
       if (res.ok) {
         const data = await res.json();
         setConnections(data);
-        if (type === 'dhis2' && !selectedSystem && onSystemChange) {
-          onSystemChange(data.default_dhis2 || 'dhis2_online');
-        } else if (type === 'dhis2_moh' && !selectedSystem && onSystemChange) {
+        if (type === 'dhis2_moh' && !selectedSystem && onSystemChange) {
           onSystemChange('dhis2_moh');
         }
       }
@@ -61,6 +59,7 @@ export const HmisConnectionCard = ({
     if (!connections) return null;
     if (type === 'openmrs') return connections.openmrs;
     if (type === 'dhis2_moh' || selectedSystem === 'dhis2_moh') return connections.dhis2_moh;
+    if (!selectedSystem) return null;
     return selectedSystem === 'dhis2_offline' ? connections.dhis2_offline : connections.dhis2_online;
   }, [connections, type, selectedSystem]);
 
@@ -214,6 +213,10 @@ export const Dhis2ProgramSelect = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!system) {
+      setPrograms([]);
+      return;
+    }
     let isMounted = true;
     const fetchPrograms = async () => {
       setLoading(true);
@@ -292,6 +295,10 @@ export const Dhis2OrgUnitSelect = ({
   const [search, setSearch] = useState('');
 
   useEffect(() => {
+    if (!system) {
+      setOrgUnits([]);
+      return;
+    }
     let isMounted = true;
     const fetchOrgUnits = async () => {
       setLoading(true);
@@ -522,6 +529,10 @@ export const MohDataElementSelect = ({
   const [search, setSearch] = useState('');
 
   useEffect(() => {
+    if (!system) {
+      setElements([]);
+      return;
+    }
     let isMounted = true;
     const fetchElements = async () => {
       setLoading(true);

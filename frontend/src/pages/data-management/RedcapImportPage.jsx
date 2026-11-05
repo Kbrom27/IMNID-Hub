@@ -51,7 +51,7 @@ const RedcapImportPage = () => {
     resetJob,
   } = useDataManagementJob();
 
-  const [sourceInstance, setSourceInstance] = useState('dhis2_offline');
+  const [sourceInstance, setSourceInstance] = useState(null);
   const [orgUnits, setOrgUnits] = useState([]);
   const [loadingOrgUnits, setLoadingOrgUnits] = useState(false);
   const [orgSearchQuery, setOrgSearchQuery] = useState('');
@@ -92,7 +92,12 @@ const RedcapImportPage = () => {
   }, [authHeader, orgUnitId]);
 
   useEffect(() => {
-    fetchOrgUnits(sourceInstance);
+    if (sourceInstance) {
+      fetchOrgUnits(sourceInstance);
+    } else {
+      setOrgUnits([]);
+      setOrgUnitId('');
+    }
   }, [sourceInstance, fetchOrgUnits]);
 
   const filteredOrgUnits = useMemo(() => {
@@ -128,6 +133,10 @@ const RedcapImportPage = () => {
   };
 
   const validateInputs = () => {
+    if (!sourceInstance) {
+      showToast('Please select a source DHIS2 instance (Offline or Online)', 'warning');
+      return false;
+    }
     if (!orgUnitId) {
       showToast('Please select a target facility / organisation unit', 'warning');
       return false;
@@ -432,7 +441,7 @@ const RedcapImportPage = () => {
               variant="secondary"
               icon={<Eye className="w-4 h-4 mr-1.5" />}
               loading={loading}
-              disabled={!orgUnitId || isViewer}
+              disabled={!sourceInstance || !orgUnitId || isViewer}
               onClick={handleDryRun}
             >
               Validate & Preview (Dry-Run)
@@ -441,7 +450,7 @@ const RedcapImportPage = () => {
               variant="primary"
               icon={<Database className="w-4 h-4 mr-1.5" />}
               loading={loading}
-              disabled={!orgUnitId || isViewer}
+              disabled={!sourceInstance || !orgUnitId || isViewer}
               onClick={() => {
                 if (validateInputs()) setShowConfirm(true);
               }}

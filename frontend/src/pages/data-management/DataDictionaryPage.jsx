@@ -37,13 +37,17 @@ const DataDictionaryPage = () => {
   const offlineInfo = vaultConns?.offline;
   const onlineInfo = vaultConns?.online;
 
-  const [sourceInstance, setSourceInstance] = useState('dhis2_offline');
+  const [sourceInstance, setSourceInstance] = useState(null);
   const [programName, setProgramName] = useState('Maternal inpatient data');
   const [outputDir, setOutputDir] = useState('/data/exports');
   const [filename, setFilename] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleExport = async () => {
+    if (!sourceInstance) {
+      showToast('Please select a source DHIS2 instance (Offline or Online)', 'error');
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch('/api/data-management/data-dictionary/run', {
@@ -164,7 +168,7 @@ const DataDictionaryPage = () => {
               variant="primary"
               icon={<BookOpen className="w-4 h-4 mr-1.5" />}
               loading={loading}
-              disabled={isViewer}
+              disabled={isViewer || !sourceInstance}
               onClick={handleExport}
             >
               Generate Data Dictionary

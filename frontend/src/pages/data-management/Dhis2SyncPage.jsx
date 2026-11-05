@@ -54,7 +54,7 @@ const Dhis2SyncPage = () => {
     resetJob,
   } = useDataManagementJob();
 
-  const [direction, setDirection] = useState('offline_to_online');
+  const [direction, setDirection] = useState(null);
 
   const [showOverrides, setShowOverrides] = useState(false);
   const [customSourceUrl, setCustomSourceUrl] = useState('');
@@ -78,7 +78,7 @@ const Dhis2SyncPage = () => {
   const [loading, setLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const sourceSystemKey = direction === 'offline_to_online' ? 'dhis2_offline' : 'dhis2_online';
+  const sourceSystemKey = direction === 'offline_to_online' ? 'dhis2_offline' : direction === 'online_to_offline' ? 'dhis2_online' : null;
 
   const sourceInfo =
     direction === 'offline_to_online'
@@ -127,8 +127,12 @@ const Dhis2SyncPage = () => {
   };
 
   useEffect(() => {
-    fetchMetadata(sourceSystemKey);
-  }, [direction]);
+    if (sourceSystemKey) {
+      fetchMetadata(sourceSystemKey);
+    } else {
+      setOrgUnits([]);
+    }
+  }, [direction, sourceSystemKey]);
 
   const filteredOrgUnits = useMemo(() => {
     if (!orgSearchQuery.trim()) return orgUnits;
@@ -181,6 +185,10 @@ const Dhis2SyncPage = () => {
   };
 
   const validateInputs = () => {
+    if (!direction) {
+      showToast('Please select a synchronization direction.', 'warning');
+      return false;
+    }
     if (selectedPrograms.length === 0) {
       showToast('Please select at least one tracker program to synchronize.', 'warning');
       return false;
@@ -313,8 +321,8 @@ const Dhis2SyncPage = () => {
                     <Upload className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                     Push: Offline → Online
                   </span>
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-teal-100 text-teal-800 dark:bg-teal-900/60 dark:text-teal-200">
-                    Default
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                    Push
                   </span>
                 </div>
                 <div className="text-[11px] font-mono text-slate-500 truncate">
@@ -539,7 +547,7 @@ const Dhis2SyncPage = () => {
               variant="secondary"
               icon={<Eye className="w-4 h-4 mr-1.5" />}
               loading={loading}
-              disabled={isViewer}
+              disabled={isViewer || !direction}
               onClick={handleDryRun}
             >
               Validate & Preview (Dry-Run)
@@ -548,7 +556,7 @@ const Dhis2SyncPage = () => {
               variant="primary"
               icon={<Play className="w-4 h-4 mr-1.5" />}
               loading={loading}
-              disabled={isViewer}
+              disabled={isViewer || !direction}
               onClick={() => setShowConfirm(true)}
             >
               Start Direct Synchronization

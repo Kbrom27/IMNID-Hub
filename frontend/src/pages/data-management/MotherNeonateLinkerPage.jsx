@@ -74,7 +74,7 @@ const MotherNeonateLinkerPage = () => {
   } = useDataManagementJob();
 
   // ── Instance selection (Online vs Offline) ─────────────────────
-  const [dhis2Instance, setDhis2Instance] = useState('dhis2_offline');
+  const [dhis2Instance, setDhis2Instance] = useState(null);
   const [connecting, setConnecting] = useState(false);
   const [connState, setConnState] = useState({
     connected: false,
@@ -170,7 +170,13 @@ const MotherNeonateLinkerPage = () => {
   );
 
   useEffect(() => {
-    handleLoadMetadata(dhis2Instance);
+    if (dhis2Instance) {
+      handleLoadMetadata(dhis2Instance);
+    } else {
+      setOrgUnits([]);
+      setRelationshipTypes([]);
+      setConnState({ connected: false, user: '', server: '', error: '' });
+    }
   }, [dhis2Instance, handleLoadMetadata]);
 
   // Filter facilities
@@ -304,8 +310,8 @@ const MotherNeonateLinkerPage = () => {
                 size="sm"
                 icon={<RefreshCw className={`w-3.5 h-3.5 ${connecting ? 'animate-spin' : ''}`} />}
                 loading={connecting}
-                disabled={connecting}
-                onClick={() => handleLoadMetadata(dhis2Instance)}
+                disabled={connecting || !dhis2Instance}
+                onClick={() => dhis2Instance && handleLoadMetadata(dhis2Instance)}
                 className="text-xs h-7"
               >
                 Reload Metadata
