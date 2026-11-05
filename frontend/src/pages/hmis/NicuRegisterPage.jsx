@@ -149,7 +149,15 @@ const NicuRegisterPage = () => {
     }
   };
 
-  const tallies = outputArtifacts?.tallies || {};
+  const isJobCompleted = jobState?.status === 'completed';
+  const resultFileName =
+    (Array.isArray(outputArtifacts) && outputArtifacts[0]) ||
+    outputArtifacts?.filename ||
+    jobState?.result_file ||
+    jobState?.artifacts?.output_xlsx ||
+    jobState?.artifacts?.output_file;
+
+  const tallies = computedIndicators || jobState?.artifacts?.tallies || {};
   const tallyEntries = Object.entries(tallies);
 
   return (
@@ -390,27 +398,23 @@ const NicuRegisterPage = () => {
       />
 
       {/* Success Artifacts */}
-      {outputArtifacts && (
+      {isJobCompleted && resultFileName && (
         <div className="flex items-center justify-between gap-3 p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 rounded-lg">
           <div className="flex items-center gap-2.5">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
             <div>
               <span className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">Register Generated</span>
-              {outputArtifacts.filename && (
-                <span className="text-xs text-emerald-700/70 dark:text-emerald-300/70 ml-2">{outputArtifacts.filename}</span>
-              )}
+              <span className="text-xs text-emerald-700/70 dark:text-emerald-300/70 ml-2">{resultFileName}</span>
             </div>
           </div>
-          {outputArtifacts.filename && (
-            <a
-              href={`/api/hmis/download/${encodeURIComponent(outputArtifacts.filename)}`}
-              download
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors"
-            >
-              <Download className="w-3.5 h-3.5" />
-              Download .xlsx
-            </a>
-          )}
+          <a
+            href={`/api/hmis/download/${encodeURIComponent(resultFileName)}`}
+            download
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Download .xlsx
+          </a>
         </div>
       )}
 

@@ -131,6 +131,14 @@ const HmisRmhReportPage = () => {
     }
   };
 
+  const isJobCompleted = jobState?.status === 'completed';
+  const resultFileName =
+    (Array.isArray(outputArtifacts) && outputArtifacts[0]) ||
+    outputArtifacts?.filename ||
+    jobState?.result_file ||
+    jobState?.artifacts?.output_xlsx ||
+    jobState?.artifacts?.output_file;
+
   const indicatorEntries = Object.entries(computedIndicators || {});
   const filteredIndicators = indicatorEntries.filter(([code, val]) => {
     if (!indicatorSearch) return true;
@@ -382,7 +390,7 @@ const HmisRmhReportPage = () => {
       />
 
       {/* Success Artifacts */}
-      {outputArtifacts && (
+      {isJobCompleted && resultFileName && (
         <div className="flex items-center justify-between gap-3 p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 rounded-lg">
           <div className="flex items-center gap-2.5">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
@@ -390,23 +398,19 @@ const HmisRmhReportPage = () => {
               <span className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
                 RMH Report Generated
               </span>
-              {outputArtifacts.filename && (
-                <span className="text-xs text-emerald-700/70 dark:text-emerald-300/70 ml-2">
-                  {outputArtifacts.filename}
-                </span>
-              )}
+              <span className="text-xs text-emerald-700/70 dark:text-emerald-300/70 ml-2">
+                {resultFileName}
+              </span>
             </div>
           </div>
-          {outputArtifacts.filename && (
-            <a
-              href={`/api/hmis/download/${encodeURIComponent(outputArtifacts.filename)}`}
-              download
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors"
-            >
-              <Download className="w-3.5 h-3.5" />
-              Download Excel
-            </a>
-          )}
+          <a
+            href={`/api/hmis/download/${encodeURIComponent(resultFileName)}`}
+            download
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Download Excel
+          </a>
         </div>
       )}
 

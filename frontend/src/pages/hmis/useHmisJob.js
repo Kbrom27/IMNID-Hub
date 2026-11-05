@@ -61,7 +61,7 @@ export const useHmisJob = () => {
   const [jobState, setJobState] = useState(null);
   const [liveLogs, setLiveLogs] = useState([]);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [outputArtifacts, setOutputArtifacts] = useState([]);
+  const [outputArtifacts, setOutputArtifacts] = useState(null);
   const [computedIndicators, setComputedIndicators] = useState(null);
 
   const eventSourceRef = useRef(null);
@@ -149,7 +149,7 @@ export const useHmisJob = () => {
     setActiveJobId(jobId);
     setLiveLogs([]);
     setIsStreaming(true);
-    setOutputArtifacts([]);
+    setOutputArtifacts(null);
     setComputedIndicators(null);
 
     const token = localStorage.getItem('imnid_token');
@@ -222,7 +222,7 @@ export const useHmisJob = () => {
                 newArtifacts.push(combined.export_json_file.split('/').pop());
               }
               if (newArtifacts.length > 0) {
-                setOutputArtifacts((prev) => [...new Set([...prev, ...newArtifacts])]);
+                setOutputArtifacts((prev) => [...new Set([...(prev || []), ...newArtifacts])]);
               }
               if (combined.values) {
                 setComputedIndicators(combined.values);
@@ -285,7 +285,7 @@ export const useHmisJob = () => {
     setJobState(null);
     setLiveLogs([]);
     setIsStreaming(false);
-    setOutputArtifacts([]);
+    setOutputArtifacts(null);
     setComputedIndicators(null);
   }, []);
 

@@ -1535,6 +1535,19 @@ const SmartcarePage = () => {
                   <span className="font-semibold">{rowLimit ? `${rowLimit} rows` : 'All rows (Full dataset)'}</span>
                 </div>
               </div>
+
+              <div className="flex items-center justify-center pt-3 border-t border-slate-100 dark:border-slate-800">
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={() => setShowConfirmModal(true)}
+                  disabled={!uploadedInfo || isViewer || importing || !openmrsSystem?.isConnected}
+                  icon={<Play className="w-4 h-4 text-white mr-1.5" />}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                >
+                  {importing ? 'Starting...' : 'Import to OpenMRS 3.x'}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -1599,8 +1612,8 @@ const SmartcarePage = () => {
       )}
 
       {/* Sticky Wizard Footer Bar (Requirement E9) */}
-      <div className="sticky bottom-4 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-3 sm:px-5 shadow-lg flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+      <div className="sticky bottom-4 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl p-3 sm:px-5 shadow-lg grid grid-cols-1 sm:grid-cols-3 items-center gap-3">
+        <div className="flex items-center gap-3 justify-start">
           <Button
             variant="secondary"
             size="sm"
@@ -1610,12 +1623,9 @@ const SmartcarePage = () => {
           >
             Back
           </Button>
-          <span className="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline font-medium">
-            Step {activeStep} of 4: {['CSV Data Source', 'Configure & Audit', 'Target & Scope Confirmation', 'Live Migration'][activeStep - 1]}
-          </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           {activeStep === 1 && (
             <Button
               variant="primary"
@@ -1679,6 +1689,12 @@ const SmartcarePage = () => {
               New Migration
             </Button>
           )}
+        </div>
+
+        <div className="hidden sm:flex items-center justify-end">
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            Step {activeStep} of 4: {['CSV Data Source', 'Configure & Audit', 'Target & Scope Confirmation', 'Live Migration'][activeStep - 1]}
+          </span>
         </div>
       </div>
 
