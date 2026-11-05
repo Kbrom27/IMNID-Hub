@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FileSpreadsheet,
   Calendar,
@@ -28,9 +28,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useHmisJob } from './useHmisJob';
 import {
   HmisConnectionCard,
-  Dhis2ProgramSelect,
   Dhis2OrgUnitSelect,
-  OpenmrsVisitTypeSelect,
   OpenmrsLocationSelect,
 } from './HmisServerSelectors';
 
@@ -57,7 +55,7 @@ const TAB_ITEMS = [
 ];
 
 const NicuRegisterPage = () => {
-  const { isViewer } = useAuth();
+  const { isViewer, authHeader } = useAuth();
   const {
     ethYear,
     ethMonth,
@@ -84,12 +82,34 @@ const NicuRegisterPage = () => {
   const [dhis2System, setDhis2System] = useState('dhis2_online');
   const [programUid, setProgramUid] = useState('Neonatal Care Form');
   const [openmrsMode, setOpenmrsMode] = useState('live');
-  const [openmrsVisitType, setOpenmrsVisitType] = useState('NICU');
+  const openmrsVisitType = 'NICU';
   const [openmrsFacility, setOpenmrsFacility] = useState('');
   const [openmrsCsvFile, setOpenmrsCsvFile] = useState(null);
   const [openmrsCsvPath, setOpenmrsCsvPath] = useState('');
   const [trackerCsvFile, setTrackerCsvFile] = useState(null);
   const [trackerCsvPath, setTrackerCsvPath] = useState('');
+
+  useEffect(() => {
+    if (!dhis2System) return;
+    let isMounted = true;
+    fetch(`/api/hmis/dhis2/programs?system=${dhis2System}`, { headers: authHeader() })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!isMounted || !data?.programs) return;
+        const matched = data.programs.find(
+          (p) =>
+            p.name?.toLowerCase().includes('neonatal') ||
+            p.id === 'QYJKpoUeg9F'
+        );
+        if (matched) {
+          setProgramUid(matched.id);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, [dhis2System, authHeader]);
 
   const startDate = calendarInfo?.gregorian_start || '';
   const endDate = calendarInfo?.gregorian_end || '';
@@ -97,7 +117,7 @@ const NicuRegisterPage = () => {
   const handleRunDhis2 = () => {
     handleSubmitJob('/api/hmis/nh/nicu-register-dhis2', {
       system: dhis2System,
-      program_uid: programUid,
+      program_uid: programUid || 'Neonatal Care Form',
       org_unit: facility || undefined,
       start: startDate || undefined,
       end: endDate || undefined,
@@ -110,7 +130,7 @@ const NicuRegisterPage = () => {
   const handleRunOpenmrs = () => {
     handleSubmitJob('/api/hmis/nh/nicu-register-openmrs', {
       input_file: openmrsMode === 'csv' ? openmrsCsvPath || (openmrsCsvFile?.name || '') : undefined,
-      visit_type: openmrsVisitType,
+      visit_type: 'NICU',
       facility_name: openmrsFacility || facility || undefined,
       start: startDate || undefined,
       end: endDate || undefined,
@@ -235,21 +255,12 @@ const NicuRegisterPage = () => {
               selectedSystem={dhis2System}
               onSystemChange={setDhis2System}
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <Dhis2ProgramSelect
-                system={dhis2System}
-                value={programUid}
-                onChange={setProgramUid}
-                filterKeyword="Neonatal"
-                label="NICU Tracker Program"
-              />
-              <Dhis2OrgUnitSelect
-                system={dhis2System}
-                value={facility}
-                onChange={setFacility}
-                label="Facility"
-              />
-            </div>
+            <Dhis2OrgUnitSelect
+              system={dhis2System}
+              value={facility}
+              onChange={setFacility}
+              label="Facility"
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <DirectoryPicker label="Output Directory" value={outputDir} onChange={setOutputDir} />
               <TextInput
@@ -311,10 +322,7 @@ const NicuRegisterPage = () => {
             {openmrsMode === 'live' ? (
               <div className="space-y-3">
                 <HmisConnectionCard type="openmrs" />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <OpenmrsVisitTypeSelect value={openmrsVisitType} onChange={setOpenmrsVisitType} defaultType="NICU" />
-                  <OpenmrsLocationSelect value={openmrsFacility} onChange={setOpenmrsFacility} label="Location" />
-                </div>
+                <OpenmrsLocationSelect value={openmrsFacility} onChange={setOpenmrsFacility} label="Location" />
               </div>
             ) : (
               <div className="space-y-2">
