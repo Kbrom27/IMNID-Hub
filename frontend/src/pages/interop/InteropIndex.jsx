@@ -7,32 +7,24 @@ const INTEROP_MODULES = [
   {
     id: 'o3',
     title: 'OpenMRS 3 Pipeline',
-    subtitle: 'OpenMRS 3.x ⟷ DHIS2 Tracker',
-    desc: 'Modern 4-part workflow for OpenMRS 3 with REST / FHIR encounters export, automated transformation, and tracker import.',
     icon: ArrowLeftRight,
     path: '/interop/o3',
   },
   {
     id: 'bahmni',
     title: 'Bahmni Pipeline',
-    subtitle: 'OpenMRS 2.x ⟷ DHIS2 Tracker',
-    desc: 'Standard 4-part workflow: Export encounters, transform clinical observations, validate dry-run, and sync to DHIS2.',
     icon: Database,
     path: '/interop/bahmni',
   },
   {
     id: 'mediator',
     title: 'Mediator & Checkpoints',
-    subtitle: 'Microservice Health & Recovery',
-    desc: 'Inspect background mediator service health on port 8000, inspect failed records, and resume interrupted batch jobs.',
     icon: Activity,
     path: '/interop/mediator',
   },
   {
     id: 'mappings',
     title: 'Value Mappings Editor',
-    subtitle: 'Concept-to-OptionCode Table',
-    desc: 'Interactive table editor translating EMR concept answer values to DHIS2 Tracker option codes per system and program.',
     icon: Table,
     path: '/interop/mappings',
   },
@@ -74,27 +66,17 @@ const InteropIndex = () => {
               to={item.path}
               className="group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded-xl"
             >
-              <div className="h-full p-5 sm:p-6 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500/80 dark:hover:border-teal-500/80 shadow-xs hover:shadow-md transition-all duration-150 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-200/60 dark:border-teal-800/60 group-hover:scale-105 transition-transform">
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-teal-600 group-hover:bg-teal-50 dark:group-hover:bg-teal-950/40 group-hover:translate-x-1 transition-all">
-                      <ArrowRight className="w-4 h-4" />
-                    </div>
+              <div className="h-full p-5 sm:p-6 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500/80 dark:hover:border-teal-500/80 shadow-xs hover:shadow-md transition-all duration-150 flex items-center justify-between">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-200/60 dark:border-teal-800/60 group-hover:scale-105 transition-transform">
+                    <Icon className="w-5 h-5" />
                   </div>
-
                   <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
                     {item.title}
                   </h3>
-                  <span className="text-xs font-semibold text-teal-600 dark:text-teal-400 uppercase tracking-wide mt-1 block">
-                    {item.subtitle}
-                  </span>
-
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 line-clamp-2 leading-relaxed">
-                    {item.desc}
-                  </p>
+                </div>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-teal-600 group-hover:bg-teal-50 dark:group-hover:bg-teal-950/40 group-hover:translate-x-1 transition-all shrink-0 ml-3">
+                  <ArrowRight className="w-4 h-4" />
                 </div>
               </div>
             </Link>

@@ -11,30 +11,21 @@ const HMIS_GROUPS = [
     tools: [
       {
         id: 'rmh-report',
-        title: 'HMIS RMH Report Generator',
-        subtitle: 'MoH 01.2 Monthly Aggregate Report',
-        desc: 'Compute maternal health indicators from DHIS2 Tracker or OpenMRS 3.',
+        title: 'HMIS RMH Report (01.2)',
         icon: BarChart2,
         path: '/hmis/rmh-report',
-        sources: ['DHIS2 Tracker', 'OpenMRS 3'],
       },
       {
         id: 'nch-report',
-        title: 'HMIS NCH Report Generator',
-        subtitle: 'MoH 04.2 Monthly Aggregate Report',
-        desc: 'Compute neonatal indicators and admission tallies from DHIS2 Tracker or OpenMRS 3.',
+        title: 'HMIS NCH Report (04.2)',
         icon: Baby,
         path: '/hmis/nch-report',
-        sources: ['DHIS2 Tracker', 'OpenMRS 3'],
       },
       {
         id: 'moh-aggregate',
         title: 'MOH Aggregate Report Exporter',
-        subtitle: 'Facility Analytics Exporter',
-        desc: 'Query MOH DHIS2 analytics across historical periods and export multi-sheet Excel & CSV.',
         icon: Layers,
         path: '/hmis/moh-aggregate',
-        sources: ['DHIS2 Analytics', 'Facility Mapping'],
       },
     ],
   },
@@ -45,21 +36,15 @@ const HMIS_GROUPS = [
     tools: [
       {
         id: 'nicu-register',
-        title: 'NICU Register Generator',
-        subtitle: 'MoH 26-Column Register',
-        desc: 'Generate 26-column admission registers with monthly tally sheets.',
+        title: 'NICU Register (26-Column)',
         icon: BookOpen,
         path: '/hmis/nicu-register',
-        sources: ['DHIS2 Tracker', 'OpenMRS 3'],
       },
       {
         id: 'delivery-register',
-        title: 'Delivery Register Generator',
-        subtitle: 'MoH 34-Column Register',
-        desc: 'Generate 34-column delivery registers with multi-facility support.',
+        title: 'Delivery Register (34-Column)',
         icon: FileSpreadsheet,
         path: '/hmis/delivery-register',
-        sources: ['DHIS2 Tracker', 'OpenMRS 3'],
       },
     ],
   },
@@ -115,42 +100,18 @@ const HmisIndex = () => {
                       to={item.path}
                       className="group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded-xl"
                     >
-                      <div className="h-full p-5 sm:p-6 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500/80 dark:hover:border-teal-500/80 shadow-xs hover:shadow-md transition-all duration-150 flex flex-col justify-between">
-                        <div>
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-200/60 dark:border-teal-800/60 group-hover:scale-105 transition-transform">
-                              <Icon className="w-5 h-5" />
-                            </div>
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-teal-600 group-hover:bg-teal-50 dark:group-hover:bg-teal-950/40 group-hover:translate-x-1 transition-all">
-                              <ArrowRight className="w-4 h-4" />
-                            </div>
+                      <div className="h-full p-5 sm:p-6 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500/80 dark:hover:border-teal-500/80 shadow-xs hover:shadow-md transition-all duration-150 flex items-center justify-between">
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-200/60 dark:border-teal-800/60 group-hover:scale-105 transition-transform">
+                            <Icon className="w-5 h-5" />
                           </div>
-
                           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
                             {item.title}
                           </h3>
-                          <span className="text-xs font-semibold text-teal-600 dark:text-teal-400 uppercase tracking-wide mt-1 block">
-                            {item.subtitle}
-                          </span>
-
-                          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 line-clamp-2 leading-relaxed">
-                            {item.desc}
-                          </p>
                         </div>
-
-                        {/* Supported Sources Tags */}
-                        {item.sources && (
-                          <div className="flex flex-wrap items-center gap-1.5 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
-                            {item.sources.map((src) => (
-                              <span
-                                key={src}
-                                className="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60"
-                              >
-                                {src}
-                              </span>
-                            ))}
-                          </div>
-                        )}
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-teal-600 group-hover:bg-teal-50 dark:group-hover:bg-teal-950/40 group-hover:translate-x-1 transition-all shrink-0 ml-3">
+                          <ArrowRight className="w-4 h-4" />
+                        </div>
                       </div>
                     </Link>
                   );

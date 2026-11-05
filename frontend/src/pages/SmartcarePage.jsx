@@ -491,7 +491,6 @@ const SmartcarePage = () => {
       {/* Top Header with Shared Single-Source-of-Truth Connection Badge (Requirement B3) */}
       <PageHeader
         title="SmartCare to OpenMRS 3.x Migration"
-        subtitle="Transform and migrate SmartCare legacy demographic data directly into OpenMRS 3.x"
         breadcrumbs={[
           { label: 'Overview', to: '/' },
           { label: 'Migration', to: '/smartcare' },

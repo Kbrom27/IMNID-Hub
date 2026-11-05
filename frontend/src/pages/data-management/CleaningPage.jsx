@@ -83,7 +83,7 @@ const CleaningPage = () => {
   return (
     <div className="space-y-6 w-full">
       <PageHeader
-        title="Data Transformation — One Row per TEI"
+        title="Data Transformation"
         breadcrumbs={[
           { label: 'Data Management', href: '/data-management' },
           { label: 'Data Transformation' },

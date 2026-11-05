@@ -148,7 +148,7 @@ const AnalysisExportPage = () => {
   return (
     <div className="space-y-6 w-full">
       <PageHeader
-        title="Analytical Data Export (Wide Format)"
+        title="Analytical Data Export"
         breadcrumbs={[
           { label: 'Data Management', href: '/data-management' },
           { label: 'Analytical Export' },
