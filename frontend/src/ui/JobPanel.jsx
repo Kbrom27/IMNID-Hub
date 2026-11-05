@@ -24,6 +24,25 @@ import {
   saveBlobWithPicker,
 } from '../utils/localFileSystem';
 
+function formatPanelText(val, fallback = '') {
+  if (val === null || val === undefined) return fallback;
+  if (typeof val === 'string') {
+    return val === '[object Object]' ? fallback : val;
+  }
+  if (typeof val === 'object') {
+    if (val.message) return formatPanelText(val.message, fallback);
+    if (val.detail) return formatPanelText(val.detail, fallback);
+    if (val.error) return formatPanelText(val.error, fallback);
+    if (val.msg) return formatPanelText(val.msg, fallback);
+    try {
+      return JSON.stringify(val);
+    } catch {
+      return fallback;
+    }
+  }
+  return String(val);
+}
+
 /**
  * JobPanel Component
  * Standard execution status and live streaming panel for background jobs across all modules.
@@ -132,9 +151,9 @@ const JobPanel = ({
   } else if (fetchedLogs.length > 0) {
     effectiveLogs = fetchedLogs;
   } else if (safeJobState.errors && safeJobState.errors.length > 0) {
-    effectiveLogs = safeJobState.errors.map((e) => `[ERROR] ${e}`);
+    effectiveLogs = safeJobState.errors.map((e) => `[ERROR] ${formatPanelText(e)}`);
   } else if (safeJobState.message) {
-    effectiveLogs = [`[INFO] ${safeJobState.message}`];
+    effectiveLogs = [`[INFO] ${formatPanelText(safeJobState.message)}`];
   }
 
   const statusConfig = {
@@ -382,7 +401,10 @@ const JobPanel = ({
               <span>Job Execution Failed</span>
             </div>
             <p className="text-xs text-rose-800 dark:text-rose-300 ml-6">
-              {safeJobState.message || (safeJobState.errors && safeJobState.errors[0]) || 'An error occurred during execution.'}
+              {formatPanelText(
+                safeJobState.message || (safeJobState.errors && safeJobState.errors[0]),
+                'An error occurred during execution.'
+              )}
             </p>
           </div>
         )}
@@ -391,7 +413,7 @@ const JobPanel = ({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
             <span className="truncate max-w-md text-slate-600 dark:text-slate-400">
-              {safeJobState.message || (isStreaming ? 'Processing job in background...' : 'Ready')}
+              {formatPanelText(safeJobState.message) || (isStreaming ? 'Processing job in background...' : 'Ready')}
             </span>
             <span className="font-mono">{progress}%</span>
           </div>

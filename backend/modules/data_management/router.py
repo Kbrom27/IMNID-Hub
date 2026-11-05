@@ -764,7 +764,8 @@ class DataDictionaryRequest(BaseModel):
     dhis2_url: Optional[str] = None
     username: Optional[str] = None
     password: Optional[str] = None
-    program_name: str
+    program_name: Optional[str] = None
+    program_id: Optional[str] = None
     output_dir: Optional[str] = None
     filename: Optional[str] = None
 
@@ -779,15 +780,16 @@ async def data_dictionary_run(
     user = req.username or creds["username"]
     pw = req.password or creds["password"]
 
+    prog_to_run = req.program_id or req.program_name or "Newborn Inpatient Data"
     source_label = "Offline" if (req.source_instance or "dhis2_offline") == "dhis2_offline" else "Online"
     job = job_engine.submit_job(
         job_type="data_dictionary_export",
-        description=f"Export Data Dictionary: {req.program_name} ({source_label})",
+        description=f"Export Data Dictionary: {req.program_name or prog_to_run} ({source_label})",
         worker_fn=run_data_dictionary_worker,
         dhis2_url=url,
         username=user,
         password=pw,
-        program_name=req.program_name,
+        program_name=prog_to_run,
         output_dir=req.output_dir,
         filename=req.filename,
     )

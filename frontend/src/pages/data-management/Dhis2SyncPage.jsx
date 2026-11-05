@@ -64,8 +64,8 @@ const Dhis2SyncPage = () => {
   const [customTargetUser, setCustomTargetUser] = useState('');
   const [customTargetPass, setCustomTargetPass] = useState('');
 
-  const [programs, setPrograms] = useState(DEFAULT_PROGRAMS);
-  const [selectedPrograms, setSelectedPrograms] = useState(['pLk3Ht2XMKl']);
+  const [programs, setPrograms] = useState([]);
+  const [selectedPrograms, setSelectedPrograms] = useState([]);
   const [orgUnits, setOrgUnits] = useState([]);
   const [orgSearchQuery, setOrgSearchQuery] = useState('');
   const [loadingMetadata, setLoadingMetadata] = useState(false);
@@ -101,10 +101,19 @@ const Dhis2SyncPage = () => {
         const pData = await pRes.json();
         if (pData.programs && pData.programs.length > 0) {
           setPrograms(pData.programs);
-          if (selectedPrograms.length === 0 || !pData.programs.some((p) => selectedPrograms.includes(p.id))) {
-            setSelectedPrograms([pData.programs[0].id]);
-          }
+          setSelectedPrograms((prev) => {
+            if (prev.length > 0 && pData.programs.some((p) => prev.includes(p.id))) {
+              return prev.filter((id) => pData.programs.some((p) => p.id === id));
+            }
+            return [pData.programs[0].id];
+          });
+        } else {
+          setPrograms([]);
+          setSelectedPrograms([]);
         }
+      } else {
+        setPrograms([]);
+        setSelectedPrograms([]);
       }
 
       const ouRes = await fetch(`/api/data-management/dhis2/org-units?system=${systemKey}`, {
@@ -120,7 +129,9 @@ const Dhis2SyncPage = () => {
       }
     } catch (err) {
       console.warn('Failed to load DHIS2 sync metadata:', err);
-      setMetadataError('Could not fetch live metadata from selected source. Using fallback definitions.');
+      setMetadataError('Could not fetch live metadata from selected source.');
+      setPrograms([]);
+      setSelectedPrograms([]);
     } finally {
       setLoadingMetadata(false);
     }
@@ -130,7 +141,10 @@ const Dhis2SyncPage = () => {
     if (sourceSystemKey) {
       fetchMetadata(sourceSystemKey);
     } else {
+      setPrograms([]);
+      setSelectedPrograms([]);
       setOrgUnits([]);
+      setOrgUnitId('');
     }
   }, [direction, sourceSystemKey]);
 
@@ -361,53 +375,69 @@ const Dhis2SyncPage = () => {
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Programs to Sync ({selectedPrograms.length} of {programs.length})
               </label>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={selectAllPrograms}
-                  className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-medium"
-                >
-                  All
-                </button>
-                <span className="text-slate-300 dark:text-slate-700">|</span>
-                <button
-                  type="button"
-                  onClick={deselectAllPrograms}
-                  className="text-xs text-slate-400 hover:underline"
-                >
-                  Clear
-                </button>
-              </div>
+              {programs.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={selectAllPrograms}
+                    className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-medium"
+                  >
+                    All
+                  </button>
+                  <span className="text-slate-300 dark:text-slate-700">|</span>
+                  <button
+                    type="button"
+                    onClick={deselectAllPrograms}
+                    className="text-xs text-slate-400 hover:underline"
+                  >
+                    Clear
+                  </button>
+                </div>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-              {programs.map((p) => {
-                const isChecked = selectedPrograms.includes(p.id);
-                return (
-                  <div
-                    key={p.id}
-                    onClick={() => toggleProgram(p.id)}
-                    className={`flex items-center gap-2 p-2 rounded-md border cursor-pointer transition text-left ${
-                      isChecked
-                        ? 'border-teal-500 bg-teal-50/40 dark:bg-teal-950/20 text-slate-900 dark:text-slate-100'
-                        : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40'
-                    }`}
-                  >
-                    <div className="flex-shrink-0">
-                      {isChecked ? (
-                        <CheckSquare className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                      ) : (
-                        <Square className="w-3.5 h-3.5 text-slate-400" />
-                      )}
+            {!sourceSystemKey ? (
+              <div className="text-xs text-slate-500 italic p-3 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-lg">
+                Select a synchronization direction above to load programs from the source instance
+              </div>
+            ) : loadingMetadata ? (
+              <div className="text-xs text-slate-500 p-3 text-center animate-pulse">
+                Loading programs from source DHIS2 instance...
+              </div>
+            ) : programs.length === 0 ? (
+              <div className="text-xs text-slate-500 p-3 text-center border border-slate-200 dark:border-slate-800 rounded-lg">
+                No tracker programs found on the selected source instance.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                {programs.map((p) => {
+                  const isChecked = selectedPrograms.includes(p.id);
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => toggleProgram(p.id)}
+                      className={`flex items-center gap-2 p-2 rounded-md border cursor-pointer transition text-left ${
+                        isChecked
+                          ? 'border-teal-500 bg-teal-50/40 dark:bg-teal-950/20 text-slate-900 dark:text-slate-100'
+                          : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                      }`}
+                    >
+                      <div className="flex-shrink-0">
+                        {isChecked ? (
+                          <CheckSquare className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                        ) : (
+                          <Square className="w-3.5 h-3.5 text-slate-400" />
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1 truncate">
+                        <span className="text-xs font-semibold truncate block">{p.displayName || p.name}</span>
+                        <span className="text-[10px] font-mono text-slate-400 block">{p.id}</span>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1 truncate">
-                      <span className="text-xs font-semibold truncate block">{p.displayName || p.name}</span>
-                      <span className="text-[10px] font-mono text-slate-400 block">{p.id}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Org Unit & Dates */}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { BookOpen, Laptop, Globe } from 'lucide-react';
 import {
   PageHeader,
@@ -38,24 +38,67 @@ const DataDictionaryPage = () => {
   const onlineInfo = vaultConns?.online;
 
   const [sourceInstance, setSourceInstance] = useState(null);
-  const [programName, setProgramName] = useState('Maternal inpatient data');
+  const [programs, setPrograms] = useState([]);
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
+  const [selectedProgramId, setSelectedProgramId] = useState('');
   const [outputDir, setOutputDir] = useState('/data/exports');
   const [filename, setFilename] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const fetchPrograms = useCallback(async (system) => {
+    setLoadingPrograms(true);
+    try {
+      const res = await fetch(`/api/data-management/dhis2/programs?system=${system}`, {
+        headers: authHeader(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const progs = data.programs || [];
+        setPrograms(progs);
+        if (progs.length > 0) {
+          setSelectedProgramId((prev) => (progs.some((p) => p.id === prev) ? prev : progs[0].id));
+        } else {
+          setSelectedProgramId('');
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to fetch programs for', system, err);
+      setPrograms([]);
+      setSelectedProgramId('');
+    } finally {
+      setLoadingPrograms(false);
+    }
+  }, [authHeader]);
+
+  useEffect(() => {
+    if (sourceInstance) {
+      fetchPrograms(sourceInstance);
+    } else {
+      setPrograms([]);
+      setSelectedProgramId('');
+    }
+  }, [sourceInstance, fetchPrograms]);
 
   const handleExport = async () => {
     if (!sourceInstance) {
       showToast('Please select a source DHIS2 instance (Offline or Online)', 'error');
       return;
     }
+    if (!selectedProgramId) {
+      showToast('Please select a tracker program before generating dictionary', 'error');
+      return;
+    }
     setLoading(true);
+    const chosenProg = programs.find((p) => p.id === selectedProgramId);
+    const chosenName = chosenProg?.name || selectedProgramId;
     try {
       const res = await fetch('/api/data-management/data-dictionary/run', {
         method: 'POST',
         headers: { ...authHeader(), 'Content-Type': 'application/json' },
         body: JSON.stringify({
           source_instance: sourceInstance,
-          program_name: programName,
+          program_name: chosenName,
+          program_id: selectedProgramId,
           output_dir: outputDir,
           filename: filename || undefined,
         }),
@@ -63,7 +106,7 @@ const DataDictionaryPage = () => {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(extractErrorMessage(data, 'Data dictionary generation failed'));
       subscribeToJob(data.job_id);
-      showToast(`Generating dictionary for ${programName}...`, 'success');
+      showToast(`Generating dictionary for ${chosenName}...`, 'success');
     } catch (err) {
       showToast(err.message, 'error');
     } finally {
@@ -140,13 +183,21 @@ const DataDictionaryPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
             <Select
               label="Tracker Program"
-              value={programName}
-              onChange={(e) => setProgramName(e.target.value)}
-              options={[
-                { value: 'Maternal inpatient data', label: 'Maternal Inpatient Data' },
-                { value: 'Neonatal care Form', label: 'Neonatal Care Form' },
-                { value: 'Newborn Inpatient Data', label: 'Newborn Inpatient Data' },
-              ]}
+              value={selectedProgramId}
+              onChange={(e) => setSelectedProgramId(e.target.value)}
+              disabled={!sourceInstance || loadingPrograms || programs.length === 0}
+              options={
+                !sourceInstance
+                  ? [{ value: '', label: 'Select an instance to load programs' }]
+                  : loadingPrograms
+                  ? [{ value: '', label: 'Loading programs...' }]
+                  : programs.length === 0
+                  ? [{ value: '', label: 'No tracker programs found' }]
+                  : programs.map((p) => ({
+                      value: p.id,
+                      label: p.name ? `${p.name} (${p.id})` : p.id,
+                    }))
+              }
             />
 
             <DirectoryPicker

@@ -203,6 +203,13 @@ class DataDictionaryExportPage:
 
             program_id = program_ids.get(program_name)
             if not program_id:
+                for k, v in program_ids.items():
+                    if k.strip().lower() == program_name.strip().lower():
+                        program_id = v
+                        break
+            if not program_id and (program_name in program_ids.values() or (len(program_name) == 11 and program_name.isalnum())):
+                program_id = program_name
+            if not program_id:
                 raise ValueError(f"Invalid program selected: {program_name}")
 
             # Setup session

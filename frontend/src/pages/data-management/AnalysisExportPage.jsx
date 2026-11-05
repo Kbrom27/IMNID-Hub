@@ -36,7 +36,9 @@ const AnalysisExportPage = () => {
   } = useDataManagementJob();
 
   const [sourceInstance, setSourceInstance] = useState(null);
-  const [programName, setProgramName] = useState('Newborn Inpatient Data');
+  const [programs, setPrograms] = useState([]);
+  const [loadingPrograms, setLoadingPrograms] = useState(false);
+  const [selectedProgramId, setSelectedProgramId] = useState('');
   const [orgMode, setOrgMode] = useState('ALL');
   const [orgUnitId, setOrgUnitId] = useState('');
   const [orgUnits, setOrgUnits] = useState([]);
@@ -70,13 +72,30 @@ const AnalysisExportPage = () => {
   const onlineInfo = vaultConns?.online;
   const offlineInfo = vaultConns?.offline;
 
-  const programIds = {
-    'Maternal Inpatient Data': 'aLoraiFNkng',
-    'Newborn Inpatient Data': 'pLk3Ht2XMKl',
-    'Neonatal care Form': 'QYJKpoUeg9F',
-    'FINC': 'flBSKMXQloQ',
-    'SLL Assist AI': 'yxRNHSagJmU',
-  };
+  const fetchPrograms = useCallback(async (system) => {
+    setLoadingPrograms(true);
+    try {
+      const res = await fetch(`/api/data-management/dhis2/programs?system=${system}`, {
+        headers: authHeader(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const progs = data.programs || [];
+        setPrograms(progs);
+        if (progs.length > 0) {
+          setSelectedProgramId((prev) => (progs.some((p) => p.id === prev) ? prev : progs[0].id));
+        } else {
+          setSelectedProgramId('');
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to fetch programs for', system, err);
+      setPrograms([]);
+      setSelectedProgramId('');
+    } finally {
+      setLoadingPrograms(false);
+    }
+  }, [authHeader]);
 
   const fetchOrgUnits = useCallback(async (system) => {
     setLoadingOrgUnits(true);
@@ -100,15 +119,22 @@ const AnalysisExportPage = () => {
   useEffect(() => {
     if (sourceInstance) {
       fetchOrgUnits(sourceInstance);
+      fetchPrograms(sourceInstance);
     } else {
       setOrgUnits([]);
       setOrgUnitId('');
+      setPrograms([]);
+      setSelectedProgramId('');
     }
-  }, [sourceInstance, fetchOrgUnits]);
+  }, [sourceInstance, fetchOrgUnits, fetchPrograms]);
 
   const handleExport = async () => {
     if (!sourceInstance) {
       showToast('Please select a source DHIS2 instance (Offline or Online)', 'error');
+      return;
+    }
+    if (!selectedProgramId) {
+      showToast('Please select a tracker program before starting export', 'error');
       return;
     }
     if (orgMode === 'SELECTED' && !orgUnitId) {
@@ -116,11 +142,13 @@ const AnalysisExportPage = () => {
       return;
     }
     setLoading(true);
+    const chosenProg = programs.find((p) => p.id === selectedProgramId);
+    const chosenName = chosenProg?.name || selectedProgramId;
     try {
       const payload = {
         source_instance: sourceInstance,
-        program_name: programName,
-        program_id: programIds[programName] || 'pLk3Ht2XMKl',
+        program_name: chosenName,
+        program_id: selectedProgramId,
         org_unit_mode: orgMode,
         ou_mode: orgMode,
         org_unit_id: orgMode === 'SELECTED' ? orgUnitId : undefined,
@@ -222,10 +250,22 @@ const AnalysisExportPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
             <Select
-              label="Program"
-              value={programName}
-              onChange={(e) => setProgramName(e.target.value)}
-              options={Object.keys(programIds).map((p) => ({ value: p, label: p }))}
+              label="Tracker Program"
+              value={selectedProgramId}
+              onChange={(e) => setSelectedProgramId(e.target.value)}
+              disabled={!sourceInstance || loadingPrograms || programs.length === 0}
+              options={
+                !sourceInstance
+                  ? [{ value: '', label: 'Select an instance to load programs' }]
+                  : loadingPrograms
+                  ? [{ value: '', label: 'Loading programs...' }]
+                  : programs.length === 0
+                  ? [{ value: '', label: 'No tracker programs found' }]
+                  : programs.map((p) => ({
+                      value: p.id,
+                      label: p.name ? `${p.name} (${p.id})` : p.id,
+                    }))
+              }
             />
 
             <Select
