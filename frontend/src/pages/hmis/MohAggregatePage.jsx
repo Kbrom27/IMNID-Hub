@@ -102,7 +102,7 @@ const MohAggregatePage = () => {
   };
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="MOH Aggregate Report Exporter"
         breadcrumbs={[
@@ -121,7 +121,7 @@ const MohAggregatePage = () => {
 
       {/* Analytics Configuration Card */}
       <Card>
-        <CardContent className="space-y-5 p-6">
+        <CardContent className="space-y-4 p-4 sm:p-5">
           <MohDataElementSelect
             system={dhis2System}
             value={dataElementUid}
@@ -131,10 +131,10 @@ const MohAggregatePage = () => {
 
           {/* Auto-configured Bundled Facility Mapping */}
           <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-            <div className="p-4 rounded-xl border border-teal-200 dark:border-teal-850 bg-teal-50/50 dark:bg-teal-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-3.5 rounded-xl border border-teal-200 dark:border-teal-850 bg-teal-50/50 dark:bg-teal-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300 flex items-center justify-center font-bold text-sm shrink-0">
-                  <FileSpreadsheet className="w-5 h-5" />
+                <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300 flex items-center justify-center font-bold text-sm shrink-0">
+                  <FileSpreadsheet className="w-4 h-4" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -145,9 +145,6 @@ const MohAggregatePage = () => {
                       <ShieldCheck className="w-3.5 h-3.5" /> 99 Facilities Auto-Configured
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Preloaded from <code className="font-mono text-teal-700 dark:text-teal-300">Maternal aggregate.xlsx</code> (includes all 99 facilities, Karamara General Hospital & Jigjiga University Hospital). No template import needed.
-                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
@@ -307,10 +304,6 @@ const MohAggregatePage = () => {
                     );
                   })}
                 </div>
-
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-slate-800">
-                  Tip: In DHIS2 MOH, NICU admission data (<code className="text-teal-700 dark:text-teal-300">lzhOxCHJMOV</code>) for IMNID facilities is primarily recorded under Ethiopian calendar fiscal years (2017–2019). For all historical records, select <span className="font-semibold text-slate-700 dark:text-slate-300">Full Historical Range</span>.
-                </p>
               </div>
             )}
           </div>

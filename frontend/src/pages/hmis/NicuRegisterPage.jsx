@@ -153,7 +153,7 @@ const NicuRegisterPage = () => {
   const tallyEntries = Object.entries(tallies);
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="NICU Register Generator"
         breadcrumbs={[

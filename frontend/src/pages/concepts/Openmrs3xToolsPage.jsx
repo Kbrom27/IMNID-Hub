@@ -787,10 +787,9 @@ const Openmrs3xToolsPage = () => {
   };
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
-        title="OpenMRS 3.x Concept & Form Toolkit"
-        subtitle="Concept batch conversion, imports, schema generation, and metadata verification"
+        title="OpenMRS 3.x Tools"
         breadcrumbs={[
           { label: 'Overview', to: '/' },
           { label: 'Concepts & Forms', to: '/concepts' },
@@ -798,32 +797,26 @@ const Openmrs3xToolsPage = () => {
         ]}
       />
 
-      {/* Top Tool Selector (Horizontal Grid) */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-3 px-1">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Select 3.x Tool (CM-01 to CM-10)
-          </span>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+      {/* Top Tool Selector (Compact 5x2 Grid at most ~140px tall, CM code + title only) */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-3 shadow-2xs">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
           {TOOLS_3X.map((tool) => {
-            const Icon = tool.icon;
             const isSelected = selectedToolId === tool.id;
             return (
-              <Tooltip key={tool.id} content={`${tool.code} · ${tool.name}: ${tool.desc}`}>
+              <Tooltip key={tool.id} content={`${tool.code} · ${tool.name}`}>
                 <button
                   type="button"
                   onClick={() => setSelectedToolId(tool.id)}
-                  title={`${tool.code} · ${tool.name}: ${tool.desc}`}
-                  className={`p-3 rounded-xl text-left transition-all flex flex-col justify-between border w-full h-full relative cursor-pointer ${
+                  title={`${tool.code} · ${tool.name}`}
+                  className={`p-2 sm:px-2.5 sm:py-2 rounded-lg text-left transition-all flex flex-col justify-center border w-full h-[56px] relative cursor-pointer ${
                     isSelected
-                      ? 'bg-teal-50/80 dark:bg-teal-950/50 border-teal-500 dark:border-teal-400 text-teal-950 dark:text-teal-100 shadow-sm ring-1 ring-teal-500/20'
+                      ? 'bg-teal-50/80 dark:bg-teal-950/50 border-teal-500 dark:border-teal-400 text-teal-950 dark:text-teal-100 shadow-2xs ring-1 ring-teal-500/20'
                       : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-850'
                   }`}
                 >
-                  <div className="flex items-center justify-between w-full mb-2">
+                  <div className="flex items-center gap-1.5 mb-1">
                     <span
-                      className={`font-sans text-[11px] font-bold tracking-wider px-2 py-0.5 rounded ${
+                      className={`font-sans text-[11px] font-bold tracking-wider px-1.5 py-0.2 rounded ${
                         isSelected
                           ? 'bg-teal-600 text-white dark:bg-teal-500'
                           : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
@@ -831,18 +824,10 @@ const Openmrs3xToolsPage = () => {
                     >
                       {tool.code}
                     </span>
-                    <Icon
-                      className={`w-4 h-4 shrink-0 ${
-                        isSelected ? 'text-teal-600 dark:text-teal-400' : 'text-slate-400'
-                      }`}
-                    />
                   </div>
-                  <div className="font-bold text-xs sm:text-[13px] leading-snug line-clamp-2 min-h-[2.25rem]">
+                  <div className="font-semibold text-xs leading-snug line-clamp-2">
                     {tool.name}
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 min-h-[2rem] leading-normal mt-1 font-medium">
-                    {tool.desc}
-                  </p>
                 </button>
               </Tooltip>
             );
@@ -850,19 +835,46 @@ const Openmrs3xToolsPage = () => {
         </div>
       </div>
 
-      {/* Selected Tool Form & Run Card (Full Width at Bottom) */}
-      <div className="space-y-5">
+      {/* Selected Tool Form & Run Card */}
+      <div className="space-y-4">
         <Card>
           <CardHeader>
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-bold text-teal-600 px-2 py-0.5 rounded bg-teal-50 dark:bg-teal-950/40">
-                {currentTool.code}
-              </span>
-              <CardTitle>{currentTool.name}</CardTitle>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 w-full">
+              <div className="flex items-center gap-2">
+                <span className="font-sans text-xs font-bold text-teal-600 dark:text-teal-400 px-2 py-0.5 rounded bg-teal-50 dark:bg-teal-950/40 border border-teal-200/60 dark:border-teal-800/60">
+                  {currentTool.code}
+                </span>
+                <CardTitle>{currentTool.name}</CardTitle>
+              </div>
+
+              {/* Action Buttons visible right at top */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {selectedToolId !== 'cm01_bahmni' && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    icon={<RotateCcw className="w-3.5 h-3.5 text-amber-500" />}
+                    loading={isStreaming}
+                    disabled={isViewer}
+                    onClick={() => handleRunTool(true)}
+                  >
+                    Dry-Run
+                  </Button>
+                )}
+                <Button
+                  variant="primary"
+                  size="sm"
+                  icon={<Play className="w-3.5 h-3.5" />}
+                  loading={isStreaming}
+                  disabled={isViewer}
+                  onClick={() => handleRunTool(false)}
+                >
+                  Execute
+                </Button>
+              </div>
             </div>
-            <CardDescription>{currentTool.desc}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {/* CM-01: Bahmni Concept Converter */}
             {selectedToolId === 'cm01_bahmni' && (
               <div className="space-y-4">

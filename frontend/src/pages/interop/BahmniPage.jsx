@@ -184,10 +184,9 @@ const BahmniPage = () => {
   };
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="Bahmni EMR ⟷ DHIS2 Tracker"
-        description="Extract, transform, and sync Bahmni encounters to DHIS2 Tracker"
         breadcrumbs={[
           { label: 'Interoperability', href: '/interop' },
           { label: 'Bahmni Pipeline' },

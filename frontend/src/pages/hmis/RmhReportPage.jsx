@@ -119,7 +119,7 @@ const RmhReportPage = () => {
   };
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="Routine Maternal Health Register (HMIS 01.2)"
         breadcrumbs={[
@@ -212,7 +212,6 @@ const RmhReportPage = () => {
               accept=".csv"
               value={csvFile}
               onChange={handleFileChange}
-              helperText="Upload tracker extract CSV file"
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <TextInput label="Region Filter (Optional)" value={region} onChange={(e) => setRegion(e.target.value)} />

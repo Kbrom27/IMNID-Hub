@@ -38,16 +38,16 @@ const ROUTE_LABELS = {
 
 /**
  * PageHeader Component
- * Unified shared header for all IMNID Hub views conforming to Section C:
+ * Clean, minimal header conforming to Section A & B criteria:
  * - Breadcrumb navigation displayed cleanly above the title
- * - Prominent 24-28px title
- * - Contextual 14px subtitle
- * - Right-aligned actions slot
+ * - Prominent 20-24px title with icon
+ * - NO subtitles, descriptions or secondary captions
+ * - Actions aligned on the same row
  */
 export const PageHeader = ({
   title,
-  subtitle,
-  description, // alias for subtitle
+  subtitle, // deprecated: ignored per Section A
+  description, // deprecated: ignored per Section A
   breadcrumbs,
   actions,
   icon,
@@ -85,13 +85,11 @@ export const PageHeader = ({
     return list;
   }, [breadcrumbs, location.pathname]);
 
-  const sub = subtitle || description;
-
   return (
-    <div className={`pb-4 border-b border-slate-200 dark:border-slate-800 ${className}`}>
+    <div className={`pb-3 border-b border-slate-200 dark:border-slate-800 ${className}`}>
       {/* 1. Breadcrumbs rendered above the page title */}
       {autoCrumbs && autoCrumbs.length > 0 && (
-        <nav aria-label="Page Breadcrumbs" className="mb-2 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
+        <nav aria-label="Page Breadcrumbs" className="mb-1.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
           {autoCrumbs.map((bc, idx) => {
             const isLast = idx === autoCrumbs.length - 1;
             return (
@@ -117,28 +115,21 @@ export const PageHeader = ({
         </nav>
       )}
 
-      {/* 2. Title & Subtitle + Right Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-start gap-3 min-w-0">
+      {/* 2. Title & Right Actions (on the exact same row) */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
           {icon && (
-            <div className="p-2 rounded-lg bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-900 flex-shrink-0 mt-0.5">
+            <div className="p-1.5 rounded-lg bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-900 flex-shrink-0">
               {icon}
             </div>
           )}
-          <div className="min-w-0">
-            <h1 className="text-2xl sm:text-[28px] font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-              {title}
-            </h1>
-            {sub && (
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
-                {sub}
-              </p>
-            )}
-          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight truncate">
+            {title}
+          </h1>
         </div>
 
         {actions && (
-          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap flex-shrink-0">
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap flex-shrink-0">
             {actions}
           </div>
         )}

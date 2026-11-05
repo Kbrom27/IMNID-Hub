@@ -220,7 +220,7 @@ const RedcapImportPage = () => {
   const facilityDisplayName = selectedFacilityObj?.displayName || selectedFacilityObj?.name || orgUnitId;
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="DHIS to REDCap Synchronization"
         breadcrumbs={[
@@ -230,7 +230,7 @@ const RedcapImportPage = () => {
       />
 
       <Card>
-        <CardContent className="space-y-5 p-6">
+        <CardContent className="space-y-4 p-4 sm:p-5">
           {/* Source Instance Selector */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">

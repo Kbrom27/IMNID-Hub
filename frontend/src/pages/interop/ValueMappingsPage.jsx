@@ -233,10 +233,9 @@ const ValueMappingsPage = () => {
   }, [filteredData, currentPage, pageSize]);
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="Interoperability Value Mappings"
-        description="Translate EMR concept answers to DHIS2 Tracker option codes"
         breadcrumbs={[
           { label: 'Interoperability', href: '/interop' },
           { label: 'Value Mappings' },
@@ -244,7 +243,7 @@ const ValueMappingsPage = () => {
       />
 
       <Card>
-        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-3">
           <div>
             <div className="flex items-center gap-2">
               <CardTitle>Value Mapping Rules</CardTitle>

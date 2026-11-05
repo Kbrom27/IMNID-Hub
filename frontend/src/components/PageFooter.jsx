@@ -1,16 +1,19 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Activity, ShieldCheck, ExternalLink, HelpCircle } from 'lucide-react';
 import { useConnections } from '../context/ConnectionContext';
 import pkg from '../../package.json';
 
+/**
+ * PageFooter Component
+ * Slim single line conforming to Section D criteria:
+ * - Version and "X of 7 operational · checked Xs ago" only
+ * - Removed duplicate sidebar links (Job Monitor, System Settings, Docs)
+ */
 export const PageFooter = () => {
   const { summary, secondsAgo } = useConnections();
 
   return (
-    <footer className="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 py-3 px-6 lg:px-8 transition-colors">
-      <div className="max-w-[1440px] mx-auto w-full flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs text-slate-500 dark:text-slate-400">
-        
+    <footer className="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 py-2 px-4 sm:px-6 transition-colors">
+      <div className="max-w-[1440px] mx-auto w-full flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
         <div className="flex items-center gap-3">
           <span className="font-semibold text-slate-700 dark:text-slate-300">
             IMNID Hub <span className="font-sans tabular-nums text-slate-400 font-normal">v{pkg.version || '1.0.0'}</span>
@@ -26,42 +29,15 @@ export const PageFooter = () => {
                   : 'bg-rose-500'
               }`}
             />
-            <span className="text-slate-600 dark:text-slate-300 font-medium">
-              {summary.overallHealth === 'operational'
-                ? 'All systems operational'
-                : `${summary.connectedCount} of ${summary.totalCount} operational`}
+            <span className="text-slate-600 dark:text-slate-300 font-medium font-sans tabular-nums">
+              {summary.connectedCount}/{summary.totalCount} operational
             </span>
           </span>
-          <span className="text-slate-300 dark:text-slate-700 hidden md:inline">·</span>
-          <span className="text-xs text-slate-500 dark:text-slate-400 font-sans tabular-nums hidden md:inline">
-            Status checked {secondsAgo}s ago
+          <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">·</span>
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-sans tabular-nums hidden sm:inline">
+            checked {secondsAgo}s ago
           </span>
         </div>
-
-        <div className="flex items-center gap-4 text-xs font-medium">
-          <Link
-            to="/jobs"
-            className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
-          >
-            Job Monitor
-          </Link>
-          <Link
-            to="/settings"
-            className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
-          >
-            System Settings
-          </Link>
-          <a
-            href="https://github.com/hisptz/dhis2-core"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
-          >
-            <span>Docs</span>
-            <ExternalLink className="w-3 h-3 text-slate-400" />
-          </a>
-        </div>
-
       </div>
     </footer>
   );

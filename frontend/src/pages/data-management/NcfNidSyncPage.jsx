@@ -272,10 +272,9 @@ const NcfNidSyncPage = () => {
     : selectedFacilityObj?.displayName || selectedFacilityObj?.name || selectedOu;
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="NCF to NID Sync"
-        description="Synchronize Neonatal Care Form records into Newborn Inpatient Data"
         breadcrumbs={[
           { label: 'Data Management', href: '/data-management' },
           { label: 'NCF to NID Sync' },
@@ -283,7 +282,7 @@ const NcfNidSyncPage = () => {
       />
 
       <Card>
-        <CardContent className="space-y-5 p-6">
+        <CardContent className="space-y-4 p-4 sm:p-5">
           {/* Target Instance Selection Header */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">

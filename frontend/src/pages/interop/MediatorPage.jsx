@@ -94,10 +94,9 @@ const MediatorPage = () => {
   const checkpoint = mediatorStatus?.checkpoint;
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="Mediator & Checkpoint Control"
-        description="Inspect background mediator health and resume interrupted batch sync operations"
         breadcrumbs={[
           { label: 'Interoperability', href: '/interop' },
           { label: 'Mediator' },

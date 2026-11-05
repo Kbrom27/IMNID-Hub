@@ -270,6 +270,7 @@ export const ConnectionProvider = ({ children }) => {
       notConfiguredCount,
       offlineSystems,
       list,
+      systems: list,
       groups,
       overallHealth,
     };

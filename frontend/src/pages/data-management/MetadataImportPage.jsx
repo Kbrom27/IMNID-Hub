@@ -233,10 +233,9 @@ const MetadataImportPage = () => {
     : [];
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="DHIS2 Metadata Importer"
-        description="Import JSON or ZIP metadata packages into DHIS2 with validation dry-runs"
         breadcrumbs={[
           { label: 'Data Management', href: '/data-management' },
           { label: 'Metadata Import' },
@@ -245,7 +244,7 @@ const MetadataImportPage = () => {
 
       {/* Unified Configuration Card */}
       <Card>
-        <CardContent className="space-y-5 p-6">
+        <CardContent className="space-y-4 p-4 sm:p-5">
           {/* Target Instance Selection */}
           <div className="space-y-2">
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
@@ -410,7 +409,6 @@ const MetadataImportPage = () => {
                 label="Atomic Mode"
                 checked={atomic}
                 onChange={setAtomic}
-                helperText="Rolls back entire transaction if any object fails validation"
               />
             </div>
           </div>

@@ -456,12 +456,7 @@ const DirectoryPicker = ({
                 className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-teal-950/40 hover:text-teal-700 dark:hover:text-teal-300 transition text-left"
               >
                 <HardDrive className="w-4 h-4 text-teal-600 shrink-0" />
-                <div>
-                  <div>Browse Local Computer...</div>
-                  <div className="text-[10px] font-normal text-slate-500">
-                    Open native file explorer to pick a folder
-                  </div>
-                </div>
+                <span>Browse Local Computer...</span>
               </button>
             </div>
 
@@ -551,8 +546,6 @@ const DirectoryPicker = ({
           );
         })}
       </div>
-
-      {helperText && <p className="text-xs text-slate-500">{helperText}</p>}
     </div>
   );
 };

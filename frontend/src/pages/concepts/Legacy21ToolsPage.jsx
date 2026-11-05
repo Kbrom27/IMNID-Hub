@@ -289,78 +289,54 @@ const Legacy21ToolsPage = () => {
   };
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
-        title="OpenMRS 2.1 Legacy Concept Tools"
-        description="Support for CM-11 and CM-12 legacy format exporters and converters"
+        title="Legacy 2.1 Tools"
         breadcrumbs={[
-          { label: 'Concepts & Forms', href: '/concepts' },
+          { label: 'Overview', to: '/' },
+          { label: 'Concepts & Forms', to: '/concepts' },
           { label: 'Legacy 2.1 Tools' },
         ]}
       />
 
       {/* Top Tool Selector (Horizontal Row) */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-3 px-1">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Select Legacy 2.1 Tool
-          </span>
-          <span className="text-sm text-teal-600 dark:text-teal-400 font-semibold">
-            Active: <span className="font-bold">{currentTool.code} - {currentTool.name}</span>
-          </span>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-3 shadow-2xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {TOOLS_21.map((tool) => {
-            const Icon = tool.icon;
             const isSelected = selectedToolId === tool.id;
             return (
               <button
                 key={tool.id}
                 type="button"
                 onClick={() => setSelectedToolId(tool.id)}
-                className={`p-3.5 rounded-xl text-left transition-all border flex items-start gap-3.5 ${
+                className={`p-3 rounded-xl text-left transition-all border flex items-center gap-3 cursor-pointer ${
                   isSelected
-                    ? 'bg-teal-50/80 dark:bg-teal-950/50 border-teal-500 dark:border-teal-400 text-teal-950 dark:text-teal-100 shadow-sm ring-1 ring-teal-500/20'
+                    ? 'bg-teal-50/80 dark:bg-teal-950/50 border-teal-500 dark:border-teal-400 text-teal-950 dark:text-teal-100 shadow-2xs ring-1 ring-teal-500/20'
                     : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-850'
                 }`}
               >
-                <div className={`p-2.5 rounded-lg shrink-0 ${
-                  isSelected
-                    ? 'bg-teal-600 text-white dark:bg-teal-500'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                }`}>
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                      {tool.code}
-                    </span>
-                    <span className="font-bold text-sm truncate">{tool.name}</span>
-                  </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
-                    {tool.desc}
-                  </p>
-                </div>
+                <span className="font-sans text-xs font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">
+                  {tool.code}
+                </span>
+                <span className="font-semibold text-xs sm:text-sm truncate">{tool.name}</span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Selected Tool Form & Run Card (Full Width at Bottom) */}
-      <div className="space-y-5">
+      {/* Selected Tool Form & Run Card */}
+      <div className="space-y-4">
         <Card>
           <CardHeader>
-            <div className="flex items-center gap-2.5">
-              <span className="font-mono text-xs font-bold text-teal-700 dark:text-teal-300 px-2.5 py-1 rounded bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800">
+            <div className="flex items-center gap-2">
+              <span className="font-sans text-xs font-bold text-teal-700 dark:text-teal-300 px-2 py-0.5 rounded bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800">
                 {currentTool.code}
               </span>
               <CardTitle>{currentTool.name}</CardTitle>
             </div>
-            <CardDescription>{currentTool.desc}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-5">
+          <CardContent className="space-y-4">
             {/* CM-11 */}
             {selectedToolId === 'cm11_legacy_export' && (
               <div className="space-y-5">

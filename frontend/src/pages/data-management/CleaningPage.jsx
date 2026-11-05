@@ -81,7 +81,7 @@ const CleaningPage = () => {
   const effectiveOutFilename = filename.trim() || (selectedFile ? `transformed_${selectedFile.name}` : 'transformed_one_row_per_tei.csv');
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="Data Transformation — One Row per TEI"
         breadcrumbs={[
@@ -91,7 +91,7 @@ const CleaningPage = () => {
       />
 
       <Card>
-        <CardContent className="space-y-5 p-6">
+        <CardContent className="space-y-4 p-4 sm:p-5">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="block text-sm font-bold text-slate-800 dark:text-slate-200">

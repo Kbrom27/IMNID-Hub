@@ -55,44 +55,31 @@ const InteropIndex = () => {
   }, []);
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="EMR-DHIS2 Tracker Interoperability"
-        subtitle="Automated clinical pipelines bridging OpenMRS 3, Bahmni 2.x, and DHIS2 Tracker"
         breadcrumbs={[
           { label: 'Overview', to: '/' },
           { label: 'Pipelines', to: '/interop' },
         ]}
       />
 
-      {/* Hub Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Hub Cards Grid - compact 64px tiles */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
         {INTEROP_MODULES.map((item) => {
           const Icon = item.icon;
           return (
             <Link
               key={item.id}
               to={item.path}
-              className="group block h-full focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-xl"
+              className="group flex items-center gap-3 p-3 h-16 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500 dark:hover:border-teal-500/80 shadow-2xs hover:shadow-xs transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
-              <Card className="h-full border-slate-200 dark:border-slate-800 hover:border-teal-500/60 dark:hover:border-teal-500/60 hover:shadow-md transition-all duration-150 flex flex-col justify-between">
-                <CardHeader className="pb-2">
-                  <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform mb-2">
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <CardTitle className="text-base group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-                    {item.title}
-                  </CardTitle>
-                  <CardDescription className="text-xs text-teal-600/90 dark:text-teal-400/90 font-medium mt-0.5">
-                    {item.subtitle}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
-                    {item.desc}
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-200/60 dark:border-teal-800/60 group-hover:scale-105 transition-transform">
+                <Icon className="w-4 h-4" />
+              </div>
+              <span className="text-xs sm:text-[13px] font-semibold text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors line-clamp-2 leading-snug">
+                {item.title}
+              </span>
             </Link>
           );
         })}

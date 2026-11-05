@@ -119,7 +119,7 @@ const NhReportPage = () => {
   };
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="Neonatal Health & NICU Register (HMIS 04.2)"
         breadcrumbs={[
@@ -327,7 +327,6 @@ const NhReportPage = () => {
                 label="Reporting Period (YYYYMM)"
                 value={period}
                 onChange={(e) => setPeriod(e.target.value)}
-                helperText={`Ethiopian calendar period: ${calendarInfo?.period_code || ''}`}
               />
               <TextInput
                 label="Facility Org Unit UID"
@@ -354,7 +353,7 @@ const NhReportPage = () => {
                   onChange={() => setDryRun(true)}
                   className="text-blue-600 focus:ring-blue-500"
                 />
-                <span>Dry Run (Preview tallies and Excel without writing to DHIS2)</span>
+                <span>Dry Run</span>
               </label>
               <label className="flex items-center gap-2 text-xs cursor-pointer">
                 <input
@@ -365,7 +364,7 @@ const NhReportPage = () => {
                   className="text-blue-600 focus:ring-blue-500"
                 />
                 <span className="font-bold text-blue-600">
-                  Live Submission (POST data values directly to DHIS2 aggregate dataset)
+                  Live Submission
                 </span>
               </label>
             </div>

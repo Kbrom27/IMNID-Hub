@@ -264,7 +264,7 @@ const Dhis2SyncPage = () => {
   const dirLabel = direction === 'offline_to_online' ? 'Offline to Online DHIS2' : 'Online to Offline DHIS2';
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="DHIS2 Direct Synchronization"
         breadcrumbs={[
@@ -280,7 +280,7 @@ const Dhis2SyncPage = () => {
       )}
 
       <Card>
-        <CardContent className="space-y-5 p-6">
+        <CardContent className="space-y-4 p-4 sm:p-5">
           {/* Topology Direction Selector */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">

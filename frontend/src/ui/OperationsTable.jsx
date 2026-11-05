@@ -78,7 +78,7 @@ function formatDuration(startIso, endIso) {
 export const OperationsTable = ({
   jobs = [],
   title = 'Recent Operations',
-  limit = 7,
+  limit = 8,
   showFilters = true,
   className = '',
 }) => {
@@ -103,15 +103,15 @@ export const OperationsTable = ({
   }, [jobs]);
 
   return (
-    <div className={`space-y-3.5 ${className}`}>
+    <div className={`space-y-3 ${className}`}>
       {/* Header with Title and Filter Chips */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
         <div className="flex items-center gap-2">
-          <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 tracking-tight">
             {title}
           </h2>
-          <span className="text-xs font-sans tabular-nums text-slate-500 dark:text-slate-400 font-medium">
-            ({jobs.length})
+          <span className="text-xs font-sans tabular-nums font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+            {jobs.length}
           </span>
         </div>
 
@@ -131,16 +131,16 @@ export const OperationsTable = ({
                   onClick={() => setFilter(tab.id)}
                   className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 cursor-pointer ${
                     active
-                      ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-xs'
+                      ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-2xs'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                   }`}
                 >
                   <span>{tab.label}</span>
                   <span
-                    className={`font-sans tabular-nums text-xs font-medium px-1.5 py-0.2 rounded-full ${
+                    className={`font-sans tabular-nums text-xs font-semibold px-1.5 py-0.2 rounded-full ${
                       active
                         ? 'bg-white/20 dark:bg-black/20 text-white dark:text-slate-900'
-                        : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                        : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     {tab.count}
@@ -152,18 +152,13 @@ export const OperationsTable = ({
         )}
       </div>
 
-      {/* Operations List Container */}
-      <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden">
+      {/* Operations List Container (~48px per row, no inline errors, 8 rows) */}
+      <div className="rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs overflow-hidden">
         {filteredJobs.length === 0 ? (
-          <div className="p-10 text-center space-y-2">
-            <Clock className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto" />
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+          <div className="p-8 text-center space-y-1">
+            <Clock className="w-6 h-6 text-slate-300 dark:text-slate-600 mx-auto" />
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
               No operations found
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              {filter === 'all'
-                ? 'No background tasks have been executed yet. Launch a pipeline from the modules.'
-                : `No operations matching the "${filter}" filter state.`}
             </p>
           </div>
         ) : (
@@ -185,66 +180,44 @@ export const OperationsTable = ({
                   ? 100
                   : 0;
 
-              const fullTime = formatDateTime(j.created_at || j.started_at);
               const relTime = formatRelativeTime(j.created_at || j.started_at);
               const duration = formatDuration(j.created_at || j.started_at, j.completed_at);
-              const errorText = j.error_message || j.error || j.status_message;
 
               return (
                 <div
                   key={j.id}
-                  className="p-4 px-5 hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                  className="px-3.5 py-2 min-h-[48px] hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors flex items-center justify-between gap-3 text-xs"
                 >
-                  {/* Left Column: Job ID + Module + Name + Timestamps + Truncated Error */}
-                  <div className="flex items-start gap-3 min-w-0 flex-1">
+                  {/* Left: ID chip + Module chip + Action name */}
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
                     <Tooltip content={`Job ID: ${j.id}`}>
-                      <span className="font-mono text-xs font-semibold px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex-shrink-0 mt-0.5 select-all">
+                      <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex-shrink-0 select-all">
                         {String(j.id).slice(0, 8)}
                       </span>
                     </Tooltip>
 
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 capitalize flex-shrink-0">
-                          {j.module || 'System'}
-                        </span>
-                        <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
-                          {concreteAction}
-                        </span>
-                      </div>
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 capitalize flex-shrink-0 hidden sm:inline">
+                      {j.module || 'System'}
+                    </span>
 
-                      <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium font-sans">
-                        <Tooltip content={`Started at ${fullTime}`}>
-                          <span className="cursor-help flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                            <span className="tabular-nums">{relTime}</span>
-                          </span>
-                        </Tooltip>
-                        <span className="text-slate-300 dark:text-slate-600">·</span>
-                        <span className="tabular-nums">Duration: {duration}</span>
-                      </div>
-
-                      {/* Truncated one-line error on failure */}
-                      {isFailed && errorText && (
-                        <div className="mt-1.5 flex items-center gap-1.5 text-xs text-rose-700 dark:text-rose-300 font-medium truncate max-w-xl">
-                          <AlertCircle className="w-3.5 h-3.5 text-rose-500 flex-shrink-0" />
-                          <span className="truncate">{errorText}</span>
-                        </div>
-                      )}
-                    </div>
+                    <span className="font-medium text-sm text-slate-900 dark:text-slate-100 truncate">
+                      {concreteAction}
+                    </span>
                   </div>
 
-                  {/* Right Column: FIXED-WIDTH GRID for Progress Bar (180px), Status Badge (100px), and Actions (60px) */}
-                  <div className="grid grid-cols-1 sm:grid-cols-[180px_100px_60px] items-center gap-3 flex-shrink-0 self-end lg:self-center">
-                    
-                    {/* Fixed 180px Progress Bar Column (No repeated 'Progress' label) */}
-                    <div className="w-full sm:w-[180px]">
-                      {isRunning && (
-                        <div className="text-right text-xs font-sans tabular-nums font-semibold text-teal-600 dark:text-teal-400 mb-1">
-                          {progressPct}%
-                        </div>
-                      )}
-                      <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                  {/* Right: Time + Duration + Progress bar + Status Badge + Actions */}
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <span className="font-sans tabular-nums text-xs text-slate-500 dark:text-slate-400 hidden md:inline">
+                      {relTime}
+                    </span>
+
+                    <span className="font-sans tabular-nums text-xs font-medium text-slate-700 dark:text-slate-300 w-16 text-right hidden sm:inline">
+                      {duration}
+                    </span>
+
+                    {/* Progress Bar (compact 80-100px) */}
+                    <div className="w-20 sm:w-24 hidden lg:block">
+                      <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                         <div
                           className={`h-full transition-all duration-300 ${
                             isCompleted
@@ -253,27 +226,25 @@ export const OperationsTable = ({
                               ? 'bg-teal-500 animate-pulse'
                               : isFailed
                               ? 'bg-rose-500'
-                              : isCancelled
-                              ? 'bg-slate-400 dark:bg-slate-500' // neutral gray bar for cancelled
-                              : 'bg-slate-400'
+                              : 'bg-slate-400 dark:bg-slate-500'
                           }`}
                           style={{ width: `${progressPct}%` }}
                         />
                       </div>
                     </div>
 
-                    {/* Fixed 100px Status Badge Column */}
-                    <div className="w-full sm:w-[100px] flex sm:justify-center">
+                    {/* Status Badge */}
+                    <div className="w-[85px] flex justify-center">
                       <StatusBadge status={j.status} />
                     </div>
 
-                    {/* Fixed 60px Actions Column (Retry + Logs for failed, Logs for others) */}
-                    <div className="w-full sm:w-[60px] flex items-center justify-end gap-1.5">
+                    {/* Actions: Retry + Logs */}
+                    <div className="flex items-center gap-1">
                       {isFailed && (
                         <Tooltip content="Retry this failed operation in Job Monitor">
                           <Link
                             to={`/jobs?jobId=${j.id}&action=retry`}
-                            className="p-1.5 rounded-lg border border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/60 transition-colors cursor-pointer"
+                            className="p-1 rounded-md border border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/60 transition-colors cursor-pointer"
                             aria-label={`Retry job ${j.id}`}
                           >
                             <RotateCw className="w-3.5 h-3.5" />
@@ -281,10 +252,10 @@ export const OperationsTable = ({
                         </Tooltip>
                       )}
 
-                      <Tooltip content="Inspect live logs and job execution details">
+                      <Tooltip content="Inspect live logs in Job Monitor">
                         <Link
                           to={`/jobs?jobId=${j.id}`}
-                          className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                          className="p-1 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                           aria-label={`View logs for job ${j.id}`}
                         >
                           <FileText className="w-3.5 h-3.5" />
@@ -300,7 +271,7 @@ export const OperationsTable = ({
         )}
 
         {/* Table Footer Link */}
-        <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 flex items-center justify-between text-xs">
+        <div className="px-4 py-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 flex items-center justify-between text-xs">
           <span className="text-slate-500 dark:text-slate-400 font-sans tabular-nums font-medium">
             Showing latest {filteredJobs.length} of {jobs.length} executions
           </span>

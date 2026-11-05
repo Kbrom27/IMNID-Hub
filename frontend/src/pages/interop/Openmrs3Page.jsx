@@ -192,10 +192,9 @@ const Openmrs3Page = () => {
   };
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="OpenMRS 3.x (O3) ⟷ DHIS2 Tracker"
-        description="Extract, transform, and sync OpenMRS 3 patient encounters to DHIS2 Tracker"
         breadcrumbs={[
           { label: 'Interoperability', href: '/interop' },
           { label: 'OpenMRS 3.x Pipeline' },
@@ -379,17 +378,6 @@ const Openmrs3Page = () => {
               />
             </div>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-850/50 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-600 dark:text-slate-400 space-y-1">
-              <div className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
-                <Info className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
-                <span>Form Schemas &amp; Data Extraction</span>
-              </div>
-              <p className="text-[11px] leading-relaxed">
-                The export CSV is saved as <code className="text-teal-600 dark:text-teal-400 font-mono font-semibold">{exportForm.filename || 'openmrs3_export.csv'}</code> in the output folder.
-                Form schemas loaded from <span className="font-mono text-slate-500">Resources/O3/Schemas</span> and metadata are used to write standardized form column labels instead of backend concept names.
-              </p>
-            </div>
-
             <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <Button
                 variant="primary"
@@ -410,9 +398,6 @@ const Openmrs3Page = () => {
         <Card>
           <CardHeader>
             <CardTitle>Part 2: Transform O3 Data to DHIS2 Tracker Format</CardTitle>
-            <CardDescription>
-              Transforms exported OpenMRS 3 patient encounters into DHIS2 Tracker import CSV format using validated mappings.
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <FileUploadField
@@ -452,10 +437,6 @@ const Openmrs3Page = () => {
                   Verify Mapping Files
                 </Button>
               </div>
-
-              <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-400">
-                Transformations automatically load validated mapping files from <code className="text-teal-600 dark:text-teal-400 font-mono font-semibold">Resources/O3</code> unless custom overrides are specified above.
-              </p>
 
               {mappingError && (
                 <div className="flex items-center gap-2 p-2 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded-lg text-xs text-red-700 dark:text-red-300">
@@ -672,17 +653,6 @@ const Openmrs3Page = () => {
                 value={syncForm.end_date}
                 onChange={(e) => setSyncForm({ ...syncForm, end_date: e.target.value })}
               />
-            </div>
-
-            {/* Note matching original desktop script */}
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-xl text-xs space-y-1">
-              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-semibold">
-                <Info className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
-                <span>Packaged Resource Mappings & Schemas</span>
-              </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                End-to-end sync executes export &rarr; transform &rarr; import in-memory on the server. Form schemas and variable mappings are loaded automatically from <code className="text-teal-600 dark:text-teal-400 font-mono font-semibold">Resources/O3</code> without exporting files to your local machine.
-              </p>
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">

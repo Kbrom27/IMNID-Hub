@@ -68,58 +68,31 @@ const HmisIndex = () => {
   }, []);
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="HMIS Reporting & Analytics"
-        subtitle="Generate national monthly aggregate reports (RMH, NCH), clinical admission registers, and analytics exports"
         breadcrumbs={[
           { label: 'Overview', to: '/' },
           { label: 'HMIS Reporting', to: '/hmis' },
         ]}
       />
 
-      {/* Hub Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Hub Cards Grid - compact 64px tiles */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
         {HMIS_MODULES.map((item) => {
           const Icon = item.icon;
           return (
             <Link
               key={item.id}
               to={item.path}
-              className="group block h-full focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-xl"
+              className="group flex items-center gap-3 p-3 h-16 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500 dark:hover:border-teal-500/80 shadow-2xs hover:shadow-xs transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
-              <Card className="h-full border-slate-200 dark:border-slate-800 hover:border-teal-500/60 dark:hover:border-teal-500/60 hover:shadow-sm transition-all duration-150 flex flex-col justify-between">
-                <CardHeader className="p-4 pb-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-slate-300 dark:text-slate-600 group-hover:text-teal-500 group-hover:translate-x-0.5 transition-all" />
-                  </div>
-                  <CardTitle className="text-sm font-bold group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-                    {item.title}
-                  </CardTitle>
-                  <span className="text-[11px] text-teal-600 dark:text-teal-400 font-medium">
-                    {item.subtitle}
-                  </span>
-                </CardHeader>
-
-                <CardContent className="p-4 pt-1 space-y-3">
-                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
-                    {item.desc}
-                  </p>
-                  <div className="flex flex-wrap gap-1 pt-2 border-t border-slate-100 dark:border-slate-800">
-                    {item.sources.map((src) => (
-                      <span
-                        key={src}
-                        className="px-2 py-0.5 text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded"
-                      >
-                        {src}
-                      </span>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-200/60 dark:border-teal-800/60 group-hover:scale-105 transition-transform">
+                <Icon className="w-4 h-4" />
+              </div>
+              <span className="text-xs sm:text-[13px] font-semibold text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors line-clamp-2 leading-snug">
+                {item.title}
+              </span>
             </Link>
           );
         })}

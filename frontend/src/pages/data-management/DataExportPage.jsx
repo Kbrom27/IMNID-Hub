@@ -146,7 +146,7 @@ const DataExportPage = () => {
   };
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="Data Export for Syncing"
         breadcrumbs={[
@@ -156,7 +156,7 @@ const DataExportPage = () => {
       />
 
       <Card>
-        <CardContent className="space-y-5 p-6">
+        <CardContent className="space-y-4 p-4 sm:p-5">
           {/* Source Instance Selector */}
           <div className="space-y-2">
             <label className="block text-sm font-bold text-slate-800 dark:text-slate-200">

@@ -88,7 +88,7 @@ const CsvImportPage = () => {
   const destName = targetInstance === 'dhis2_offline' ? 'Offline DHIS2' : 'Online DHIS2';
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
         title="DHIS2 Tracker Data Import"
         breadcrumbs={[
@@ -98,7 +98,7 @@ const CsvImportPage = () => {
       />
 
       <Card>
-        <CardContent className="space-y-5 p-6">
+        <CardContent className="space-y-4 p-4 sm:p-5">
           {/* Target Instance Selector */}
           <div className="space-y-2">
             <label className="block text-sm font-bold text-slate-800 dark:text-slate-200">

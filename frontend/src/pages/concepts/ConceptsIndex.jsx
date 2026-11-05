@@ -39,54 +39,44 @@ const ConceptsIndex = () => {
   }, []);
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 w-full">
       <PageHeader
-        title="Concepts & Forms Management"
-        subtitle="Comprehensive concept dictionary and form engineering utilities for OpenMRS"
+        title="Concepts & Forms"
         breadcrumbs={[
           { label: 'Overview', to: '/' },
           { label: 'Concepts & Forms', to: '/concepts' },
         ]}
       />
 
-      {/* Hub Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Hub Cards Grid (Compact tiles: ~64px tall, icon + title only) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {CONCEPTS_MODULES.map((item) => {
           const Icon = item.icon;
           return (
             <Link
               key={item.id}
               to={item.path}
-              className="group block h-full focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-xl"
+              className="group flex items-center gap-3 p-3.5 h-16 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500 dark:hover:border-teal-500/80 shadow-2xs hover:shadow-xs transition-all duration-150"
             >
-              <Card className="h-full border-slate-200 dark:border-slate-800 hover:border-teal-500/60 dark:hover:border-teal-500/60 hover:shadow-md transition-all duration-150 flex flex-col justify-between">
-                <CardHeader className="pb-2">
-                  <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform mb-2">
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <CardTitle className="text-base group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-                    {item.title}
-                  </CardTitle>
-                  <CardDescription className="text-xs text-teal-600/90 dark:text-teal-400/90 font-medium mt-0.5">
-                    {item.subtitle}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
-                    {item.desc}
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-200/60 dark:border-teal-800/60 group-hover:scale-105 transition-transform">
+                <Icon className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors truncate">
+                  {item.title}
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors flex-shrink-0" />
             </Link>
           );
         })}
       </div>
 
-      {/* Recent Module Jobs Table (Standardized OperationsTable conforming to Section B criteria) */}
+      {/* Recent Module Jobs Table */}
       <OperationsTable
         jobs={recentJobs}
         title="Recent Concepts & Forms Operations"
-        limit={5}
+        limit={8}
         showFilters={false}
       />
     </div>

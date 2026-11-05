@@ -27,14 +27,9 @@ const NAV_GROUPS = [
     ],
   },
   {
-    title: 'Migration',
+    title: 'Workspace',
     items: [
       { to: '/smartcare', label: 'SmartCare to OpenMRS 3', icon: Zap },
-    ],
-  },
-  {
-    title: 'Data Management',
-    items: [
       {
         to: '/data-management',
         label: 'Data Management',
@@ -53,11 +48,6 @@ const NAV_GROUPS = [
           { label: 'Mother-Neonate Linker', to: '/data-management/mother-neonate-linker' },
         ],
       },
-    ],
-  },
-  {
-    title: 'Interoperability',
-    items: [
       {
         to: '/interop',
         label: 'EMR-DHIS2 Pipelines',
@@ -70,11 +60,6 @@ const NAV_GROUPS = [
           { label: 'Value Mappings', to: '/interop/mappings' },
         ],
       },
-    ],
-  },
-  {
-    title: 'Concepts & Forms',
-    items: [
       {
         to: '/concepts',
         label: 'Concepts & Forms',
@@ -85,11 +70,6 @@ const NAV_GROUPS = [
           { label: 'Legacy 2.1 Tools', to: '/concepts/legacy21' },
         ],
       },
-    ],
-  },
-  {
-    title: 'Reporting',
-    items: [
       {
         to: '/hmis',
         label: 'HMIS Reporting',
@@ -191,7 +171,7 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
                       onClick={handleLinkClick}
                       className={({ isActive }) => {
                         const active = hasSubs ? isGroupActive : isActive;
-                        return `relative flex items-center gap-2.5 px-3 h-10 min-h-[40px] rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${
+                        return `relative flex items-center gap-2.5 px-3 h-9 min-h-[36px] rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${
                           active
                             ? 'bg-teal-500/15 text-teal-300 font-semibold shadow-xs'
                             : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
@@ -204,10 +184,10 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
                           <>
                             {/* Distinct Left Accent Bar for Active Item */}
                             {active && (
-                              <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-teal-400 rounded-r shadow-xs" />
+                              <span className="absolute left-0 top-1 bottom-1 w-[3px] bg-teal-400 rounded-r shadow-xs" />
                             )}
 
-                            <Icon className="w-5 h-5 flex-shrink-0 text-slate-400 group-hover:text-slate-200" />
+                            <Icon className="w-4 h-4 flex-shrink-0 text-slate-400 group-hover:text-slate-200" />
                             {!isCollapsed && (
                               <span className="flex-1 whitespace-nowrap text-left text-sm leading-tight">
                                 {item.label}
@@ -217,7 +197,7 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
                             {!isCollapsed && hasSubs && (
                               <div className="flex items-center gap-1.5 flex-shrink-0">
                                 {item.badgeCount && (
-                                  <span className="text-xs font-sans tabular-nums font-semibold px-1.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/80 leading-none">
+                                  <span className="text-xs font-sans tabular-nums font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-teal-300 border border-slate-700/80 leading-none">
                                     {item.badgeCount}
                                   </span>
                                 )}
@@ -258,7 +238,7 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
                         linkElement
                       )}
 
-                      {/* Sub-items for accordion group: 13px, 36px row height, indented under thin guide line */}
+                      {/* Sub-items for accordion group: 13px, 32-34px row height */}
                       {!isCollapsed && hasSubs && isOpen && (
                         <div className="ml-5 pl-2.5 border-l border-slate-700/60 space-y-0.5 py-1 animate-in fade-in duration-100">
                           {item.subItems.map((sub) => {
@@ -271,7 +251,7 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
                                 key={sub.to}
                                 to={sub.to}
                                 onClick={handleLinkClick}
-                                className={`flex items-center px-3 h-9 min-h-[36px] rounded-md text-[13px] font-medium transition-colors truncate focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal-400 ${
+                                className={`flex items-center px-3 h-8 min-h-[32px] rounded-md text-[13px] font-medium transition-colors truncate focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal-400 ${
                                   isSubActive
                                     ? 'text-teal-300 bg-teal-500/15 font-semibold'
                                     : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
@@ -296,16 +276,11 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
       </div>
 
       {/* Pinned Administration Block: Always reachable above footer */}
-      <div className="p-3 border-t border-slate-800 bg-slate-950/40 flex-shrink-0">
-        {!isCollapsed && (
-          <div className="px-3 pb-1 text-xs font-bold uppercase tracking-[0.04em] text-slate-400">
-            Administration
-          </div>
-        )}
+      <div className="p-2.5 border-t border-slate-800 bg-slate-950/40 flex-shrink-0">
         <NavLink
           to="/settings"
           onClick={handleLinkClick}
-          className={({ isActive }) => `relative flex items-center gap-2.5 px-3 h-10 min-h-[40px] rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${
+          className={({ isActive }) => `relative flex items-center gap-2.5 px-3 h-9 min-h-[36px] rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${
             isActive
               ? 'bg-teal-500/15 text-teal-300 font-semibold shadow-xs'
               : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
@@ -314,9 +289,9 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
           {({ isActive }) => (
             <>
               {isActive && (
-                <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-teal-400 rounded-r shadow-xs" />
+                <span className="absolute left-0 top-1 bottom-1 w-[3px] bg-teal-400 rounded-r shadow-xs" />
               )}
-              <Settings className="w-5 h-5 flex-shrink-0 text-slate-400 group-hover:text-slate-200" />
+              <Settings className="w-4 h-4 flex-shrink-0 text-slate-400 group-hover:text-slate-200" />
               {!isCollapsed && (
                 <span className="flex-1 whitespace-nowrap text-left text-sm leading-tight">
                   Settings & Connections
@@ -327,21 +302,21 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
         </NavLink>
       </div>
 
-      {/* Pinned Footer: Version and LOCAL Environment Badge (Status kept solely in PageFooter per Section 5) */}
-      <div className="p-3 border-t border-slate-800 bg-slate-950 text-xs text-slate-400 flex flex-col gap-2 flex-shrink-0">
+      {/* Pinned Footer: Version ONLY (Status kept solely in PageFooter per Section 13) */}
+      <div className="p-2.5 border-t border-slate-800 bg-slate-950 text-xs text-slate-400 flex flex-col items-center flex-shrink-0">
         {!isCollapsed ? (
-          <div className="flex items-center justify-between">
+          <div className="w-full flex items-center justify-between">
             <span className="font-semibold text-slate-300 text-xs">
-              IMNID Hub <span className="font-sans tabular-nums text-slate-400 font-normal">v{pkg.version || '1.0.0'}</span>
+              IMNID Hub
             </span>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-500/15 border border-teal-500/30 text-teal-300">
-              LOCAL
+            <span className="font-sans tabular-nums text-slate-400 font-medium text-xs">
+              v{pkg.version || '1.0.0'}
             </span>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-1 text-[10px] font-bold text-teal-400">
-            LOCAL
-          </div>
+          <span className="font-sans tabular-nums text-[10px] text-slate-500">
+            v{pkg.version || '1.0'}
+          </span>
         )}
       </div>
     </aside>
