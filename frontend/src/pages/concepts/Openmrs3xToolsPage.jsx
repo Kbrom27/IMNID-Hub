@@ -32,6 +32,8 @@ import {
   ConfirmDialog,
   Alert,
   DirectoryPicker,
+  FileDropzone,
+  Tooltip,
 } from '../../ui';
 import { useToast } from '../../ui/ToastProvider';
 import { useAuth } from '../../context/AuthContext';
@@ -788,10 +790,11 @@ const Openmrs3xToolsPage = () => {
     <div className="space-y-6 w-full">
       <PageHeader
         title="OpenMRS 3.x Concept & Form Toolkit"
-        description="Concept batch conversion, imports, schema generation, and metadata verification"
+        subtitle="Concept batch conversion, imports, schema generation, and metadata verification"
         breadcrumbs={[
-          { label: 'Concepts & Forms', href: '/concepts' },
-          { label: '3.x Tools' },
+          { label: 'Overview', to: '/' },
+          { label: 'Concepts & Forms', to: '/concepts' },
+          { label: 'OpenMRS 3.x Tools' },
         ]}
       />
 
@@ -799,10 +802,7 @@ const Openmrs3xToolsPage = () => {
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
         <div className="flex items-center justify-between mb-3 px-1">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Select 3.x Tool (CM-01 to CM-11)
-          </span>
-          <span className="text-sm text-teal-600 dark:text-teal-400 font-semibold">
-            Active: <span className="font-bold">{currentTool.code} - {currentTool.name}</span>
+            Select 3.x Tool (CM-01 to CM-10)
           </span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
@@ -810,37 +810,41 @@ const Openmrs3xToolsPage = () => {
             const Icon = tool.icon;
             const isSelected = selectedToolId === tool.id;
             return (
-              <button
-                key={tool.id}
-                type="button"
-                onClick={() => setSelectedToolId(tool.id)}
-                className={`p-3 rounded-xl text-left transition-all flex flex-col justify-between border relative ${
-                  isSelected
-                    ? 'bg-teal-50/80 dark:bg-teal-950/50 border-teal-500 dark:border-teal-400 text-teal-950 dark:text-teal-100 shadow-sm ring-1 ring-teal-500/20'
-                    : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-850'
-                }`}
-              >
-                <div className="flex items-center justify-between w-full mb-1.5">
-                  <span
-                    className={`font-mono text-xs font-bold px-1.5 py-0.5 rounded ${
-                      isSelected
-                        ? 'bg-teal-600 text-white dark:bg-teal-500'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                    }`}
-                  >
-                    {tool.code}
-                  </span>
-                  <Icon
-                    className={`w-4 h-4 ${
-                      isSelected ? 'text-teal-600 dark:text-teal-400' : 'text-slate-400'
-                    }`}
-                  />
-                </div>
-                <div className="font-bold text-xs leading-tight line-clamp-1">{tool.name}</div>
-                <p className="text-[11px] text-slate-400 dark:text-slate-500 line-clamp-1 mt-0.5">
-                  {tool.desc}
-                </p>
-              </button>
+              <Tooltip key={tool.id} content={`${tool.code} · ${tool.name}: ${tool.desc}`}>
+                <button
+                  type="button"
+                  onClick={() => setSelectedToolId(tool.id)}
+                  title={`${tool.code} · ${tool.name}: ${tool.desc}`}
+                  className={`p-3 rounded-xl text-left transition-all flex flex-col justify-between border w-full h-full relative cursor-pointer ${
+                    isSelected
+                      ? 'bg-teal-50/80 dark:bg-teal-950/50 border-teal-500 dark:border-teal-400 text-teal-950 dark:text-teal-100 shadow-sm ring-1 ring-teal-500/20'
+                      : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-850'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full mb-2">
+                    <span
+                      className={`font-sans text-[11px] font-bold tracking-wider px-2 py-0.5 rounded ${
+                        isSelected
+                          ? 'bg-teal-600 text-white dark:bg-teal-500'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                      }`}
+                    >
+                      {tool.code}
+                    </span>
+                    <Icon
+                      className={`w-4 h-4 shrink-0 ${
+                        isSelected ? 'text-teal-600 dark:text-teal-400' : 'text-slate-400'
+                      }`}
+                    />
+                  </div>
+                  <div className="font-bold text-xs sm:text-[13px] leading-snug line-clamp-2 min-h-[2.25rem]">
+                    {tool.name}
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 min-h-[2rem] leading-normal mt-1 font-medium">
+                    {tool.desc}
+                  </p>
+                </button>
+              </Tooltip>
             );
           })}
         </div>
@@ -863,37 +867,33 @@ const Openmrs3xToolsPage = () => {
             {selectedToolId === 'cm01_bahmni' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="cm01_concepts_csv_input" className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 block">
+                  <div className="space-y-1">
+                    <label htmlFor="cm01_concepts_csv_input" className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                       Bahmni Concepts CSV File <span className="text-rose-500">*</span>
                     </label>
-                    <input
+                    <FileDropzone
                       id="cm01_concepts_csv_input"
-                      aria-label="Bahmni Concepts CSV File"
-                      type="file"
                       accept=".csv"
-                      onChange={(e) => handleFileUpload(e.target.files[0], 'cm01_concepts_csv')}
-                      className="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-slate-100 dark:file:bg-slate-800 file:font-semibold"
+                      filePath={inputs.cm01_concepts_csv}
+                      uploading={uploadingField === 'cm01_concepts_csv'}
+                      onFileSelect={(selectedFile) => handleFileUpload(selectedFile, 'cm01_concepts_csv')}
+                      onRemove={() => handleInputChange('cm01_concepts_csv', '')}
+                      helperText="Drag & drop Bahmni Concepts CSV file"
                     />
-                    {inputs.cm01_concepts_csv && (
-                      <p className="text-xs text-teal-600 mt-1 font-mono truncate">{inputs.cm01_concepts_csv}</p>
-                    )}
                   </div>
-                  <div>
-                    <label htmlFor="cm01_sets_csv_input" className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 block">
+                  <div className="space-y-1">
+                    <label htmlFor="cm01_sets_csv_input" className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                       Bahmni Concept Sets CSV File (Optional)
                     </label>
-                    <input
+                    <FileDropzone
                       id="cm01_sets_csv_input"
-                      aria-label="Bahmni Concept Sets CSV File (Optional)"
-                      type="file"
                       accept=".csv"
-                      onChange={(e) => handleFileUpload(e.target.files[0], 'cm01_sets_csv')}
-                      className="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-slate-100 dark:file:bg-slate-800 file:font-semibold"
+                      filePath={inputs.cm01_sets_csv}
+                      uploading={uploadingField === 'cm01_sets_csv'}
+                      onFileSelect={(selectedFile) => handleFileUpload(selectedFile, 'cm01_sets_csv')}
+                      onRemove={() => handleInputChange('cm01_sets_csv', '')}
+                      helperText="Optional Bahmni Concept Sets CSV file"
                     />
-                    {inputs.cm01_sets_csv && (
-                      <p className="text-xs text-teal-600 mt-1 font-mono truncate">{inputs.cm01_sets_csv}</p>
-                    )}
                   </div>
                 </div>
 
@@ -914,37 +914,33 @@ const Openmrs3xToolsPage = () => {
                   <span>Using saved <strong>OpenMRS 3.x</strong> connection credentials from Settings & Connections.</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="cm02_concepts_file_input" className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 block">
+                  <div className="space-y-1">
+                    <label htmlFor="cm02_concepts_file_input" className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                       Concepts JSON File <span className="text-rose-500">*</span>
                     </label>
-                    <input
+                    <FileDropzone
                       id="cm02_concepts_file_input"
-                      aria-label="Concepts JSON File"
-                      type="file"
                       accept=".json"
-                      onChange={(e) => handleFileUpload(e.target.files[0], 'cm02_concepts_file')}
-                      className="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-slate-100 dark:file:bg-slate-800 file:font-semibold"
+                      filePath={inputs.cm02_concepts_file}
+                      uploading={uploadingField === 'cm02_concepts_file'}
+                      onFileSelect={(selectedFile) => handleFileUpload(selectedFile, 'cm02_concepts_file')}
+                      onRemove={() => handleInputChange('cm02_concepts_file', '')}
+                      helperText="Drag & drop OpenMRS 3 Concepts JSON file"
                     />
-                    {inputs.cm02_concepts_file && (
-                      <p className="text-xs text-teal-600 mt-1 font-mono truncate">{inputs.cm02_concepts_file}</p>
-                    )}
                   </div>
-                  <div>
-                    <label htmlFor="cm02_sets_file_input" className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 block">
+                  <div className="space-y-1">
+                    <label htmlFor="cm02_sets_file_input" className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
                       Concept Sets JSON File (Optional)
                     </label>
-                    <input
+                    <FileDropzone
                       id="cm02_sets_file_input"
-                      aria-label="Concept Sets JSON File (Optional)"
-                      type="file"
                       accept=".json"
-                      onChange={(e) => handleFileUpload(e.target.files[0], 'cm02_sets_file')}
-                      className="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-slate-100 dark:file:bg-slate-800 file:font-semibold"
+                      filePath={inputs.cm02_sets_file}
+                      uploading={uploadingField === 'cm02_sets_file'}
+                      onFileSelect={(selectedFile) => handleFileUpload(selectedFile, 'cm02_sets_file')}
+                      onRemove={() => handleInputChange('cm02_sets_file', '')}
+                      helperText="Optional Concept Sets JSON file"
                     />
-                    {inputs.cm02_sets_file && (
-                      <p className="text-xs text-teal-600 mt-1 font-mono truncate">{inputs.cm02_sets_file}</p>
-                    )}
                   </div>
                 </div>
                 <div className="flex items-center justify-end pt-1">
@@ -1201,15 +1197,20 @@ const Openmrs3xToolsPage = () => {
                       ? 'Upload Data Dictionary File (.csv, .xlsx) *'
                       : 'Upload DHIS2 Metadata JSON File (.json) *'}
                   </label>
-                  <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-                    <input
-                      id="cm04_file_upload"
-                      type="file"
-                      accept={inputs.cm04_source_type === 'dictionary' ? '.csv,.xlsx,.xls,.tsv' : '.json'}
-                      onChange={(e) => handleFileUpload(e.target.files[0], 'cm04_file_path')}
-                      className="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-teal-600 file:text-white file:font-semibold hover:file:bg-teal-700 cursor-pointer"
-                    />
-                    {inputs.cm04_file_path && (
+                  <FileDropzone
+                    id="cm04_file_upload"
+                    accept={inputs.cm04_source_type === 'dictionary' ? '.csv,.xlsx,.xls,.tsv' : '.json'}
+                    filePath={inputs.cm04_file_path}
+                    uploading={uploadingField === 'cm04_file_path'}
+                    onFileSelect={(selectedFile) => handleFileUpload(selectedFile, 'cm04_file_path')}
+                    onRemove={() => {
+                      handleInputChange('cm04_file_path', '');
+                      setCm04Programs([]);
+                    }}
+                    helperText={inputs.cm04_source_type === 'dictionary' ? 'Data dictionary spreadsheet (.csv, .xlsx)' : 'DHIS2 metadata export (.json)'}
+                  />
+                  {inputs.cm04_file_path && !cm04LoadingPrograms && (
+                    <div className="pt-1">
                       <Button
                         type="button"
                         size="xs"
@@ -1220,12 +1221,7 @@ const Openmrs3xToolsPage = () => {
                       >
                         Re-scan Programs
                       </Button>
-                    )}
-                  </div>
-                  {inputs.cm04_file_path && (
-                    <p className="text-xs text-teal-600 dark:text-teal-400 font-mono truncate">
-                      Uploaded File: {inputs.cm04_file_path}
-                    </p>
+                    </div>
                   )}
                 </div>
 
@@ -1349,36 +1345,19 @@ const Openmrs3xToolsPage = () => {
                 </div>
 
                 {/* 3. Or Upload ZIP archive of concepts */}
-                <div className="p-3 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
-                        Or Upload Concept Folder Archive (.zip)
-                      </p>
-                      <p className="text-[11px] text-slate-500">
-                        Upload a concept zip exported from CM-04 or your computer to automatically extract and import
-                      </p>
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="cm05_zip_upload"
-                        className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 shadow-sm"
-                      >
-                        <Upload className="w-3.5 h-3.5" /> Browse .zip
-                      </label>
-                      <input
-                        id="cm05_zip_upload"
-                        type="file"
-                        accept=".zip"
-                        className="hidden"
-                        onChange={(e) => {
-                          if (e.target.files?.[0]) {
-                            handleFileUpload(e.target.files[0], 'cm05_folder_path');
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
+                    Or Upload Concept Folder Archive (.zip)
+                  </label>
+                  <FileDropzone
+                    id="cm05_zip_upload"
+                    accept=".zip"
+                    filePath={inputs.cm05_folder_path?.endsWith('.zip') ? inputs.cm05_folder_path : ''}
+                    uploading={uploadingField === 'cm05_folder_path'}
+                    onFileSelect={(selectedFile) => handleFileUpload(selectedFile, 'cm05_folder_path')}
+                    onRemove={() => handleInputChange('cm05_folder_path', '')}
+                    helperText="Upload a concept zip exported from CM-04 to automatically extract and import"
+                  />
                 </div>
 
                 {/* 4. Scan Result Summary Card */}

@@ -154,12 +154,12 @@ export const Topbar = ({ onMenuClick, isCollapsed, onToggleCollapse }) => {
 
   return (
     <>
-      {/* FULL-WIDTH DARK TOP BAR: Same color family as sidebar (bg-slate-950) */}
+      {/* FULL-WIDTH DARK TOP BAR: Centered brand with 3-column grid (56-64px) */}
       <header className="h-16 bg-slate-950 text-slate-200 border-b border-slate-800 shadow-xs z-30 flex-shrink-0 sticky top-0 px-4 sm:px-6 select-none transition-colors">
-        <div className="w-full h-full flex items-center justify-between gap-4">
+        <div className="w-full h-full flex md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between gap-2 sm:gap-4">
           
-          {/* Left: Sidebar Collapse Toggle + Brand Logo & Tagline */}
-          <div className="flex items-center gap-3 min-w-0">
+          {/* Column 1 (Left): Sidebar toggle + LOCAL badge (Desktop) / Left-aligned brand (Mobile <768px) */}
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 justify-start">
             <button
               type="button"
               onClick={handleToggleClick}
@@ -170,46 +170,72 @@ export const Topbar = ({ onMenuClick, isCollapsed, onToggleCollapse }) => {
               <Menu className="w-5 h-5" />
             </button>
 
-            {/* Brand Logo & Name */}
+            {/* LOCAL Environment Badge */}
+            <span className="hidden sm:inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-300 uppercase tracking-wider select-none flex-shrink-0">
+              LOCAL
+            </span>
+
+            {/* Below ~768px: Brand switches to left-aligned next to hamburger */}
             <Link
               to="/"
-              className="flex items-center gap-3 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded-lg p-1 group flex-shrink-0"
+              className="flex md:hidden items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded-lg p-1 group flex-shrink-0 ml-1"
+              title="IMNID Hub Dashboard"
             >
-              <div className="w-9 h-9 flex-shrink-0 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 shadow-xs group-hover:bg-teal-500/30 transition-colors">
+              <div className="w-8 h-8 flex-shrink-0 rounded-lg bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 shadow-xs">
+                <Activity className="w-4 h-4 text-teal-400" />
+              </div>
+              <span className="text-base font-bold text-white tracking-tight leading-none">
+                IMNID Hub
+              </span>
+            </Link>
+          </div>
+
+          {/* Column 2 (Center): Brand Logo + Name + Tagline centered on full screen width (>=768px) */}
+          <div className="hidden md:flex items-center justify-center min-w-0">
+            <Link
+              to="/"
+              className="flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded-xl px-3 py-1.5 group transition-colors hover:bg-slate-900/60"
+              title="IMNID Hub Dashboard"
+            >
+              <div className="w-9 h-9 flex-shrink-0 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 shadow-xs group-hover:bg-teal-500/30 group-hover:scale-105 transition-all">
                 <Activity className="w-5 h-5 text-teal-400" />
               </div>
-              <div className="min-w-0">
-                <div className="text-[17px] font-bold text-white tracking-tight flex items-center gap-2 leading-none">
+              <div className="min-w-0 flex flex-col text-left">
+                <span className="text-[17px] font-bold text-white tracking-tight leading-none">
                   IMNID Hub
-                </div>
-                <p className="text-xs text-teal-400/90 font-medium tracking-wide leading-tight mt-1">
+                </span>
+                {/* Tagline: visible on >=1100px, hidden below ~1100px */}
+                <span className="hidden min-[1100px]:inline-block text-xs text-teal-400 font-medium tracking-wide leading-tight mt-1">
                   Interoperability Platform
-                </p>
+                </span>
               </div>
             </Link>
           </div>
 
-          {/* Right: Controls in strict requested order:
-              1. Search / Command Palette (Ctrl+K)
-              2. Connection-status pill (single source of truth with latency dropdown)
-              3. Notifications bell
-              4. Theme toggle (with tooltip)
-              5. User avatar menu
-          */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          {/* Column 3 (Right): Search, Connection Pill, Bell, Theme, User Menu (Right-Aligned) */}
+          <div className="flex items-center justify-end gap-1.5 sm:gap-2.5 min-w-0">
 
-            {/* 1. Global Search / Command Palette trigger */}
+            {/* 1. Global Search: Full bar on >=900px, icon button below ~900px */}
             <button
               type="button"
               onClick={() => setShowPalette(true)}
-              className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg border border-slate-700/80 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 cursor-pointer"
+              className="hidden min-[900px]:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 cursor-pointer shadow-xs"
               title="Search and quick jump (Ctrl+K)"
             >
               <Search className="w-3.5 h-3.5 text-slate-400" />
-              <span className="hidden md:inline font-medium">Search...</span>
-              <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono font-semibold text-slate-300 bg-slate-900 border border-slate-700 rounded shadow-xs">
-                ⌘K
+              <span className="font-medium text-slate-300">Search tools...</span>
+              <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono font-semibold text-slate-400 bg-slate-800 border border-slate-700 rounded ml-1">
+                Ctrl+K
               </kbd>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowPalette(true)}
+              className="flex min-[900px]:hidden p-2 text-slate-300 hover:text-white rounded-lg hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 cursor-pointer"
+              title="Search tools (Ctrl+K)"
+              aria-label="Search tools"
+            >
+              <Search className="w-4 h-4 text-slate-300" />
             </button>
 
             {/* 2. Connection Status Pill & Popover (Single Source of Truth) */}

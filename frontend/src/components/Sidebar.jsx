@@ -327,55 +327,20 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
         </NavLink>
       </div>
 
-      {/* Pinned Footer: Version, Environment, System Health */}
+      {/* Pinned Footer: Version and LOCAL Environment Badge (Status kept solely in PageFooter per Section 5) */}
       <div className="p-3 border-t border-slate-800 bg-slate-950 text-xs text-slate-400 flex flex-col gap-2 flex-shrink-0">
         {!isCollapsed ? (
-          <>
-            <div className="flex items-center justify-between">
-              <span className="font-semibold text-slate-200 text-xs">
-                IMNID Hub <span className="font-sans tabular-nums text-slate-400 font-normal">v{pkg.version || '1.0.0'}</span>
-              </span>
-              <span className="px-2 py-0.5 rounded text-xs font-sans uppercase font-semibold bg-slate-800 text-slate-300 border border-slate-700/80">
-                Local
-              </span>
-            </div>
-
-            {/* Labeled System Health Indicator */}
-            <div className="flex items-center gap-2 pt-1 border-t border-slate-800/80">
-              <span
-                className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                  summary.overallHealth === 'operational'
-                    ? 'bg-emerald-500 shadow-xs'
-                    : summary.overallHealth === 'degraded'
-                    ? 'bg-amber-400'
-                    : 'bg-rose-500'
-                }`}
-              />
-              <span className="text-xs font-medium text-slate-300 truncate">
-                {summary.overallHealth === 'operational'
-                  ? 'All systems operational'
-                  : summary.offlineCount > 0
-                  ? `${summary.offlineCount} server${summary.offlineCount > 1 ? 's' : ''} offline`
-                  : 'System degraded'}
-              </span>
-            </div>
-          </>
+          <div className="flex items-center justify-between">
+            <span className="font-semibold text-slate-300 text-xs">
+              IMNID Hub <span className="font-sans tabular-nums text-slate-400 font-normal">v{pkg.version || '1.0.0'}</span>
+            </span>
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-teal-500/15 border border-teal-500/30 text-teal-300">
+              LOCAL
+            </span>
+          </div>
         ) : (
-          <div className="flex flex-col items-center gap-2">
-            <span
-              className={`w-2.5 h-2.5 rounded-full ${
-                summary.overallHealth === 'operational'
-                  ? 'bg-emerald-500'
-                  : summary.overallHealth === 'degraded'
-                  ? 'bg-amber-400'
-                  : 'bg-rose-500'
-              }`}
-              title={
-                summary.overallHealth === 'operational'
-                  ? 'All systems operational'
-                  : `${summary.offlineCount} servers offline`
-              }
-            />
+          <div className="flex flex-col items-center gap-1 text-[10px] font-bold text-teal-400">
+            LOCAL
           </div>
         )}
       </div>

@@ -417,14 +417,16 @@ const DirectoryPicker = ({
           {/* Browse Server / Preset Folders Menu Button */}
           <Button
             type="button"
-            variant="ghost"
+            variant="secondary"
             size="md"
-            icon={<Server className="w-4 h-4 text-slate-500" />}
+            icon={<Server className="w-4 h-4 text-slate-600 dark:text-slate-300" />}
             onClick={() => setShowServerMenu(!showServerMenu)}
-            title="Select from server directories"
-            className="shrink-0 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
+            title="Select from server directories and preset folders"
+            aria-label="Select from server directories and preset folders"
+            className="shrink-0 font-medium text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
-            <ChevronDown className="w-3.5 h-3.5 ml-0.5 text-slate-400" />
+            <span>Server Folders</span>
+            <ChevronDown className="w-3.5 h-3.5 ml-1 text-slate-400" />
           </Button>
         </div>
 
@@ -528,9 +530,9 @@ const DirectoryPicker = ({
         )}
       </div>
 
-      {/* Preset Chips Bar for 1-Click Selection */}
-      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-        <span className="text-[10px] text-slate-400">Presets:</span>
+      {/* Preset Chips Bar for 1-Click Selection (min 28px height, 12px text) */}
+      <div className="flex flex-wrap items-center gap-2 pt-1">
+        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Presets:</span>
         {commonPresets.map((preset) => {
           const isSelected = value === preset.path;
           return (
@@ -538,10 +540,10 @@ const DirectoryPicker = ({
               key={preset.path}
               type="button"
               onClick={() => handleSelectPreset(preset.path)}
-              className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
+              className={`min-h-[28px] px-3 py-1 rounded-lg text-xs font-semibold transition-colors flex items-center shadow-2xs ${
                 isSelected
-                  ? 'bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-200 font-bold'
-                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  ? 'bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-200 border border-teal-300 dark:border-teal-700 font-bold'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/60'
               }`}
             >
               {preset.label}

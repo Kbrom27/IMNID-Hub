@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FileSpreadsheet, Baby, ArrowRight, History, Layers, BarChart2, BookOpen } from 'lucide-react';
-import { PageHeader, Card, CardHeader, CardTitle, CardContent } from '../../ui';
+import { PageHeader, Card, CardHeader, CardTitle, CardContent, OperationsTable } from '../../ui';
 
 const HMIS_MODULES = [
   {
@@ -126,55 +126,12 @@ const HmisIndex = () => {
       </div>
 
       {/* Recent Operations */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-        <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <History className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-            <h2 className="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">
-              Recent HMIS Operations
-            </h2>
-          </div>
-          <Link
-            to="/jobs"
-            className="text-xs font-medium text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1"
-          >
-            All Operations <ArrowRight className="w-3 h-3" />
-          </Link>
-        </div>
-
-        <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
-          {recentJobs.length === 0 ? (
-            <div className="p-6 text-center text-xs text-slate-400">
-              {loadingJobs ? 'Loading recent operations...' : 'No recent jobs recorded for this module.'}
-            </div>
-          ) : (
-            recentJobs.map((j) => (
-              <div key={j.id} className="p-3 px-5 flex items-center justify-between hover:bg-slate-50/60 dark:hover:bg-slate-800/40 text-xs">
-                <div className="flex items-center gap-3">
-                  <span className="font-mono font-bold text-slate-700 dark:text-slate-300">{j.id}</span>
-                  <div>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">{j.action || j.description}</span>
-                    <span className="text-slate-400 text-[11px] ml-2">
-                      {j.created_at?.slice(0, 19).replace('T', ' ')}
-                    </span>
-                  </div>
-                </div>
-                <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase ${
-                    j.status === 'completed'
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
-                      : j.status === 'running'
-                      ? 'bg-teal-50 text-teal-700 border border-teal-200 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800 animate-pulse'
-                      : 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800'
-                  }`}
-                >
-                  {j.status}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+      <OperationsTable
+        jobs={recentJobs}
+        title="Recent HMIS Reporting Operations"
+        limit={5}
+        showFilters={false}
+      />
     </div>
   );
 };

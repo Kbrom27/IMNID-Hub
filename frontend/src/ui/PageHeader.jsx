@@ -23,7 +23,9 @@ const ROUTE_LABELS = {
   'mappings': 'Value Mappings',
   'concepts': 'Concepts & Forms',
   '3x': 'OpenMRS 3.x Tools',
+  'openmrs-3x': 'OpenMRS 3.x Tools',
   'legacy21': 'Legacy 2.1 Tools',
+  'legacy-21': 'Legacy 2.1 Tools',
   'hmis': 'HMIS Reporting',
   'rmh-report': 'HMIS RMH Report (01.2)',
   'nch-report': 'HMIS NCH Report (04.2)',
@@ -53,22 +55,33 @@ export const PageHeader = ({
 }) => {
   const location = useLocation();
 
-  // If breadcrumbs prop is not provided, generate from URL path
+  // Generate unified breadcrumbs conforming to Requirement 3:
+  // Starts with "Overview", intermediate crumbs are links, last crumb matches exact sidebar item label
   const autoCrumbs = React.useMemo(() => {
-    if (breadcrumbs) return breadcrumbs;
-    const pathSegments = location.pathname.split('/').filter(Boolean);
-    if (pathSegments.length === 0) {
-      return [{ label: 'Overview', to: '/' }];
-    }
-    const list = [{ label: 'Overview', to: '/' }];
-    let accPath = '';
-    pathSegments.forEach((seg) => {
-      accPath += `/${seg}`;
-      list.push({
-        label: ROUTE_LABELS[seg] || seg,
-        to: accPath,
+    let list;
+    if (breadcrumbs && breadcrumbs.length > 0) {
+      list = [...breadcrumbs];
+    } else {
+      const pathSegments = location.pathname.split('/').filter(Boolean);
+      if (pathSegments.length === 0) {
+        return [{ label: 'Overview' }];
+      }
+      list = [];
+      let accPath = '';
+      pathSegments.forEach((seg, idx) => {
+        accPath += `/${seg}`;
+        const isLast = idx === pathSegments.length - 1;
+        list.push({
+          label: ROUTE_LABELS[seg] || seg,
+          to: isLast ? undefined : accPath,
+        });
       });
-    });
+    }
+
+    // Ensure trail starts from "Overview"
+    if (list.length > 0 && list[0].label !== 'Overview') {
+      list.unshift({ label: 'Overview', to: '/' });
+    }
     return list;
   }, [breadcrumbs, location.pathname]);
 
