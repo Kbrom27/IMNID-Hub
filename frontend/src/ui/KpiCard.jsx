@@ -45,29 +45,29 @@ export const KpiCard = ({
 
   if (loading) {
     return (
-      <div className={`p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs h-[92px] flex flex-col justify-between ${className}`}>
+      <div className={`p-5 sm:p-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs min-h-[110px] flex flex-col justify-between ${className}`}>
         <div className="flex items-center justify-between">
-          <Skeleton variant="text" width={80} height={12} />
-          <Skeleton variant="circle" width={28} height={28} />
+          <Skeleton variant="text" width={100} height={14} />
+          <Skeleton variant="circle" width={36} height={36} />
         </div>
-        <Skeleton variant="text" width={100} height={32} />
+        <Skeleton variant="text" width={120} height={36} />
       </div>
     );
   }
 
   return (
     <div
-      className={`p-3.5 sm:p-4 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs hover:shadow-sm transition-shadow h-[88px] sm:h-[94px] flex flex-col justify-between ${className}`}
+      className={`p-5 sm:p-6 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs hover:shadow-sm transition-shadow min-h-[110px] flex flex-col justify-between ${className}`}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
+        <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
           {title}
         </span>
         <div className="flex items-center gap-1.5 flex-shrink-0">
           {badge}
           {icon && (
             <div
-              className={`w-7 h-7 rounded-md flex items-center justify-center border flex-shrink-0 ${
+              className={`w-9 h-9 rounded-lg flex items-center justify-center border flex-shrink-0 ${
                 iconVariants[variant] || iconVariants.slate
               }`}
             >
@@ -77,12 +77,12 @@ export const KpiCard = ({
         </div>
       </div>
 
-      <div className="flex items-baseline gap-2.5">
+      <div className="flex items-baseline gap-2.5 mt-2">
         <div className={`text-2xl sm:text-[32px] font-bold tabular-nums leading-none tracking-tight ${textVariants[variant] || textVariants.slate}`}>
           {value ?? '—'}
         </div>
         {subtext && (
-          <span className="text-xs font-semibold tabular-nums text-slate-500 dark:text-slate-400">
+          <span className="text-sm font-semibold tabular-nums text-slate-500 dark:text-slate-400">
             {subtext}
           </span>
         )}

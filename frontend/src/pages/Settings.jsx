@@ -114,7 +114,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full">
       <PageHeader
         title="Server Connections & Credentials Vault"
         breadcrumbs={[
@@ -124,14 +124,14 @@ const Settings = () => {
       />
 
       {!isOperator && (
-        <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2">
-          <ShieldAlert className="w-4 h-4 flex-shrink-0 text-amber-600 dark:text-amber-400" />
+        <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-sm flex items-center gap-2.5">
+          <ShieldAlert className="w-5 h-5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
           <span>You are logged in as Viewer. You can test existing connections, but only Admins and Operators can modify credentials.</span>
         </div>
       )}
 
-      {/* Two-column responsive card grid (1-col on <1024px) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Two-column responsive card grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
         {connections.map((c) => {
           const isTesting = testing[c.system];
           const isSaving = saving[c.system];
@@ -144,7 +144,7 @@ const Settings = () => {
           return (
             <div
               key={c.system}
-              className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 flex flex-col justify-between space-y-3"
+              className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6 flex flex-col justify-between space-y-4"
             >
               <div className="space-y-4">
                 {/* Card Header */}

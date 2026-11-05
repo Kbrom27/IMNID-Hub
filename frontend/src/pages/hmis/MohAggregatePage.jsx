@@ -102,7 +102,7 @@ const MohAggregatePage = () => {
   };
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full">
       <PageHeader
         title="MOH Aggregate Report Exporter"
         breadcrumbs={[
@@ -121,7 +121,7 @@ const MohAggregatePage = () => {
 
       {/* Analytics Configuration Card */}
       <Card>
-        <CardContent className="space-y-4 p-4 sm:p-5">
+        <CardContent className="space-y-6">
           <MohDataElementSelect
             system={dhis2System}
             value={dataElementUid}

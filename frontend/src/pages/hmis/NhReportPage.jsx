@@ -119,7 +119,7 @@ const NhReportPage = () => {
   };
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full">
       <PageHeader
         title="Neonatal Health & NICU Register (HMIS 04.2)"
         breadcrumbs={[
@@ -130,7 +130,7 @@ const NhReportPage = () => {
 
       {/* Ethiopian Calendar Banner Card */}
       <Card>
-        <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <CardContent className="p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
               <Calendar className="w-5 h-5" />

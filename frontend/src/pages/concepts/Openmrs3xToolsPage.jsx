@@ -787,7 +787,7 @@ const Openmrs3xToolsPage = () => {
   };
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full">
       <PageHeader
         title="OpenMRS 3.x Tools"
         breadcrumbs={[
@@ -797,9 +797,9 @@ const Openmrs3xToolsPage = () => {
         ]}
       />
 
-      {/* Top Tool Selector (Compact 5x2 Grid at most ~140px tall, CM code + title only) */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-3 shadow-2xs">
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+      {/* Top Tool Selector */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
           {TOOLS_3X.map((tool) => {
             const isSelected = selectedToolId === tool.id;
             return (
@@ -808,15 +808,15 @@ const Openmrs3xToolsPage = () => {
                   type="button"
                   onClick={() => setSelectedToolId(tool.id)}
                   title={`${tool.code} · ${tool.name}`}
-                  className={`p-2 sm:px-2.5 sm:py-2 rounded-lg text-left transition-all flex flex-col justify-center border w-full h-[56px] relative cursor-pointer ${
+                  className={`p-2.5 sm:px-3 sm:py-2.5 rounded-xl text-left transition-all flex flex-col justify-center border w-full min-h-[68px] relative cursor-pointer ${
                     isSelected
                       ? 'bg-teal-50/80 dark:bg-teal-950/50 border-teal-500 dark:border-teal-400 text-teal-950 dark:text-teal-100 shadow-2xs ring-1 ring-teal-500/20'
                       : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-850'
                   }`}
                 >
-                  <div className="flex items-center gap-1.5 mb-1">
+                  <div className="flex items-center gap-1.5 mb-1.5">
                     <span
-                      className={`font-sans text-[11px] font-bold tracking-wider px-1.5 py-0.2 rounded ${
+                      className={`font-sans text-xs font-bold tracking-wider px-2 py-0.5 rounded ${
                         isSelected
                           ? 'bg-teal-600 text-white dark:bg-teal-500'
                           : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
@@ -825,7 +825,7 @@ const Openmrs3xToolsPage = () => {
                       {tool.code}
                     </span>
                   </div>
-                  <div className="font-semibold text-xs leading-snug line-clamp-2">
+                  <div className="font-semibold text-xs sm:text-[13px] leading-snug line-clamp-2">
                     {tool.name}
                   </div>
                 </button>
@@ -836,7 +836,7 @@ const Openmrs3xToolsPage = () => {
       </div>
 
       {/* Selected Tool Form & Run Card */}
-      <div className="space-y-4">
+      <div className="space-y-6">
         <Card>
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 w-full">

@@ -68,7 +68,7 @@ const DataDictionaryPage = () => {
   };
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full">
       <PageHeader
         title="DHIS2 Data Dictionary Generator"
         breadcrumbs={[
@@ -78,32 +78,32 @@ const DataDictionaryPage = () => {
       />
 
       <Card>
-        <CardContent className="space-y-4 p-4 sm:p-5">
+        <CardContent className="space-y-6">
           {/* Source Instance Selector */}
           <div className="space-y-2">
             <label className="block text-sm font-bold text-slate-800 dark:text-slate-200">
               Source DHIS2 Instance
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setSourceInstance('dhis2_offline')}
-                className={`p-2.5 rounded-lg border text-left flex items-center justify-between transition-all ${
+                className={`p-3 rounded-xl border text-left flex items-center justify-between transition-all ${
                   sourceInstance === 'dhis2_offline'
                     ? 'border-teal-500 bg-teal-50/50 dark:bg-teal-950/20 ring-1 ring-teal-500'
                     : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-800/60'
                 }`}
               >
-                <div className="flex items-center gap-2.5">
-                  <Laptop className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                <div className="flex items-center gap-3">
+                  <Laptop className="w-5 h-5 text-teal-600 dark:text-teal-400 shrink-0" />
                   <div>
-                    <span className="font-semibold text-xs text-slate-800 dark:text-slate-100 block">Offline DHIS2</span>
-                    <span className="font-mono text-[10px] text-slate-500 truncate block max-w-[220px]">
+                    <span className="font-semibold text-sm text-slate-800 dark:text-slate-100 block">Offline DHIS2</span>
+                    <span className="font-mono text-xs text-slate-500 truncate block max-w-[220px]">
                       {offlineInfo?.effective_url || 'http://localhost:8080'}
                     </span>
                   </div>
                 </div>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                <span className="text-xs font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
                   {offlineInfo?.source === 'env' ? 'Env' : 'Vault'}
                 </span>
               </button>
@@ -111,29 +111,29 @@ const DataDictionaryPage = () => {
               <button
                 type="button"
                 onClick={() => setSourceInstance('dhis2_online')}
-                className={`p-2.5 rounded-lg border text-left flex items-center justify-between transition-all ${
+                className={`p-3 rounded-xl border text-left flex items-center justify-between transition-all ${
                   sourceInstance === 'dhis2_online'
                     ? 'border-teal-500 bg-teal-50/50 dark:bg-teal-950/20 ring-1 ring-teal-500'
                     : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-800/60'
                 }`}
               >
-                <div className="flex items-center gap-2.5">
-                  <Globe className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <div className="flex items-center gap-3">
+                  <Globe className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <div>
-                    <span className="font-semibold text-xs text-slate-800 dark:text-slate-100 block">Online DHIS2</span>
-                    <span className="font-mono text-[10px] text-slate-500 truncate block max-w-[220px]">
+                    <span className="font-semibold text-sm text-slate-800 dark:text-slate-100 block">Online DHIS2</span>
+                    <span className="font-mono text-xs text-slate-500 truncate block max-w-[220px]">
                       {onlineInfo?.effective_url || 'https://central.dhis2.org'}
                     </span>
                   </div>
                 </div>
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                <span className="text-xs font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
                   {onlineInfo?.source === 'env' ? 'Env' : 'Vault'}
                 </span>
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
             <Select
               label="Tracker Program"
               value={programName}

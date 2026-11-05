@@ -192,7 +192,7 @@ const Openmrs3Page = () => {
   };
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full">
       <PageHeader
         title="OpenMRS 3.x (O3) ⟷ DHIS2 Tracker"
         breadcrumbs={[

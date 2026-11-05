@@ -233,7 +233,7 @@ const MetadataImportPage = () => {
     : [];
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full">
       <PageHeader
         title="DHIS2 Metadata Importer"
         breadcrumbs={[
@@ -244,10 +244,10 @@ const MetadataImportPage = () => {
 
       {/* Unified Configuration Card */}
       <Card>
-        <CardContent className="space-y-4 p-4 sm:p-5">
+        <CardContent className="space-y-6">
           {/* Target Instance Selection */}
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <label className="block text-sm font-bold text-slate-800 dark:text-slate-200">
               Target DHIS2 Instance
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

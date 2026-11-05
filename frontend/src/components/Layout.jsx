@@ -41,8 +41,8 @@ const Layout = () => {
         />
 
         <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-          <main className="flex-1 px-4 sm:px-6 py-4 w-full">
-            <div className="w-full max-w-[1440px] mx-auto space-y-4">
+          <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 w-full">
+            <div className="w-full max-w-[1440px] mx-auto space-y-6">
               <Outlet />
             </div>
           </main>

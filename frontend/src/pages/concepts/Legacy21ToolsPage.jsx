@@ -289,7 +289,7 @@ const Legacy21ToolsPage = () => {
   };
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full">
       <PageHeader
         title="Legacy 2.1 Tools"
         breadcrumbs={[
@@ -299,9 +299,9 @@ const Legacy21ToolsPage = () => {
         ]}
       />
 
-      {/* Top Tool Selector (Horizontal Row) */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-3 shadow-2xs">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+      {/* Top Tool Selector */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {TOOLS_21.map((tool) => {
             const isSelected = selectedToolId === tool.id;
             return (
@@ -309,7 +309,7 @@ const Legacy21ToolsPage = () => {
                 key={tool.id}
                 type="button"
                 onClick={() => setSelectedToolId(tool.id)}
-                className={`p-3 rounded-xl text-left transition-all border flex items-center gap-3 cursor-pointer ${
+                className={`p-3.5 rounded-xl text-left transition-all border flex items-center gap-3 cursor-pointer ${
                   isSelected
                     ? 'bg-teal-50/80 dark:bg-teal-950/50 border-teal-500 dark:border-teal-400 text-teal-950 dark:text-teal-100 shadow-2xs ring-1 ring-teal-500/20'
                     : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-850'
@@ -318,7 +318,7 @@ const Legacy21ToolsPage = () => {
                 <span className="font-sans text-xs font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">
                   {tool.code}
                 </span>
-                <span className="font-semibold text-xs sm:text-sm truncate">{tool.name}</span>
+                <span className="font-semibold text-sm truncate">{tool.name}</span>
               </button>
             );
           })}
@@ -326,7 +326,7 @@ const Legacy21ToolsPage = () => {
       </div>
 
       {/* Selected Tool Form & Run Card */}
-      <div className="space-y-4">
+      <div className="space-y-6">
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">

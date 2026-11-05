@@ -224,7 +224,7 @@ export const JobHistory = () => {
   };
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full">
       {/* 1. Shared PageHeader without subtitle */}
       <PageHeader
         title="Job Monitor"
@@ -238,10 +238,10 @@ export const JobHistory = () => {
               type="button"
               onClick={fetchJobs}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 text-sm font-semibold shadow-2xs transition-colors cursor-pointer"
               title="Refresh job executions list"
             >
-              <RotateCcw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-teal-600' : ''}`} />
+              <RotateCcw className={`w-4 h-4 ${loading ? 'animate-spin text-teal-600' : ''}`} />
               <span>Refresh</span>
             </button>
           </div>

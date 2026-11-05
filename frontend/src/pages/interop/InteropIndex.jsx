@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeftRight, Database, Table, Activity, ArrowRight, History } from 'lucide-react';
-import { PageHeader, Card, CardHeader, CardTitle, CardDescription, CardContent, OperationsTable } from '../../ui';
+import { ArrowLeftRight, Database, Table, Activity, ArrowRight } from 'lucide-react';
+import { PageHeader, OperationsTable } from '../../ui';
 
 const INTEROP_MODULES = [
   {
@@ -55,7 +55,7 @@ const InteropIndex = () => {
   }, []);
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full">
       <PageHeader
         title="EMR-DHIS2 Tracker Interoperability"
         breadcrumbs={[
@@ -64,22 +64,39 @@ const InteropIndex = () => {
         ]}
       />
 
-      {/* Hub Cards Grid - compact 64px tiles */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+      {/* Hub Cards Grid - Balanced 2-Column Standard Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
         {INTEROP_MODULES.map((item) => {
           const Icon = item.icon;
           return (
             <Link
               key={item.id}
               to={item.path}
-              className="group flex items-center gap-3 p-3 h-16 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500 dark:hover:border-teal-500/80 shadow-2xs hover:shadow-xs transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded-xl"
             >
-              <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-200/60 dark:border-teal-800/60 group-hover:scale-105 transition-transform">
-                <Icon className="w-4 h-4" />
+              <div className="h-full p-5 sm:p-6 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-teal-500/80 dark:hover:border-teal-500/80 shadow-xs hover:shadow-md transition-all duration-150 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-200/60 dark:border-teal-800/60 group-hover:scale-105 transition-transform">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-teal-600 group-hover:bg-teal-50 dark:group-hover:bg-teal-950/40 group-hover:translate-x-1 transition-all">
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </div>
+
+                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                    {item.title}
+                  </h3>
+                  <span className="text-xs font-semibold text-teal-600 dark:text-teal-400 uppercase tracking-wide mt-1 block">
+                    {item.subtitle}
+                  </span>
+
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 line-clamp-2 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
               </div>
-              <span className="text-xs sm:text-[13px] font-semibold text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors line-clamp-2 leading-snug">
-                {item.title}
-              </span>
             </Link>
           );
         })}

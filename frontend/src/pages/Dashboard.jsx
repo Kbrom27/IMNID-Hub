@@ -103,8 +103,8 @@ const Dashboard = () => {
   }, [jobs]);
 
   return (
-    <div className="space-y-4 w-full">
-      {/* 1. Shared PageHeader with Breadcrumb, Title, and Primary Actions (no subtitle per Section A) */}
+    <div className="space-y-6 w-full">
+      {/* 1. Shared PageHeader with Breadcrumb, Title, and Primary Actions */}
       <PageHeader
         title="Dashboard"
         breadcrumbs={[{ label: 'Overview', to: '/' }]}
@@ -116,11 +116,11 @@ const Dashboard = () => {
                 type="button"
                 onClick={handleRefreshAll}
                 disabled={loadingStats || connLoading}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 shadow-2xs transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 shadow-2xs transition-colors cursor-pointer"
                 aria-label="Refresh telemetry"
               >
                 <RefreshCw
-                  className={`w-3.5 h-3.5 ${
+                  className={`w-4 h-4 ${
                     loadingStats || connLoading ? 'animate-spin text-teal-600' : 'text-slate-500'
                   }`}
                 />
@@ -135,9 +135,9 @@ const Dashboard = () => {
               variant="primary"
               onClick={testAll}
               loading={testingAll}
-              icon={<Play className="w-3.5 h-3.5 fill-current" />}
-              size="sm"
-              className="shadow-2xs"
+              icon={<Play className="w-4 h-4 fill-current" />}
+              size="md"
+              className="shadow-xs"
             >
               {testingAll ? 'Testing Endpoints...' : 'Test all connections'}
             </Button>
@@ -145,8 +145,8 @@ const Dashboard = () => {
         }
       />
 
-      {/* 2. KPI Cards Row (4 Columns in Responsive Grid, ~88-94px tall, one short metric only) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      {/* 2. KPI Cards Row (4 Columns in Responsive Grid) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         {/* KPI 1: Total Executions */}
         <KpiCard
           title="Total Executions"
@@ -203,7 +203,7 @@ const Dashboard = () => {
           - Left (7 of 12 columns): Recent Operations Table (8 single-row items)
           - Right (5 of 12 columns): Server Status (single-row tiles with matching header)
       */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
         {/* Left Column: Recent Operations (7 Columns) */}
         <section aria-label="Recent operations" className="lg:col-span-7 xl:col-span-7">
           <OperationsTable jobs={jobs} limit={8} />

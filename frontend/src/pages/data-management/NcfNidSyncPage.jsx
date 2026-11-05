@@ -272,7 +272,7 @@ const NcfNidSyncPage = () => {
     : selectedFacilityObj?.displayName || selectedFacilityObj?.name || selectedOu;
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full">
       <PageHeader
         title="NCF to NID Sync"
         breadcrumbs={[
@@ -282,11 +282,11 @@ const NcfNidSyncPage = () => {
       />
 
       <Card>
-        <CardContent className="space-y-4 p-4 sm:p-5">
+        <CardContent className="space-y-6">
           {/* Target Instance Selection Header */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="block text-sm font-bold text-slate-800 dark:text-slate-200">
                 DHIS2 Target Instance
               </label>
               <Button

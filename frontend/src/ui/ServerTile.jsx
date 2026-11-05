@@ -60,15 +60,15 @@ export const ServerTile = ({ server, onTest, isTesting = false }) => {
           : 'bg-rose-50/40 dark:bg-rose-950/20 border-rose-200/80 dark:border-rose-900/60 shadow-2xs'
       }`}
     >
-      {/* Clickable Single-Row Header (~44px) */}
+      {/* Clickable Single-Row Header */}
       <div
-        className="px-3.5 py-2 min-h-[44px] flex items-center justify-between gap-3 cursor-pointer select-none"
+        className="px-4 py-3 min-h-[50px] flex items-center justify-between gap-3 cursor-pointer select-none"
         onClick={() => setExpanded((prev) => !prev)}
       >
         {/* Left: Status Icon + Full Name */}
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <div
-            className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 border ${
+            className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 border ${
               isConnected
                 ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
                 : !isConfigured
@@ -76,10 +76,10 @@ export const ServerTile = ({ server, onTest, isTesting = false }) => {
                 : 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800'
             }`}
           >
-            <Server className="w-3 h-3" />
+            <Server className="w-4 h-4" />
           </div>
 
-          <span className="font-medium text-sm text-slate-900 dark:text-slate-100 truncate">
+          <span className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">
             {name}
           </span>
         </div>

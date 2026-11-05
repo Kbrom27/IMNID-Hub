@@ -186,7 +186,7 @@ export const OperationsTable = ({
               return (
                 <div
                   key={j.id}
-                  className="px-3.5 py-2 min-h-[48px] hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors flex items-center justify-between gap-3 text-xs"
+                  className="px-4 py-2.5 min-h-[50px] hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors flex items-center justify-between gap-3 text-sm"
                 >
                   {/* Left: ID chip + Module chip + Action name */}
                   <div className="flex items-center gap-2.5 min-w-0 flex-1">

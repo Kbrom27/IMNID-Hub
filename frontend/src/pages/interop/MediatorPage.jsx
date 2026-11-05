@@ -94,7 +94,7 @@ const MediatorPage = () => {
   const checkpoint = mediatorStatus?.checkpoint;
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full">
       <PageHeader
         title="Mediator & Checkpoint Control"
         breadcrumbs={[

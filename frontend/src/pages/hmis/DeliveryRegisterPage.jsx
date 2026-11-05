@@ -153,7 +153,7 @@ const DeliveryRegisterPage = () => {
   const tallyEntries = Object.entries(tallies);
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full">
       <PageHeader
         title="Delivery Register Generator"
         breadcrumbs={[
@@ -164,7 +164,7 @@ const DeliveryRegisterPage = () => {
 
       {/* Reporting Period */}
       <Card>
-        <CardContent className="py-4 px-5 sm:px-6">
+        <CardContent className="p-5 sm:p-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
             <Select
               label="Ethiopian Year"

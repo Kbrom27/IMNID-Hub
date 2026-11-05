@@ -184,7 +184,7 @@ const BahmniPage = () => {
   };
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full">
       <PageHeader
         title="Bahmni EMR ⟷ DHIS2 Tracker"
         breadcrumbs={[

@@ -119,7 +119,7 @@ const RmhReportPage = () => {
   };
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-6 w-full">
       <PageHeader
         title="Routine Maternal Health Register (HMIS 01.2)"
         breadcrumbs={[
@@ -130,7 +130,7 @@ const RmhReportPage = () => {
 
       {/* Ethiopian Calendar Banner Card */}
       <Card>
-        <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <CardContent className="p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
               <Calendar className="w-5 h-5" />
