@@ -69,18 +69,15 @@ const Login = () => {
     <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <div className="flex justify-center mb-5">
-          <div className="h-20 px-4 py-2 rounded-2xl bg-white border border-slate-700/60 shadow-xl shadow-teal-500/10 flex items-center justify-center">
+          <div className="h-28 px-6 py-2.5 rounded-2xl bg-white border border-slate-700/60 shadow-xl shadow-teal-500/10 flex items-center justify-center">
             <img
               src="/IMNID_Hub_logo.png"
               alt="IMNID Hub Logo"
-              className="h-16 w-auto max-w-[260px] object-contain"
+              className="h-24 w-auto max-w-[320px] object-contain"
             />
           </div>
         </div>
         <h2 className="text-3xl font-extrabold text-white tracking-tight">IMNID Hub</h2>
-        <p className="mt-2 text-sm text-slate-400">
-          Unified Health Information Interoperability & Data Platform
-        </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
