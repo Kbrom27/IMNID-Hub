@@ -99,7 +99,7 @@ const Dhis2SyncPage = () => {
       });
       if (pRes.ok) {
         const pData = await pRes.json();
-        if (pData.programs && pData.programs.length > 0) {
+        if (pData.ok && pData.programs && pData.programs.length > 0) {
           setPrograms(pData.programs);
           setSelectedPrograms((prev) => {
             if (prev.length > 0 && pData.programs.some((p) => prev.includes(p.id))) {
@@ -110,6 +110,9 @@ const Dhis2SyncPage = () => {
         } else {
           setPrograms([]);
           setSelectedPrograms([]);
+          if (!pData.ok && pData.error) {
+            setMetadataError(`Cannot connect to ${systemKey === 'dhis2_offline' ? 'offline' : 'online'} DHIS2 instance. Please verify server connection.`);
+          }
         }
       } else {
         setPrograms([]);
@@ -121,10 +124,12 @@ const Dhis2SyncPage = () => {
       });
       if (ouRes.ok) {
         const ouData = await ouRes.json();
-        const ous = ouData.org_units || [];
+        const ous = ouData.ok && ouData.org_units ? ouData.org_units : [];
         setOrgUnits(ous);
         if (ous.length > 0 && !ous.some((ou) => ou.id === orgUnitId)) {
           setOrgUnitId(ous[0].id);
+        } else if (ous.length === 0) {
+          setOrgUnitId('');
         }
       }
     } catch (err) {

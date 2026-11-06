@@ -76,6 +76,9 @@ async def get_dhis2_programs(
     user = username or creds["username"]
     pw = password or creds["password"]
 
+    if not base_url or not user:
+        return {"ok": False, "error": "DHIS2 connection not configured", "programs": []}
+
     programs_url = f"{base_url}/api/programs.json"
     auth = (user, pw) if user and pw else None
     try:
@@ -83,7 +86,7 @@ async def get_dhis2_programs(
             programs_url,
             auth=auth,
             params={"fields": "id,displayName,programType", "paging": "false"},
-            timeout=10,
+            timeout=8,
             headers={"Accept": "application/json"}
         )
         if res.status_code == 200:
@@ -98,12 +101,7 @@ async def get_dhis2_programs(
             return {"ok": False, "error": f"DHIS2 HTTP {res.status_code}", "programs": []}
     except Exception as e:
         logger.warning(f"Failed to fetch DHIS2 programs from {base_url}: {e}")
-        fallback = [
-            {"id": "pLk3Ht2XMKl", "name": "Maternal Inpatient Data", "type": "WITH_REGISTRATION"},
-            {"id": "QYJKpoUeg9F", "name": "Neonatal Inpatient Data", "type": "WITH_REGISTRATION"},
-            {"id": "aLoraiFNkng", "name": "Delivery Register", "type": "WITH_REGISTRATION"},
-        ]
-        return {"ok": False, "error": str(e), "programs": fallback}
+        return {"ok": False, "error": str(e), "programs": []}
 
 
 @router.get("/dhis2/org-units")
@@ -119,6 +117,9 @@ async def get_dhis2_org_units(
     user = username or creds["username"]
     pw = password or creds["password"]
 
+    if not base_url or not user:
+        return {"ok": False, "error": "DHIS2 connection not configured", "org_units": []}
+
     ou_url = f"{base_url}/api/organisationUnits.json"
     auth = (user, pw) if user and pw else None
     try:
@@ -126,7 +127,7 @@ async def get_dhis2_org_units(
             ou_url,
             auth=auth,
             params={"fields": "id,displayName,level,path", "paging": "false", "pageSize": 10000},
-            timeout=15,
+            timeout=10,
             headers={"Accept": "application/json"}
         )
         if res.status_code == 200:
@@ -147,14 +148,7 @@ async def get_dhis2_org_units(
             return {"ok": False, "error": f"DHIS2 HTTP {res.status_code}", "org_units": []}
     except Exception as e:
         logger.warning(f"Failed to fetch DHIS2 org units from {base_url}: {e}")
-        fallback = [
-            {"id": "OU_001", "name": "St. Paul's Hospital Millennium Medical College", "level": 4},
-            {"id": "OU_002", "name": "Tikur Anbessa Specialized Hospital (TASH)", "level": 4},
-            {"id": "OU_003", "name": "Gandhi Memorial Hospital", "level": 4},
-            {"id": "OU_004", "name": "Zewditu Memorial Hospital", "level": 4},
-            {"id": "OU_005", "name": "Yekatit 12 Hospital Medical College", "level": 4},
-        ]
-        return {"ok": False, "error": str(e), "org_units": fallback}
+        return {"ok": False, "error": str(e), "org_units": []}
 
 
 # ==============================================================================

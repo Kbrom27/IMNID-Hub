@@ -80,7 +80,7 @@ const DataExportPage = () => {
       });
       if (res.ok) {
         const data = await res.json();
-        const progs = data.programs || [];
+        const progs = data.ok && Array.isArray(data.programs) ? data.programs : [];
         setPrograms(progs);
         if (progs.length > 0) {
           setSelectedProgramId((prev) => (progs.some((p) => p.id === prev) ? prev : progs[0].id));
