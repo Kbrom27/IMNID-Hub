@@ -369,8 +369,9 @@ def run_rmh_aggregate_report_worker(
 
     ctx.log("Computing MoH 01.2 indicators...")
     computed_values = compute_rmh_indicators(df)
-    non_null_count = sum(1 for v in computed_values.values() if v is not None)
-    ctx.log(f"Computed {non_null_count} indicators with valid values")
+    non_null_count = sum(1 for v in computed_values.values() if isinstance(v, (int, float)))
+    not_avail_count = sum(1 for v in computed_values.values() if v == "Not available")
+    ctx.log(f"Computed {non_null_count} indicators with valid values ({not_avail_count} marked Not available)")
 
     target_dir = resolve_output_dir(output_dir, settings.exports_dir)
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -677,8 +678,9 @@ def run_nh_aggregate_report_worker(
 
     ctx.log("Computing MoH 04.2 indicators...")
     computed_values = compute_nh_indicators(df)
-    non_null_count = sum(1 for v in computed_values.values() if v is not None)
-    ctx.log(f"Computed {non_null_count} indicators with valid values")
+    non_null_count = sum(1 for v in computed_values.values() if isinstance(v, (int, float)))
+    not_avail_count = sum(1 for v in computed_values.values() if v == "Not available")
+    ctx.log(f"Computed {non_null_count} indicators with valid values ({not_avail_count} marked Not available)")
 
     target_dir = resolve_output_dir(output_dir, settings.exports_dir)
     target_dir.mkdir(parents=True, exist_ok=True)

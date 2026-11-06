@@ -17,6 +17,7 @@ import {
   Button,
   TextInput,
   Select,
+  DateInput,
   Checkbox,
   JobPanel,
   FileDropzone,
@@ -72,6 +73,9 @@ const HmisNchReportPage = () => {
   } = useHmisJob();
 
   const [sourceTab, setSourceTab] = useState('dhis2');
+  const [periodType, setPeriodType] = useState('reporting'); // 'reporting' | 'custom'
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
   const [dhis2System, setDhis2System] = useState('dhis2_online');
   const [programUid, setProgramUid] = useState('Neonatal Care Form');
   const [facility, setFacility] = useState('');
@@ -113,6 +117,11 @@ const HmisNchReportPage = () => {
   const periodCode = calendarInfo?.period_code || `${ethYear}${String(ethMonth).padStart(2, '0')}`;
   const startDate = calendarInfo?.gregorian_start || '';
   const endDate = calendarInfo?.gregorian_end || '';
+  const effectiveStart = periodType === 'custom' ? (customStartDate || undefined) : (startDate || undefined);
+  const effectiveEnd = periodType === 'custom' ? (customEndDate || undefined) : (endDate || undefined);
+  const effectivePeriod = periodType === 'custom'
+    ? (customStartDate && customEndDate ? `${customStartDate}_${customEndDate}` : periodCode)
+    : periodCode;
 
   const handleRunDhis2Report = () => {
     setShowConfirm(false);
@@ -121,9 +130,9 @@ const HmisNchReportPage = () => {
       program_uid: programUid || 'Neonatal Care Form',
       org_unit: facility || undefined,
       ou_mode: ouMode,
-      period: periodCode,
-      start: startDate || undefined,
-      end: endDate || undefined,
+      period: effectivePeriod,
+      start: effectiveStart,
+      end: effectiveEnd,
       dataset: datasetUid || undefined,
       dry_run: dryRun,
       submit: !dryRun,
@@ -136,12 +145,104 @@ const HmisNchReportPage = () => {
       input_file: openmrsMode === 'csv' ? openmrsCsvPath || (openmrsCsvFile?.name || '') : undefined,
       visit_type: 'NICU',
       facility_name: openmrsFacility || undefined,
-      period: periodCode,
-      start: startDate || undefined,
-      end: endDate || undefined,
+      period: effectivePeriod,
+      start: effectiveStart,
+      end: effectiveEnd,
       output_dir: outputDir && !outputDir.startsWith('[Local Folder]') ? outputDir.trim() : undefined,
     });
   };
+
+  const renderPeriodSelector = () => (
+    <div className="space-y-2 p-3 bg-slate-50/70 dark:bg-slate-900/50 rounded-xl border border-slate-200/80 dark:border-slate-800">
+      <div className="flex items-center justify-between pb-1">
+        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+          Period Selection
+        </label>
+        <div className="flex items-center gap-1 bg-slate-200/60 dark:bg-slate-800 p-0.5 rounded-lg text-xs font-medium">
+          <button
+            type="button"
+            onClick={() => setPeriodType('reporting')}
+            className={`px-3 py-1 rounded-md transition-all ${
+              periodType === 'reporting'
+                ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-300 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            Reporting Period (Ethiopian)
+          </button>
+          <button
+            type="button"
+            onClick={() => setPeriodType('custom')}
+            className={`px-3 py-1 rounded-md transition-all ${
+              periodType === 'custom'
+                ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-300 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            Custom Period (Date Range)
+          </button>
+        </div>
+      </div>
+
+      {periodType === 'reporting' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+          <Select
+            label="Ethiopian Year"
+            value={ethYear}
+            onChange={(e) => handleYearMonthChange(Number(e.target.value), ethMonth)}
+            options={(calendarInfo?.available_years || ['2016', '2017', '2018', '2019']).map((y) => ({
+              label: `${y} E.C.`,
+              value: Number(y),
+            }))}
+          />
+          <Select
+            label="Ethiopian Month"
+            value={ethMonth}
+            onChange={(e) => handleYearMonthChange(ethYear, Number(e.target.value))}
+            options={ETH_MONTHS.map((m) => ({
+              label: m.name,
+              value: m.val,
+            }))}
+          />
+          <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 rounded-lg text-xs">
+            <Calendar className="w-4 h-4 text-teal-600 dark:text-teal-400 flex-shrink-0" />
+            <div className="truncate">
+              <span className="font-bold text-teal-900 dark:text-teal-200">
+                {startDate || '—'} → {endDate || '—'}
+              </span>
+              <span className="text-teal-600 dark:text-teal-400 font-medium ml-1.5">
+                ({periodCode})
+              </span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+          <DateInput
+            label="Start Date"
+            value={customStartDate}
+            onChange={(e) => setCustomStartDate(e.target.value)}
+          />
+          <DateInput
+            label="End Date"
+            value={customEndDate}
+            onChange={(e) => setCustomEndDate(e.target.value)}
+          />
+          <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 rounded-lg text-xs">
+            <Calendar className="w-4 h-4 text-teal-600 dark:text-teal-400 flex-shrink-0" />
+            <div className="truncate">
+              <span className="font-bold text-teal-900 dark:text-teal-200">
+                {customStartDate || 'Start'} → {customEndDate || 'End'}
+              </span>
+              <span className="text-teal-600 dark:text-teal-400 font-medium ml-1.5">
+                (Custom Range)
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   const handleCsvSelect = async (file) => {
     setOpenmrsCsvFile(file);
@@ -176,43 +277,6 @@ const HmisNchReportPage = () => {
         ]}
       />
 
-      {/* Reporting Period Card */}
-      <Card>
-        <CardContent className="py-4 px-5 sm:px-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
-            <Select
-              label="Ethiopian Year"
-              value={ethYear}
-              onChange={(e) => handleYearMonthChange(Number(e.target.value), ethMonth)}
-              options={(calendarInfo?.available_years || ['2016', '2017', '2018', '2019']).map((y) => ({
-                label: `${y} E.C.`,
-                value: Number(y),
-              }))}
-            />
-            <Select
-              label="Ethiopian Month"
-              value={ethMonth}
-              onChange={(e) => handleYearMonthChange(ethYear, Number(e.target.value))}
-              options={ETH_MONTHS.map((m) => ({
-                label: m.name,
-                value: m.val,
-              }))}
-            />
-            <div className="flex items-center gap-3 px-4 py-2.5 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 rounded-lg text-sm">
-              <Calendar className="w-5 h-5 text-teal-600 dark:text-teal-400 flex-shrink-0" />
-              <div>
-                <span className="font-bold text-teal-900 dark:text-teal-200">
-                  {periodCode}
-                </span>
-                <span className="text-teal-600 dark:text-teal-400 font-medium ml-2">
-                  ({startDate || '—'} → {endDate || '—'})
-                </span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Source Selection Tabs */}
       <div className="flex gap-2 p-1.5 bg-slate-100 dark:bg-slate-800/70 rounded-xl border border-slate-200/80 dark:border-slate-700/80 w-fit">
         {TAB_ITEMS.map(({ key, label, icon: Icon }) => (
@@ -241,6 +305,8 @@ const HmisNchReportPage = () => {
               selectedSystem={dhis2System}
               onSystemChange={setDhis2System}
             />
+
+            {renderPeriodSelector()}
 
             <Dhis2OrgUnitSelect
               system={dhis2System}
@@ -325,6 +391,7 @@ const HmisNchReportPage = () => {
             {openmrsMode === 'live' ? (
               <div className="space-y-3">
                 <HmisConnectionCard type="openmrs" />
+                {renderPeriodSelector()}
                 <OpenmrsLocationSelect
                   value={openmrsFacility}
                   onChange={setOpenmrsFacility}
@@ -346,6 +413,7 @@ const HmisNchReportPage = () => {
                     </span>
                   </div>
                 )}
+                {renderPeriodSelector()}
               </div>
             )}
 
@@ -375,7 +443,7 @@ const HmisNchReportPage = () => {
         onClose={() => setShowConfirm(false)}
         onConfirm={handleRunDhis2Report}
         title="Submit Aggregate Report to Live DHIS2?"
-        message={`You are about to submit the MoH 04.2 Neonatal & Child Health Monthly Report for period ${periodCode} (${startDate} to ${endDate}) to DHIS2. This operation updates aggregate data values.`}
+        message={`You are about to submit the MoH 04.2 Neonatal & Child Health Monthly Report for period ${effectivePeriod} (${effectiveStart || '—'} to ${effectiveEnd || '—'}) to DHIS2. This operation updates aggregate data values.`}
         confirmText="Confirm & Submit"
         cancelText="Cancel"
         variant="warning"
@@ -429,11 +497,15 @@ const HmisNchReportPage = () => {
                       className="hover:bg-slate-50/80 dark:hover:bg-slate-900/40 transition-colors"
                     >
                       <td className="py-2 px-4 text-slate-800 dark:text-slate-200">{code}</td>
-                      <td className="py-2 px-4 text-right font-bold">
+                      <td className="py-2 px-4 text-right">
                         {val === null || val === undefined ? (
                           <span className="text-slate-400 font-normal italic">—</span>
+                        ) : val === 'Not available' ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700 italic">
+                            Not available
+                          </span>
                         ) : (
-                          <span className="text-teal-700 dark:text-teal-400">{val}</span>
+                          <span className="text-teal-700 dark:text-teal-400 font-bold">{val}</span>
                         )}
                       </td>
                     </tr>

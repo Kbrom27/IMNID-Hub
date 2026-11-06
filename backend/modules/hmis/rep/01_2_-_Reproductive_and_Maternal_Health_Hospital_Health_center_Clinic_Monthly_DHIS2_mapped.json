@@ -1,0 +1,3519 @@
+{
+ "report": "Reproductive & Maternal Health report ↔ DHIS2 program \"Maternal Inpatient Data\" [aLoraiFNkng]",
+ "rows": [
+  {
+   "row": 3,
+   "sno": "Family Planning.",
+   "label": "RMNCH - Family planning services provided",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 4,
+   "sno": "RMH",
+   "label": "Reproductive and Maternal Health",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 5,
+   "sno": "MAT_CAR_Age",
+   "label": "MAT_New and Repeat Contraceptive Acceptors by Age",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 6,
+   "sno": "MAT_CAR_Age.1",
+   "label": "Contraceptive new acceptors by age",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "= sum of the child rows directly below",
+   "notes": [
+    "The Maternal Inpatient Data program is an inpatient labour/delivery/postpartum record.",
+    "Only FP element = postpartum method (rows 37-47), which has no new/repeat flag.",
+    "Report from the FP register or another DHIS2 program."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 7,
+   "sno": "MAT_CAR_Age.1. 1",
+   "label": "10 - 14 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 8,
+   "sno": "MAT_CAR_Age.1. 2",
+   "label": "15 - 19 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 9,
+   "sno": "MAT_CAR_Age.1. 3",
+   "label": "20 - 24 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 10,
+   "sno": "MAT_CAR_Age.1. 4",
+   "label": "25 - 29 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 11,
+   "sno": "MAT_CAR_Age.1. 5",
+   "label": "30 - 49 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 12,
+   "sno": "MAT_CAR_Age.2",
+   "label": "Contraceptive repeat acceptors by age",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "= sum of the child rows directly below",
+   "notes": [
+    "The Maternal Inpatient Data program is an inpatient labour/delivery/postpartum record.",
+    "Only FP element = postpartum method (rows 37-47), which has no new/repeat flag.",
+    "Report from the FP register or another DHIS2 program."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 13,
+   "sno": "MAT_CAR_Age.2. 1",
+   "label": "10 - 14 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 14,
+   "sno": "MAT_CAR_Age.2. 2",
+   "label": "15 - 19 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 15,
+   "sno": "MAT_CAR_Age.2. 3",
+   "label": "20 - 24 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 16,
+   "sno": "MAT_CAR_Age.2. 4",
+   "label": "25 - 29 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 17,
+   "sno": "MAT_CAR_Age.2. 5",
+   "label": "30 - 49 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 18,
+   "sno": "MAT_CAR_Mtd",
+   "label": "MAT_New and Repeat Contraceptive Acceptors by Method",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 19,
+   "sno": "MAT_CAR_Mtd.1",
+   "label": "Contraceptive new acceptors by method",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "= sum of the child rows directly below",
+   "notes": [
+    "The Maternal Inpatient Data program is an inpatient labour/delivery/postpartum record.",
+    "Only FP element = postpartum method (rows 37-47), which has no new/repeat flag.",
+    "Report from the FP register or another DHIS2 program."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 20,
+   "sno": "MAT_CAR_Mtd.1. 1",
+   "label": "Oral Contraceptives",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 21,
+   "sno": "MAT_CAR_Mtd.1. 2",
+   "label": "Injectables",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 22,
+   "sno": "MAT_CAR_Mtd.1. 3",
+   "label": "Implants",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 23,
+   "sno": "MAT_CAR_Mtd.1. 4",
+   "label": "IUCD",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 24,
+   "sno": "MAT_CAR_Mtd.1. 5",
+   "label": "Vasectomy",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "Not applicable – program enrolls women only."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 25,
+   "sno": "MAT_CAR_Mtd.1. 6",
+   "label": "Tubal ligation",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 26,
+   "sno": "MAT_CAR_Mtd.1. 7",
+   "label": "Others",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 27,
+   "sno": "MAT_CAR_Mtd.2",
+   "label": "Contraceptive repeat acceptors by method",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "= sum of the child rows directly below",
+   "notes": [
+    "The Maternal Inpatient Data program is an inpatient labour/delivery/postpartum record.",
+    "Only FP element = postpartum method (rows 37-47), which has no new/repeat flag.",
+    "Report from the FP register or another DHIS2 program."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 28,
+   "sno": "MAT_CAR_Mtd.2. 1",
+   "label": "Oral Contraceptives",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 29,
+   "sno": "MAT_CAR_Mtd.2. 2",
+   "label": "Injectables",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 30,
+   "sno": "MAT_CAR_Mtd.2. 3",
+   "label": "Implants",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 31,
+   "sno": "MAT_CAR_Mtd.2. 4",
+   "label": "IUCD",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 32,
+   "sno": "MAT_CAR_Mtd.2. 5",
+   "label": "Vasectomy",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "Not applicable – program enrolls women only."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 33,
+   "sno": "MAT_CAR_Mtd.2. 6",
+   "label": "Tubal ligation",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 34,
+   "sno": "MAT_CAR_Mtd.2. 7",
+   "label": "Others",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no data element holds contraceptive acceptor status (new vs repeat) or the FP method of general FP clients"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "See parent row."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] – postpartum clients only, no new/repeat flag – do NOT use for this row"
+   ]
+  },
+  {
+   "row": 35,
+   "sno": "MAT_IPPCAR",
+   "label": "Immediate Postpartum Contraceptive Acceptance rate (IPPCAR)",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "IPPCAR (%) = row 36 ÷ row 85 × 100",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 36,
+   "sno": "MAT_IPPCAR_Age",
+   "label": "Total PPFP acceptors,disaggregated by age",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "FP Counseling and Method Provided pp",
+     "uid": "Q1p7CxWGUoi",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Age",
+     "uid": "vbaNV9kiRFp",
+     "stage": "Enrollment (tracked entity attribute)",
+     "stage_uid": "—",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true (both on the SAME Postpartum care event; immediate postpartum = within 48 h):",
+    "   • Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {1, 2}  (24 hrs stay, 25- 48 Hrs)",
+    "   • Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] CONTAINS ANY OF codes {1, 2, 3, 4, 5}  (Pills, Injectables, Implants, IUCD, Condom)",
+    "   • Attribute 'Age' [vbaNV9kiRFp] (enrollment level) BETWEEN 10 AND 49 (inclusive, whole years)"
+   ],
+   "disaggregation": [
+    "None – total over all bands (ages outside 10-49 excluded)"
+   ],
+   "formula": "= row 37 + 38 + 39 + 40 + 41",
+   "notes": [
+    "'Counseled only'(6) and 'None'(7) are NOT acceptors."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – period anchor",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – alternative way to test the ≤48 h window (event date − delivery date)"
+   ]
+  },
+  {
+   "row": 37,
+   "sno": "MAT_IPPCAR_Age. 1",
+   "label": "10 - 14 Years",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "FP Counseling and Method Provided pp",
+     "uid": "Q1p7CxWGUoi",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Age",
+     "uid": "vbaNV9kiRFp",
+     "stage": "Enrollment (tracked entity attribute)",
+     "stage_uid": "—",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true (both on the SAME Postpartum care event; immediate postpartum = within 48 h):",
+    "   • Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {1, 2}  (24 hrs stay, 25- 48 Hrs)",
+    "   • Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] CONTAINS ANY OF codes {1, 2, 3, 4, 5}  (Pills, Injectables, Implants, IUCD, Condom)",
+    "• Attribute 'Age' [vbaNV9kiRFp] (enrollment level) BETWEEN 10 AND 14 (inclusive, whole years)"
+   ],
+   "disaggregation": [
+    "Age band 10-14 years"
+   ],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – period anchor",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – alternative way to test the ≤48 h window (event date − delivery date)"
+   ]
+  },
+  {
+   "row": 38,
+   "sno": "MAT_IPPCAR_Age. 2",
+   "label": "15 - 19 Years",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "FP Counseling and Method Provided pp",
+     "uid": "Q1p7CxWGUoi",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Age",
+     "uid": "vbaNV9kiRFp",
+     "stage": "Enrollment (tracked entity attribute)",
+     "stage_uid": "—",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true (both on the SAME Postpartum care event; immediate postpartum = within 48 h):",
+    "   • Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {1, 2}  (24 hrs stay, 25- 48 Hrs)",
+    "   • Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] CONTAINS ANY OF codes {1, 2, 3, 4, 5}  (Pills, Injectables, Implants, IUCD, Condom)",
+    "• Attribute 'Age' [vbaNV9kiRFp] (enrollment level) BETWEEN 15 AND 19 (inclusive, whole years)"
+   ],
+   "disaggregation": [
+    "Age band 15-19 years"
+   ],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – period anchor",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – alternative way to test the ≤48 h window (event date − delivery date)"
+   ]
+  },
+  {
+   "row": 39,
+   "sno": "MAT_IPPCAR_Age. 3",
+   "label": "20 - 24 Years",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "FP Counseling and Method Provided pp",
+     "uid": "Q1p7CxWGUoi",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Age",
+     "uid": "vbaNV9kiRFp",
+     "stage": "Enrollment (tracked entity attribute)",
+     "stage_uid": "—",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true (both on the SAME Postpartum care event; immediate postpartum = within 48 h):",
+    "   • Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {1, 2}  (24 hrs stay, 25- 48 Hrs)",
+    "   • Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] CONTAINS ANY OF codes {1, 2, 3, 4, 5}  (Pills, Injectables, Implants, IUCD, Condom)",
+    "• Attribute 'Age' [vbaNV9kiRFp] (enrollment level) BETWEEN 20 AND 24 (inclusive, whole years)"
+   ],
+   "disaggregation": [
+    "Age band 20-24 years"
+   ],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – period anchor",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – alternative way to test the ≤48 h window (event date − delivery date)"
+   ]
+  },
+  {
+   "row": 40,
+   "sno": "MAT_IPPCAR_Age. 4",
+   "label": "25 - 29 Years",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "FP Counseling and Method Provided pp",
+     "uid": "Q1p7CxWGUoi",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Age",
+     "uid": "vbaNV9kiRFp",
+     "stage": "Enrollment (tracked entity attribute)",
+     "stage_uid": "—",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true (both on the SAME Postpartum care event; immediate postpartum = within 48 h):",
+    "   • Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {1, 2}  (24 hrs stay, 25- 48 Hrs)",
+    "   • Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] CONTAINS ANY OF codes {1, 2, 3, 4, 5}  (Pills, Injectables, Implants, IUCD, Condom)",
+    "• Attribute 'Age' [vbaNV9kiRFp] (enrollment level) BETWEEN 25 AND 29 (inclusive, whole years)"
+   ],
+   "disaggregation": [
+    "Age band 25-29 years"
+   ],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – period anchor",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – alternative way to test the ≤48 h window (event date − delivery date)"
+   ]
+  },
+  {
+   "row": 41,
+   "sno": "MAT_IPPCAR_Age. 5",
+   "label": "30 - 49 Years",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "FP Counseling and Method Provided pp",
+     "uid": "Q1p7CxWGUoi",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Age",
+     "uid": "vbaNV9kiRFp",
+     "stage": "Enrollment (tracked entity attribute)",
+     "stage_uid": "—",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true (both on the SAME Postpartum care event; immediate postpartum = within 48 h):",
+    "   • Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {1, 2}  (24 hrs stay, 25- 48 Hrs)",
+    "   • Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] CONTAINS ANY OF codes {1, 2, 3, 4, 5}  (Pills, Injectables, Implants, IUCD, Condom)",
+    "• Attribute 'Age' [vbaNV9kiRFp] (enrollment level) BETWEEN 30 AND 49 (inclusive, whole years)"
+   ],
+   "disaggregation": [
+    "Age band 30-49 years"
+   ],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – period anchor",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – alternative way to test the ≤48 h window (event date − delivery date)"
+   ]
+  },
+  {
+   "row": 42,
+   "sno": "MAT_IPPCAR_Mtd",
+   "label": "Total PPFP acceptors, disaggregated by method",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "FP Counseling and Method Provided pp",
+     "uid": "Q1p7CxWGUoi",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true (both on the SAME Postpartum care event; immediate postpartum = within 48 h):",
+    "   • Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {1, 2}  (24 hrs stay, 25- 48 Hrs)",
+    "   • Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] CONTAINS ANY OF codes {1, 2, 3, 4, 5}  (Pills, Injectables, Implants, IUCD, Condom)"
+   ],
+   "disaggregation": [
+    "None – total"
+   ],
+   "formula": "= distinct mothers across rows 43-47 (a mother with two methods counts once)",
+   "notes": [
+    "Equals row 36 unless a tubal ligation was done (not recordable)."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – period anchor",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – alternative way to test the ≤48 h window (event date − delivery date)"
+   ]
+  },
+  {
+   "row": 43,
+   "sno": "MAT_IPPCAR_Mtd. 1",
+   "label": "Oral Contraceptives",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "FP Counseling and Method Provided pp",
+     "uid": "Q1p7CxWGUoi",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true (both on the SAME Postpartum care event; immediate postpartum = within 48 h):",
+    "   • Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {1, 2}  (24 hrs stay, 25- 48 Hrs)",
+    "   • Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] CONTAINS ANY OF codes {1}  (Pills)"
+   ],
+   "disaggregation": [
+    "By method"
+   ],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – period anchor",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – alternative way to test the ≤48 h window (event date − delivery date)"
+   ]
+  },
+  {
+   "row": 44,
+   "sno": "MAT_IPPCAR_Mtd. 2",
+   "label": "Implants",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "FP Counseling and Method Provided pp",
+     "uid": "Q1p7CxWGUoi",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true (both on the SAME Postpartum care event; immediate postpartum = within 48 h):",
+    "   • Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {1, 2}  (24 hrs stay, 25- 48 Hrs)",
+    "   • Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] CONTAINS ANY OF codes {3}  (Implants)"
+   ],
+   "disaggregation": [
+    "By method"
+   ],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – period anchor",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – alternative way to test the ≤48 h window (event date − delivery date)"
+   ]
+  },
+  {
+   "row": 45,
+   "sno": "MAT_IPPCAR_Mtd. 3",
+   "label": "IUCD",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "FP Counseling and Method Provided pp",
+     "uid": "Q1p7CxWGUoi",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true (both on the SAME Postpartum care event; immediate postpartum = within 48 h):",
+    "   • Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {1, 2}  (24 hrs stay, 25- 48 Hrs)",
+    "   • Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] CONTAINS ANY OF codes {4}  (IUCD)"
+   ],
+   "disaggregation": [
+    "By method"
+   ],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – period anchor",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – alternative way to test the ≤48 h window (event date − delivery date)"
+   ]
+  },
+  {
+   "row": 46,
+   "sno": "MAT_IPPCAR_Mtd. 4",
+   "label": "Tubal ligation",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: 'Tubal ligation' is not an option of FP Counseling and Method Provided pp"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "Only a free-text mention is possible."
+   ],
+   "additional_locations": [
+    "• Discharge Summary [DLVsIxjhwMj] › Procedures [hks5YOEjrMc] – free text, cannot be counted reliably"
+   ]
+  },
+  {
+   "row": 47,
+   "sno": "MAT_IPPCAR_Mtd. 5",
+   "label": "Others",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "FP Counseling and Method Provided pp",
+     "uid": "Q1p7CxWGUoi",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true (both on the SAME Postpartum care event; immediate postpartum = within 48 h):",
+    "   • Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {1, 2}  (24 hrs stay, 25- 48 Hrs)",
+    "   • Postpartum care [VpBHRE7FlJL] › FP Counseling and Method Provided pp [Q1p7CxWGUoi] CONTAINS ANY OF codes {2, 5}  (Injectables, Condom)"
+   ],
+   "disaggregation": [
+    "By method"
+   ],
+   "formula": "—",
+   "notes": [
+    "The report has no separate Injectables/Condom line for IPPCAR, so both are reported under 'Others'."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – period anchor",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – alternative way to test the ≤48 h window (event date − delivery date)"
+   ]
+  },
+  {
+   "row": 48,
+   "sno": "RMH_FP_LAFPPR",
+   "label": "Premature Removal of Long term family planning methods (PRLAFP)",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 49,
+   "sno": "MAT_LAFPPR.1",
+   "label": "Total number of premature removal of LAFP within 6 month insertion",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no LAFP insertion/removal event, date or method exists in the program"
+   ],
+   "disaggregation": [],
+   "formula": "= sum of the child rows directly below",
+   "notes": [
+    "Removal is an FP-clinic service. Report from FP register / FP program."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 50,
+   "sno": "MAT_LAFPPR.1. 1",
+   "label": "Implants",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no LAFP insertion/removal event, date or method exists in the program"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "Removal is an FP-clinic service. Report from FP register / FP program."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 51,
+   "sno": "MAT_LAFPPR.1. 2",
+   "label": "IUCD",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no LAFP insertion/removal event, date or method exists in the program"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "Removal is an FP-clinic service. Report from FP register / FP program."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 52,
+   "sno": "MAT_LAFPPR.1. 3",
+   "label": "Others",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no LAFP insertion/removal event, date or method exists in the program"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "Removal is an FP-clinic service. Report from FP register / FP program."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 53,
+   "sno": "MAT_TLAFPR.",
+   "label": "Total LAFP removal in the reporting period",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no LAFP insertion/removal event, date or method exists in the program"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "Removal is an FP-clinic service. Report from FP register / FP program."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 54,
+   "sno": "ANC.",
+   "label": "RMNCH - Antenatal care services provided",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 55,
+   "sno": "MAT_ANC1",
+   "label": "Antenatal Care (ANC) coverage First contact",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 56,
+   "sno": "MAT_ANC1_GA.1",
+   "label": "Total Number of pregnant women that received antenatal care First contact by gestational week",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: gestational age at the FIRST/4th ANC contact is not recorded; Maternal History holds only GA at admission"
+   ],
+   "disaggregation": [],
+   "formula": "= row 57 + 58 + 59",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › ANC Contact [DwoKlEc3tRR] – Yes/No",
+    "• Maternal History [DOw7qLv5vzS] › Number of ANC contacts [XY0SSEpmHo0] – total number of ANC contacts",
+    "• Maternal History [DOw7qLv5vzS] › Gestational Age (From LMP in weeks) [k6Z1qrFpOeG] – GA at admission – NOT GA at first ANC contact, do not use"
+   ]
+  },
+  {
+   "row": 57,
+   "sno": "MAT_ANC1_GA.1. 1",
+   "label": "<= 12 Weeks",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: gestational age at the FIRST/4th ANC contact is not recorded; Maternal History holds only GA at admission"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › Gestational Age (From LMP in weeks) [k6Z1qrFpOeG] – GA at admission – NOT GA at first ANC contact, do not use"
+   ]
+  },
+  {
+   "row": 58,
+   "sno": "MAT_ANC1_GA.1. 2",
+   "label": "> 12 and <=16 Weeks",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: gestational age at the FIRST/4th ANC contact is not recorded; Maternal History holds only GA at admission"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › Gestational Age (From LMP in weeks) [k6Z1qrFpOeG] – GA at admission – NOT GA at first ANC contact, do not use"
+   ]
+  },
+  {
+   "row": 59,
+   "sno": "MAT_ANC1_GA.1. 3",
+   "label": "> 16 Weeks",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: gestational age at the FIRST/4th ANC contact is not recorded; Maternal History holds only GA at admission"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › Gestational Age (From LMP in weeks) [k6Z1qrFpOeG] – GA at admission – NOT GA at first ANC contact, do not use"
+   ]
+  },
+  {
+   "row": 60,
+   "sno": "MAT_ANC1_MA.1",
+   "label": "Number of pregnant women that received antenatal care First contact by maternal age",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "ANC Contact",
+     "uid": "DwoKlEc3tRR",
+     "stage": "Maternal History",
+     "stage_uid": "DOw7qLv5vzS",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Maternal History [DOw7qLv5vzS] falls inside the report month",
+   "conditions": [
+    "• Maternal History [DOw7qLv5vzS] › ANC Contact [DwoKlEc3tRR] EQUALS ANY OF codes {1}  (Yes)"
+   ],
+   "disaggregation": [
+    "None – total over all bands (ages < 10 excluded)"
+   ],
+   "formula": "= row 61 + 62 + 63",
+   "notes": [
+    "PROXY: counted among mothers ADMITTED in the month, at admission.",
+    "Includes ANC received at any facility and in earlier months – not the women making the visit at this facility in the month."
+   ],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › Number of ANC contacts [XY0SSEpmHo0] – total number of ANC contacts",
+    "• Maternal History [DOw7qLv5vzS] › Place of ANC Visit [VZqoL2QmXtj] – place of ANC – may be another facility"
+   ]
+  },
+  {
+   "row": 61,
+   "sno": "MAT_ANC1_MA.1. 1",
+   "label": "10 - 14 Years",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "ANC Contact",
+     "uid": "DwoKlEc3tRR",
+     "stage": "Maternal History",
+     "stage_uid": "DOw7qLv5vzS",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Age",
+     "uid": "vbaNV9kiRFp",
+     "stage": "Enrollment (tracked entity attribute)",
+     "stage_uid": "—",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Maternal History [DOw7qLv5vzS] falls inside the report month",
+   "conditions": [
+    "• Maternal History [DOw7qLv5vzS] › ANC Contact [DwoKlEc3tRR] EQUALS ANY OF codes {1}  (Yes)",
+    "• Attribute 'Age' [vbaNV9kiRFp] (enrollment level) BETWEEN 10 AND 14 (inclusive, whole years)"
+   ],
+   "disaggregation": [
+    "Age band 10-14 years"
+   ],
+   "formula": "—",
+   "notes": [
+    "PROXY: counted among mothers ADMITTED in the month, at admission.",
+    "Includes ANC received at any facility and in earlier months – not the women making the visit at this facility in the month."
+   ],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › Number of ANC contacts [XY0SSEpmHo0] – total number of ANC contacts",
+    "• Maternal History [DOw7qLv5vzS] › Place of ANC Visit [VZqoL2QmXtj] – place of ANC – may be another facility"
+   ]
+  },
+  {
+   "row": 62,
+   "sno": "MAT_ANC1_MA.1. 2",
+   "label": "15 - 19 Years",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "ANC Contact",
+     "uid": "DwoKlEc3tRR",
+     "stage": "Maternal History",
+     "stage_uid": "DOw7qLv5vzS",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Age",
+     "uid": "vbaNV9kiRFp",
+     "stage": "Enrollment (tracked entity attribute)",
+     "stage_uid": "—",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Maternal History [DOw7qLv5vzS] falls inside the report month",
+   "conditions": [
+    "• Maternal History [DOw7qLv5vzS] › ANC Contact [DwoKlEc3tRR] EQUALS ANY OF codes {1}  (Yes)",
+    "• Attribute 'Age' [vbaNV9kiRFp] (enrollment level) BETWEEN 15 AND 19 (inclusive, whole years)"
+   ],
+   "disaggregation": [
+    "Age band 15-19 years"
+   ],
+   "formula": "—",
+   "notes": [
+    "PROXY: counted among mothers ADMITTED in the month, at admission.",
+    "Includes ANC received at any facility and in earlier months – not the women making the visit at this facility in the month."
+   ],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › Number of ANC contacts [XY0SSEpmHo0] – total number of ANC contacts",
+    "• Maternal History [DOw7qLv5vzS] › Place of ANC Visit [VZqoL2QmXtj] – place of ANC – may be another facility"
+   ]
+  },
+  {
+   "row": 63,
+   "sno": "MAT_ANC1_MA.1. 3",
+   "label": ">= 20 Years",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "ANC Contact",
+     "uid": "DwoKlEc3tRR",
+     "stage": "Maternal History",
+     "stage_uid": "DOw7qLv5vzS",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Age",
+     "uid": "vbaNV9kiRFp",
+     "stage": "Enrollment (tracked entity attribute)",
+     "stage_uid": "—",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Maternal History [DOw7qLv5vzS] falls inside the report month",
+   "conditions": [
+    "• Maternal History [DOw7qLv5vzS] › ANC Contact [DwoKlEc3tRR] EQUALS ANY OF codes {1}  (Yes)",
+    "• Attribute 'Age' [vbaNV9kiRFp] (enrollment level) ≥ 20"
+   ],
+   "disaggregation": [
+    "Age band ≥ 20 years"
+   ],
+   "formula": "—",
+   "notes": [
+    "PROXY: counted among mothers ADMITTED in the month, at admission.",
+    "Includes ANC received at any facility and in earlier months – not the women making the visit at this facility in the month."
+   ],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › Number of ANC contacts [XY0SSEpmHo0] – total number of ANC contacts",
+    "• Maternal History [DOw7qLv5vzS] › Place of ANC Visit [VZqoL2QmXtj] – place of ANC – may be another facility"
+   ]
+  },
+  {
+   "row": 64,
+   "sno": "MAT_ANC4+",
+   "label": "Antenatal care (ANC) coverage four contacts",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 65,
+   "sno": "MAT_ANC4+_MA.1",
+   "label": "Total number of pregnant women that received four or more antenatal care contacts by Maternal Age",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "Number of ANC contacts",
+     "uid": "XY0SSEpmHo0",
+     "stage": "Maternal History",
+     "stage_uid": "DOw7qLv5vzS",
+     "value_type": "INTEGER_POSITIVE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Maternal History [DOw7qLv5vzS] falls inside the report month",
+   "conditions": [
+    "• Maternal History [DOw7qLv5vzS] › Number of ANC contacts [XY0SSEpmHo0] ≥ 4"
+   ],
+   "disaggregation": [
+    "None – total over all bands"
+   ],
+   "formula": "= row 66 + 67 + 68",
+   "notes": [
+    "PROXY: counted among mothers ADMITTED in the month, at admission.",
+    "Includes ANC received at any facility and in earlier months – not the women making the visit at this facility in the month."
+   ],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › ANC Contact [DwoKlEc3tRR] – Yes/No",
+    "• Maternal History [DOw7qLv5vzS] › Place of ANC Visit [VZqoL2QmXtj] – place of ANC – may be another facility"
+   ]
+  },
+  {
+   "row": 66,
+   "sno": "MAT_ANC4+_MA.1. 1",
+   "label": "10 - 14 Years",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "Number of ANC contacts",
+     "uid": "XY0SSEpmHo0",
+     "stage": "Maternal History",
+     "stage_uid": "DOw7qLv5vzS",
+     "value_type": "INTEGER_POSITIVE"
+    },
+    {
+     "name": "Age",
+     "uid": "vbaNV9kiRFp",
+     "stage": "Enrollment (tracked entity attribute)",
+     "stage_uid": "—",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Maternal History [DOw7qLv5vzS] falls inside the report month",
+   "conditions": [
+    "• Maternal History [DOw7qLv5vzS] › Number of ANC contacts [XY0SSEpmHo0] ≥ 4",
+    "• Attribute 'Age' [vbaNV9kiRFp] (enrollment level) BETWEEN 10 AND 14 (inclusive, whole years)"
+   ],
+   "disaggregation": [
+    "Age band 10-14 years"
+   ],
+   "formula": "—",
+   "notes": [
+    "PROXY: counted among mothers ADMITTED in the month, at admission.",
+    "Includes ANC received at any facility and in earlier months – not the women making the visit at this facility in the month."
+   ],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › ANC Contact [DwoKlEc3tRR] – Yes/No",
+    "• Maternal History [DOw7qLv5vzS] › Place of ANC Visit [VZqoL2QmXtj] – place of ANC – may be another facility"
+   ]
+  },
+  {
+   "row": 67,
+   "sno": "MAT_ANC4+_MA.1. 2",
+   "label": "15 - 19 Years",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "Number of ANC contacts",
+     "uid": "XY0SSEpmHo0",
+     "stage": "Maternal History",
+     "stage_uid": "DOw7qLv5vzS",
+     "value_type": "INTEGER_POSITIVE"
+    },
+    {
+     "name": "Age",
+     "uid": "vbaNV9kiRFp",
+     "stage": "Enrollment (tracked entity attribute)",
+     "stage_uid": "—",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Maternal History [DOw7qLv5vzS] falls inside the report month",
+   "conditions": [
+    "• Maternal History [DOw7qLv5vzS] › Number of ANC contacts [XY0SSEpmHo0] ≥ 4",
+    "• Attribute 'Age' [vbaNV9kiRFp] (enrollment level) BETWEEN 15 AND 19 (inclusive, whole years)"
+   ],
+   "disaggregation": [
+    "Age band 15-19 years"
+   ],
+   "formula": "—",
+   "notes": [
+    "PROXY: counted among mothers ADMITTED in the month, at admission.",
+    "Includes ANC received at any facility and in earlier months – not the women making the visit at this facility in the month."
+   ],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › ANC Contact [DwoKlEc3tRR] – Yes/No",
+    "• Maternal History [DOw7qLv5vzS] › Place of ANC Visit [VZqoL2QmXtj] – place of ANC – may be another facility"
+   ]
+  },
+  {
+   "row": 68,
+   "sno": "MAT_ANC4+_MA.1. 3",
+   "label": ">= 20 Years",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "Number of ANC contacts",
+     "uid": "XY0SSEpmHo0",
+     "stage": "Maternal History",
+     "stage_uid": "DOw7qLv5vzS",
+     "value_type": "INTEGER_POSITIVE"
+    },
+    {
+     "name": "Age",
+     "uid": "vbaNV9kiRFp",
+     "stage": "Enrollment (tracked entity attribute)",
+     "stage_uid": "—",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Maternal History [DOw7qLv5vzS] falls inside the report month",
+   "conditions": [
+    "• Maternal History [DOw7qLv5vzS] › Number of ANC contacts [XY0SSEpmHo0] ≥ 4",
+    "• Attribute 'Age' [vbaNV9kiRFp] (enrollment level) ≥ 20"
+   ],
+   "disaggregation": [
+    "Age band ≥ 20 years"
+   ],
+   "formula": "—",
+   "notes": [
+    "PROXY: counted among mothers ADMITTED in the month, at admission.",
+    "Includes ANC received at any facility and in earlier months – not the women making the visit at this facility in the month."
+   ],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › ANC Contact [DwoKlEc3tRR] – Yes/No",
+    "• Maternal History [DOw7qLv5vzS] › Place of ANC Visit [VZqoL2QmXtj] – place of ANC – may be another facility"
+   ]
+  },
+  {
+   "row": 69,
+   "sno": "MAT_ANC4+_GA.1",
+   "label": "Total number of pregnant women that received four or more antenatal care contacts by gestational week",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: gestational age at the FIRST/4th ANC contact is not recorded; Maternal History holds only GA at admission"
+   ],
+   "disaggregation": [],
+   "formula": "= row 70 + 71",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › Number of ANC contacts [XY0SSEpmHo0] – total number of ANC contacts",
+    "• Maternal History [DOw7qLv5vzS] › Gestational Age (From LMP in weeks) [k6Z1qrFpOeG] – GA at admission – NOT GA at first ANC contact, do not use"
+   ]
+  },
+  {
+   "row": 70,
+   "sno": "MAT_ANC4+_GA.1. 1",
+   "label": "<= 30 Weeks",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: gestational age at the FIRST/4th ANC contact is not recorded; Maternal History holds only GA at admission"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › Gestational Age (From LMP in weeks) [k6Z1qrFpOeG] – GA at admission – NOT GA at first ANC contact, do not use"
+   ]
+  },
+  {
+   "row": 71,
+   "sno": "MAT_ANC4+_GA.1. 2",
+   "label": "> 30 Weeks",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: gestational age at the FIRST/4th ANC contact is not recorded; Maternal History holds only GA at admission"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › Gestational Age (From LMP in weeks) [k6Z1qrFpOeG] – GA at admission – NOT GA at first ANC contact, do not use"
+   ]
+  },
+  {
+   "row": 72,
+   "sno": "MAT_ANC8+",
+   "label": "Antenatal Care (ANC) coverage Eight or more contact",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 73,
+   "sno": "MAT_ANC8+.",
+   "label": "Number of pregnant women that received antenatal care 8 Contacts and more",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "Number of ANC contacts",
+     "uid": "XY0SSEpmHo0",
+     "stage": "Maternal History",
+     "stage_uid": "DOw7qLv5vzS",
+     "value_type": "INTEGER_POSITIVE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Maternal History [DOw7qLv5vzS] falls inside the report month",
+   "conditions": [
+    "• Maternal History [DOw7qLv5vzS] › Number of ANC contacts [XY0SSEpmHo0] ≥ 8"
+   ],
+   "disaggregation": [
+    "None"
+   ],
+   "formula": "—",
+   "notes": [
+    "PROXY: counted among mothers ADMITTED in the month, at admission.",
+    "Includes ANC received at any facility and in earlier months – not the women making the visit at this facility in the month."
+   ],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › ANC Contact [DwoKlEc3tRR] – Yes/No",
+    "• Maternal History [DOw7qLv5vzS] › Place of ANC Visit [VZqoL2QmXtj] – place of ANC – may be another facility"
+   ]
+  },
+  {
+   "row": 74,
+   "sno": "RMH_ANC_Syph",
+   "label": "Pregnant women attending antenatal care tested for syphilis",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 75,
+   "sno": "MAT_SYPH.1",
+   "label": "Total Number of pregnant women tested for syphilis",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "VDRL",
+     "uid": "qX792urzmwj",
+     "stage": "Laboratory",
+     "stage_uid": "cwj0mP0aAjw",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Laboratory [cwj0mP0aAjw] falls inside the report month",
+   "conditions": [
+    "• Laboratory [cwj0mP0aAjw] › VDRL [qX792urzmwj] EQUALS ANY OF codes {1, 2}  (Positive, Negative)"
+   ],
+   "disaggregation": [
+    "None – total"
+   ],
+   "formula": "= row 76 + row 77",
+   "notes": [
+    "Exclude 'Not Done'(3).",
+    "Laboratory stage is repeatable: a mother counts once per month; a Positive result wins over a Negative."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 76,
+   "sno": "MAT_SYPH.1. 1",
+   "label": "Reactive",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "VDRL",
+     "uid": "qX792urzmwj",
+     "stage": "Laboratory",
+     "stage_uid": "cwj0mP0aAjw",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Laboratory [cwj0mP0aAjw] falls inside the report month",
+   "conditions": [
+    "• Laboratory [cwj0mP0aAjw] › VDRL [qX792urzmwj] EQUALS ANY OF codes {1}  (Positive)"
+   ],
+   "disaggregation": [
+    "Reactive = Positive"
+   ],
+   "formula": "—",
+   "notes": [
+    "Laboratory stage is repeatable: a mother counts once per month; a Positive result wins over a Negative."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 77,
+   "sno": "MAT_SYPH.1. 2",
+   "label": "Non-Reactive",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "VDRL",
+     "uid": "qX792urzmwj",
+     "stage": "Laboratory",
+     "stage_uid": "cwj0mP0aAjw",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Laboratory [cwj0mP0aAjw] falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   • Laboratory [cwj0mP0aAjw] › VDRL [qX792urzmwj] EQUALS ANY OF codes {2}  (Negative)",
+    "   • AND the same mother has NO Laboratory event in the month with VDRL = code 1 (Positive)"
+   ],
+   "disaggregation": [
+    "Non-reactive = Negative"
+   ],
+   "formula": "—",
+   "notes": [
+    "Laboratory stage is repeatable: a mother counts once per month; a Positive result wins over a Negative."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 78,
+   "sno": "MAT_SYPH.RX.1.",
+   "label": "Total Number of pregnant women treated for syphilis",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no coded syphilis-treatment element"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "Penicillin could appear only in free-text medication fields, which cannot be counted reliably."
+   ],
+   "additional_locations": [
+    "• Physicians Medication Order [wdLMvYUxZfR] › Ordered medication name [NKs7ICB2xHb] – free text",
+    "• Medication Administration record [X9lslHI5jks] › Medication name [S3NDFH4EQVe] – free text",
+    "• Discharge Summary [DLVsIxjhwMj] › Course of treatment [Oz2RsnmRt2y] – free text"
+   ]
+  },
+  {
+   "row": 79,
+   "sno": "MAT_Hepa",
+   "label": "Total Number of Pregnant women attending antenatal care tested for hepatitis B",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "HBsAg",
+     "uid": "WKXq0p4Nbfl",
+     "stage": "Laboratory",
+     "stage_uid": "cwj0mP0aAjw",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Laboratory [cwj0mP0aAjw] falls inside the report month",
+   "conditions": [
+    "• Laboratory [cwj0mP0aAjw] › HBsAg [WKXq0p4Nbfl] EQUALS ANY OF codes {1, 2}  (Positive, Negative)"
+   ],
+   "disaggregation": [
+    "None – total"
+   ],
+   "formula": "= row 80 + row 81",
+   "notes": [
+    "Exclude 'Not Done'(3).",
+    "Laboratory stage is repeatable: a mother counts once per month; a Positive result wins over a Negative."
+   ],
+   "additional_locations": [
+    "• Laboratory [cwj0mP0aAjw] › Other Laboratory Investigations [deLG8ygjJ4u] – option 'HBsAg' only shows the test was requested; the result is in the HBsAg element"
+   ]
+  },
+  {
+   "row": 80,
+   "sno": "MAT_Hepa. 1",
+   "label": "Reactive",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "HBsAg",
+     "uid": "WKXq0p4Nbfl",
+     "stage": "Laboratory",
+     "stage_uid": "cwj0mP0aAjw",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Laboratory [cwj0mP0aAjw] falls inside the report month",
+   "conditions": [
+    "• Laboratory [cwj0mP0aAjw] › HBsAg [WKXq0p4Nbfl] EQUALS ANY OF codes {1}  (Positive)"
+   ],
+   "disaggregation": [
+    "Reactive = Positive"
+   ],
+   "formula": "—",
+   "notes": [
+    "Laboratory stage is repeatable: a mother counts once per month; a Positive result wins over a Negative."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 81,
+   "sno": "MAT_Hepa. 2",
+   "label": "Non-Reactive",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "HBsAg",
+     "uid": "WKXq0p4Nbfl",
+     "stage": "Laboratory",
+     "stage_uid": "cwj0mP0aAjw",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Event date of stage Laboratory [cwj0mP0aAjw] falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   • Laboratory [cwj0mP0aAjw] › HBsAg [WKXq0p4Nbfl] EQUALS ANY OF codes {2}  (Negative)",
+    "   • AND the same mother has NO Laboratory event in the month with HBsAg = code 1 (Positive)"
+   ],
+   "disaggregation": [
+    "Non-reactive = Negative"
+   ],
+   "formula": "—",
+   "notes": [
+    "Laboratory stage is repeatable: a mother counts once per month; a Positive result wins over a Negative."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 82,
+   "sno": "MAT_Prp.1.",
+   "label": "Total Number of pregnant women received prophylaxis for HBV",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no maternal HBV prophylaxis element"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "The newborn 'Hepatitis B birth dose' option is a newborn vaccine – must NOT be reported here."
+   ],
+   "additional_locations": [
+    "• Delivery summary [mdw5BoS50mb] › Newborn Immunizations and Interventions [XQr0rrJjjA6] – newborn immunization incl. 'Hepatitis B birth dose' – not maternal prophylaxis, do not use"
+   ]
+  },
+  {
+   "row": 83,
+   "sno": "DEL.",
+   "label": "RMNCH - Delivery services provided",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 84,
+   "sno": "RMH_L&D_SBA",
+   "label": "Births attended by skilled health personnel",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 85,
+   "sno": "L&D_SBA.1.",
+   "label": "Total number of births attended by skilled health personnel",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Date of Delivery",
+     "uid": "hjQZsV03OYe",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] (DATE) falls inside the report month",
+   "conditions": [
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] HAS A VALUE"
+   ],
+   "disaggregation": [
+    "None"
+   ],
+   "formula": "—",
+   "notes": [
+    "One Delivery summary event = one delivery (woman), not one baby.",
+    "All deliveries in this inpatient facility are taken as attended by skilled personnel (assumption).",
+    "To count babies instead: Number of Newborns [VzwnSBROvUm] codes Single=1, Twin=2, Triplet=3, other=4 (then add 'Other Number of Newborns' [tIa0WvbPGLk])."
+   ],
+   "additional_locations": [
+    "• Labour Management [pfEjAoq2Kil] › Mode of delivery [DNyGOh5XlWe] – also recorded for each delivery",
+    "• Delivery summary [mdw5BoS50mb] › Number of Newborns [VzwnSBROvUm]"
+   ]
+  },
+  {
+   "row": 86,
+   "sno": "MAT_PPH.1",
+   "label": "Total number of women who developed postpartum hemorrhage (PPH)",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "Obstetric condition at delivery",
+     "uid": "CJiTafFo0TS",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "MULTI_TEXT"
+    },
+    {
+     "name": "Date of Delivery",
+     "uid": "hjQZsV03OYe",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Value of Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] (DATE) falls inside the report month",
+   "conditions": [
+    "• Delivery summary [mdw5BoS50mb] › Obstetric condition at delivery [CJiTafFo0TS] CONTAINS ANY OF codes {3}  (Postpartum Hemorrhage (PPH))"
+   ],
+   "disaggregation": [
+    "None – total"
+   ],
+   "formula": "= row 87 + row 88 (row 87 not available, so total = row 88)",
+   "notes": [
+    "Only the facility component is available."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 87,
+   "sno": "MAT_PPH.1. 1",
+   "label": "Home",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no place-of-onset / place-of-delivery element; PPH after a home delivery cannot be separated"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › Presenting Complaint [G8xu9iyXIrd] – free text only"
+   ]
+  },
+  {
+   "row": 88,
+   "sno": "MAT_PPH.1. 2",
+   "label": "Facility",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "Obstetric condition at delivery",
+     "uid": "CJiTafFo0TS",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "MULTI_TEXT"
+    },
+    {
+     "name": "Date of Delivery",
+     "uid": "hjQZsV03OYe",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Value of Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] (DATE) falls inside the report month",
+   "conditions": [
+    "• Delivery summary [mdw5BoS50mb] › Obstetric condition at delivery [CJiTafFo0TS] CONTAINS ANY OF codes {3}  (Postpartum Hemorrhage (PPH))"
+   ],
+   "disaggregation": [
+    "Facility"
+   ],
+   "formula": "—",
+   "notes": [
+    "'PPH Suspected' in Postpartum care is only a cross-check (suspected, repeatable)."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Uterus Contracted / Look for PPH pp [pOhiGpNzj3X] – option 'PPH Suspected'(3) at postnatal checks – cross-check only",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text"
+   ]
+  },
+  {
+   "row": 89,
+   "sno": "MAT_UTER",
+   "label": "Percentage women who received uterotonics in the first one minute after delivery",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "Percentage = row 90 ÷ row 85 × 100",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 90,
+   "sno": "MAT_UTER.1",
+   "label": "Total number of women who received uterotonics in the first one minute after delivery",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "Uterotonics given",
+     "uid": "yVRLuRU943e",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "MULTI_TEXT"
+    },
+    {
+     "name": "Date of Delivery",
+     "uid": "hjQZsV03OYe",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Value of Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] (DATE) falls inside the report month",
+   "conditions": [
+    "• Delivery summary [mdw5BoS50mb] › Uterotonics given [yVRLuRU943e] CONTAINS ANY OF codes {1, 2, 3}  (Ergometrine, Oxytocin, Misoprostol)"
+   ],
+   "disaggregation": [
+    "None – total"
+   ],
+   "formula": "= distinct mothers across rows 91-93 (a woman given two drugs counts once)",
+   "notes": [
+    "Exclude 'None'(0).",
+    "PROXY: the element records that a uterotonic was given at delivery, not the time – the 'first one minute' criterion cannot be verified."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 91,
+   "sno": "MAT_UTER.1. 1",
+   "label": "Oxytocin",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "Uterotonics given",
+     "uid": "yVRLuRU943e",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "MULTI_TEXT"
+    },
+    {
+     "name": "Date of Delivery",
+     "uid": "hjQZsV03OYe",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Value of Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] (DATE) falls inside the report month",
+   "conditions": [
+    "• Delivery summary [mdw5BoS50mb] › Uterotonics given [yVRLuRU943e] CONTAINS ANY OF codes {2}  (Oxytocin)"
+   ],
+   "disaggregation": [
+    "By drug: Oxytocin"
+   ],
+   "formula": "—",
+   "notes": [
+    "A woman given two drugs is counted in both rows, so rows 91-93 can add to more than row 90.",
+    "PROXY: the element records that a uterotonic was given at delivery, not the time – the 'first one minute' criterion cannot be verified."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 92,
+   "sno": "MAT_UTER.1. 2",
+   "label": "Mesoprostol",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "Uterotonics given",
+     "uid": "yVRLuRU943e",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "MULTI_TEXT"
+    },
+    {
+     "name": "Date of Delivery",
+     "uid": "hjQZsV03OYe",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Value of Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] (DATE) falls inside the report month",
+   "conditions": [
+    "• Delivery summary [mdw5BoS50mb] › Uterotonics given [yVRLuRU943e] CONTAINS ANY OF codes {3}  (Misoprostol)"
+   ],
+   "disaggregation": [
+    "By drug: Misoprostol"
+   ],
+   "formula": "—",
+   "notes": [
+    "A woman given two drugs is counted in both rows, so rows 91-93 can add to more than row 90.",
+    "PROXY: the element records that a uterotonic was given at delivery, not the time – the 'first one minute' criterion cannot be verified."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 93,
+   "sno": "MAT_UTER.1. 3",
+   "label": "Ergometrin",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "Uterotonics given",
+     "uid": "yVRLuRU943e",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "MULTI_TEXT"
+    },
+    {
+     "name": "Date of Delivery",
+     "uid": "hjQZsV03OYe",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Value of Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] (DATE) falls inside the report month",
+   "conditions": [
+    "• Delivery summary [mdw5BoS50mb] › Uterotonics given [yVRLuRU943e] CONTAINS ANY OF codes {1}  (Ergometrine)"
+   ],
+   "disaggregation": [
+    "By drug: Ergometrine"
+   ],
+   "formula": "—",
+   "notes": [
+    "A woman given two drugs is counted in both rows, so rows 91-93 can add to more than row 90.",
+    "PROXY: the element records that a uterotonic was given at delivery, not the time – the 'first one minute' criterion cannot be verified."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 94,
+   "sno": "MAT_UTER.1. 4",
+   "label": "Others",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: Uterotonics given [yVRLuRU943e] has no 'Other' option"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "Report blank/0 for Others."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 95,
+   "sno": "MAT_SBR",
+   "label": "MAT_Stillbirth Rate",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "Stillbirth rate (per 1,000 births) = row 96 ÷ (row 96 + row 97) × 1000",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 96,
+   "sno": "MAT_SBR.SB.",
+   "label": "Number of still births",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "birth outcome",
+     "uid": "wZig9cek3Gv",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "birth outcome newborn 2",
+     "uid": "BiFmMp0p2CB",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "birth outcome newborn 3",
+     "uid": "ZX1tFRjBAEe",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "birth outcome newborn 4",
+     "uid": "htcUfQyftnv",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date of Delivery",
+     "uid": "hjQZsV03OYe",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "BABY – count babies (one delivery event can add 1 to 4)",
+   "period_filter": "Value of Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] (DATE) falls inside the report month",
+   "conditions": [
+    "EVALUATE EACH line separately and ADD 1 for every line that is true (newborn 1, 2, 3, 4 outcome elements of the SAME Delivery summary event):",
+    "   • Delivery summary [mdw5BoS50mb] › birth outcome [wZig9cek3Gv] EQUALS ANY OF codes {2}  (Stillbirth)",
+    "   • Delivery summary [mdw5BoS50mb] › birth outcome newborn 2 [BiFmMp0p2CB] EQUALS ANY OF codes {2}  (Stillbirth)",
+    "   • Delivery summary [mdw5BoS50mb] › birth outcome newborn 3 [ZX1tFRjBAEe] EQUALS ANY OF codes {2}  (Stillbirth)",
+    "   • Delivery summary [mdw5BoS50mb] › birth outcome newborn 4 [htcUfQyftnv] EQUALS ANY OF codes {2}  (Stillbirth)"
+   ],
+   "disaggregation": [
+    "None"
+   ],
+   "formula": "—",
+   "notes": [
+    "No GA/weight cut-off is applied by the program.",
+    "Counts babies, not mothers."
+   ],
+   "additional_locations": [
+    "• Stillbirth Evaluation [uZeAfj4x0yp] › Date of stillbirth delivery [hSp28twh78n] – one Stillbirth Evaluation event per stillbirth – cross-check count",
+    "• Instrumental Delivery form [bwk9bBfYcsD] › Stillbirth ID [YnLUxVmWass] – instrumental deliveries only",
+    "• Delivery summary [mdw5BoS50mb] › Stillbirth [oaOGNRfUx37] – appearance Macerated/Fresh – filled only for stillbirths"
+   ]
+  },
+  {
+   "row": 97,
+   "sno": "MAT_SBR.LB.",
+   "label": "Number of Live births",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "birth outcome",
+     "uid": "wZig9cek3Gv",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "birth outcome newborn 2",
+     "uid": "BiFmMp0p2CB",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "birth outcome newborn 3",
+     "uid": "ZX1tFRjBAEe",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "birth outcome newborn 4",
+     "uid": "htcUfQyftnv",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date of Delivery",
+     "uid": "hjQZsV03OYe",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "BABY – count babies (one delivery event can add 1 to 4)",
+   "period_filter": "Value of Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] (DATE) falls inside the report month",
+   "conditions": [
+    "EVALUATE EACH line separately and ADD 1 for every line that is true (newborn 1, 2, 3, 4 outcome elements of the SAME Delivery summary event):",
+    "   • Delivery summary [mdw5BoS50mb] › birth outcome [wZig9cek3Gv] EQUALS ANY OF codes {1}  (Alive)",
+    "   • Delivery summary [mdw5BoS50mb] › birth outcome newborn 2 [BiFmMp0p2CB] EQUALS ANY OF codes {1}  (Alive)",
+    "   • Delivery summary [mdw5BoS50mb] › birth outcome newborn 3 [ZX1tFRjBAEe] EQUALS ANY OF codes {1}  (Alive)",
+    "   • Delivery summary [mdw5BoS50mb] › birth outcome newborn 4 [htcUfQyftnv] EQUALS ANY OF codes {1}  (Alive)"
+   ],
+   "disaggregation": [
+    "None"
+   ],
+   "formula": "—",
+   "notes": [
+    "Counts babies, not mothers."
+   ],
+   "additional_locations": [
+    "• Instrumental Delivery form [bwk9bBfYcsD] › Live birth ID [MZJ2fVA8Y1D] – instrumental deliveries only"
+   ]
+  },
+  {
+   "row": 98,
+   "sno": "MAT_B&D",
+   "label": "Birth and Death Notifications",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 99,
+   "sno": "MAT_B&D_IBN.1.",
+   "label": "Number of Institutional birth notifications given",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no birth/death notification element exists in the program"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 100,
+   "sno": "MAT_B&D_IDN.2.",
+   "label": "Number of Institutional death notifications given",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no birth/death notification element exists in the program"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 101,
+   "sno": "PNC.",
+   "label": "RMNCH - Postnatal care services provided",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 102,
+   "sno": "MAT_EPNC.1",
+   "label": "Early postnatal care coverage",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 103,
+   "sno": "MAT_EPNC.1",
+   "label": "Number of postnatal visits within 7 days of delivery",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "• Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {1, 2, 3, 4}  (24 hrs stay, 25- 48 Hrs, 49-72 Hrs, 73Hrs-7 days)"
+   ],
+   "disaggregation": [
+    "None – total"
+   ],
+   "formula": "= row 104 + 105 + 106 + 107",
+   "notes": [
+    "Exclude '8- 42 days'(5).",
+    "Postpartum care is repeatable and the label says visits, so count events. For unique women count distinct enrollments instead."
+   ],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – stage event date",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – hours since delivery = event date − delivery date (alternative to the pick-list)"
+   ]
+  },
+  {
+   "row": 104,
+   "sno": "MAT_EPNC.1. 2",
+   "label": "24Hrs (1day)",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "• Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {1}  (24 hrs stay)"
+   ],
+   "disaggregation": [
+    "Time since delivery: 24 hrs stay"
+   ],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – stage event date",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – hours since delivery = event date − delivery date (alternative to the pick-list)"
+   ]
+  },
+  {
+   "row": 105,
+   "sno": "MAT_EPNC.1. 3",
+   "label": "25 - 48 hrs (1 - 2 days)",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "• Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {2}  (25- 48 Hrs)"
+   ],
+   "disaggregation": [
+    "Time since delivery: 25- 48 Hrs"
+   ],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – stage event date",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – hours since delivery = event date − delivery date (alternative to the pick-list)"
+   ]
+  },
+  {
+   "row": 106,
+   "sno": "MAT_EPNC.1. 4",
+   "label": "49 - 72 hrs (2 - 3 days)",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "• Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {3}  (49-72 Hrs)"
+   ],
+   "disaggregation": [
+    "Time since delivery: 49-72 Hrs"
+   ],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – stage event date",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – hours since delivery = event date − delivery date (alternative to the pick-list)"
+   ]
+  },
+  {
+   "row": 107,
+   "sno": "MAT_EPNC.1. 5",
+   "label": "73 hrs - 7 Days (4 - 7 days)",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "Date/stay pp",
+     "uid": "z7Eb2yFLOBI",
+     "stage": "Postpartum care",
+     "stage_uid": "VpBHRE7FlJL",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Event date of stage Postpartum care [VpBHRE7FlJL] falls inside the report month",
+   "conditions": [
+    "• Postpartum care [VpBHRE7FlJL] › Date/stay pp [z7Eb2yFLOBI] EQUALS ANY OF codes {4}  (73Hrs-7 days)"
+   ],
+   "disaggregation": [
+    "Time since delivery: 73Hrs-7 days"
+   ],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Postpartum care [VpBHRE7FlJL] › Postpartum Care event date [Zp3ZMSBhihl] – stage event date",
+    "• Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] – hours since delivery = event date − delivery date (alternative to the pick-list)"
+   ]
+  },
+  {
+   "row": 108,
+   "sno": "Cesarean_Section.",
+   "label": "RMNCH - Cesarean section service provided",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 109,
+   "sno": "RMH_L&D_CS",
+   "label": "Caesarean section",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 110,
+   "sno": "MAT_CS.1.",
+   "label": "Number of women having given birth by caesarean section",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "Mode of Delivery maternal",
+     "uid": "lphtwP2ViZU",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date of Delivery",
+     "uid": "hjQZsV03OYe",
+     "stage": "Delivery summary",
+     "stage_uid": "mdw5BoS50mb",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Value of Delivery summary [mdw5BoS50mb] › Date of Delivery [hjQZsV03OYe] (DATE) falls inside the report month",
+   "conditions": [
+    "• Delivery summary [mdw5BoS50mb] › Mode of Delivery maternal [lphtwP2ViZU] EQUALS ANY OF codes {2}  (Cesarean Section (C-section))"
+   ],
+   "disaggregation": [
+    "None"
+   ],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Labour Management [pfEjAoq2Kil] › Mode of delivery [DNyGOh5XlWe] – Cesarean delivery Emergency(3) / Elective(4) – cross-check"
+   ]
+  },
+  {
+   "row": 111,
+   "sno": "Abortion.",
+   "label": "RMNCH - Abortion care services provided",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 112,
+   "sno": "MAT_CAC",
+   "label": "MAT_Comprehensive Abortion Care by Maternal Age",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 113,
+   "sno": "MAT_CAC_SAC",
+   "label": "Number of safe abortions performed",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "= sum of the child rows directly below",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 114,
+   "sno": "MAT_CAC_SAC. 1",
+   "label": "10 - 14 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 115,
+   "sno": "MAT_CAC_SAC. 2",
+   "label": "15 - 19 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 116,
+   "sno": "MAT_CAC_SAC. 3",
+   "label": "20 - 24 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 117,
+   "sno": "MAT_CAC_SAC. 4",
+   "label": "25 - 29 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 118,
+   "sno": "MAT_CAC_SAC. 5",
+   "label": ">= 30 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 119,
+   "sno": "MAT_CAC_PAC",
+   "label": "Number of post abortion/emergency care",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "= sum of the child rows directly below",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 120,
+   "sno": "MAT_CAC_PAC. 1",
+   "label": "10 - 14 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 121,
+   "sno": "MAT_CAC_PAC. 2",
+   "label": "15 - 19 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 122,
+   "sno": "MAT_CAC_PAC. 3",
+   "label": "20 - 24 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 123,
+   "sno": "MAT_CAC_PAC. 4",
+   "label": "25 - 29 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 124,
+   "sno": "MAT_CAC_PAC. 5",
+   "label": ">= 30 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 125,
+   "sno": "MAT_CAC.Tr.1",
+   "label": "Number of women receiving comprehensive abortion care disaggregated by trimester",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "= sum of the child rows directly below",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 126,
+   "sno": "MAT_CAC.Tr.1. 1",
+   "label": "1st Trimester (<12 weeks)",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 127,
+   "sno": "MAT_CAC.Tr.1. 2",
+   "label": "2nd Trimester (>=12 - 28 weeks)",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 128,
+   "sno": "MAT_CAC.MA.1",
+   "label": "Number of women receiving post abortion care family planning methods disaggregated by Methods",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "= sum of the child rows directly below",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 129,
+   "sno": "MAT_CAC.MA.1. 1",
+   "label": "Oral Contraceptives",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 130,
+   "sno": "MAT_CAC.MA.1. 2",
+   "label": "Injectables",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 131,
+   "sno": "MAT_CAC.MA.1. 3",
+   "label": "Implants",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 132,
+   "sno": "MAT_CAC.MA.1. 4",
+   "label": "IUCD",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 133,
+   "sno": "MAT_CAC.MA.1. 6",
+   "label": "Tubal ligation",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 134,
+   "sno": "MAT_CAC.MA.1. 7",
+   "label": "Others",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no abortion-care (safe abortion / post-abortion care) event, trimester or PAC-method element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Maternal History [DOw7qLv5vzS] › History of Abortion [WVUda4sIj1J] – past history only, NOT a service count",
+    "• Discharge Summary [DLVsIxjhwMj] › Final Diagnosis [F32GGXKyp5Q] – free text, not countable"
+   ]
+  },
+  {
+   "row": 135,
+   "sno": "Fistula.",
+   "label": "RMNCH - Obstetric fistula care provided",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 136,
+   "sno": "MAT_OFC_Ide__Age",
+   "label": "Number of obstetric fistula cases identified by Age",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no obstetric fistula identification/treatment element exists"
+   ],
+   "disaggregation": [],
+   "formula": "= sum of the child rows directly below",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 137,
+   "sno": "MAT_OFC_Ide__Age. 1",
+   "label": "10 - 14 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no obstetric fistula identification/treatment element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 138,
+   "sno": "MAT_OFC_Ide__Age. 2",
+   "label": "15 - 19 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no obstetric fistula identification/treatment element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 139,
+   "sno": "MAT_OFC_Ide__Age. 3",
+   "label": "20 - 24 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no obstetric fistula identification/treatment element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 140,
+   "sno": "MAT_OFC_Ide__Age. 4",
+   "label": "25 - 29 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no obstetric fistula identification/treatment element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 141,
+   "sno": "MAT_OFC_Ide__Age. 5",
+   "label": ">= 30 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no obstetric fistula identification/treatment element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 142,
+   "sno": "MAT_OFC_Treat__Age",
+   "label": "Number of obstetric fistula cases treated by Age",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no obstetric fistula identification/treatment element exists"
+   ],
+   "disaggregation": [],
+   "formula": "= sum of the child rows directly below",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 143,
+   "sno": "MAT_OFC_Treat__Age. 1",
+   "label": "10 - 14 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no obstetric fistula identification/treatment element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 144,
+   "sno": "MAT_OFC_Treat__Age. 2",
+   "label": "15 - 19 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no obstetric fistula identification/treatment element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 145,
+   "sno": "MAT_OFC_Treat__Age. 3",
+   "label": "20 - 24 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no obstetric fistula identification/treatment element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 146,
+   "sno": "MAT_OFC_Treat__Age. 4",
+   "label": "25 - 29 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no obstetric fistula identification/treatment element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 147,
+   "sno": "MAT_OFC_Treat__Age. 5",
+   "label": ">= 30 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no obstetric fistula identification/treatment element exists"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 148,
+   "sno": "RMH_IMD_IMMR",
+   "label": "Institutional maternal deaths",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 149,
+   "sno": "MAT_IMD.1.",
+   "label": "Number of maternal deaths in health facility",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "Condition of Discharge",
+     "uid": "TjQOcW6tm8k",
+     "stage": "Discharge Summary",
+     "stage_uid": "DLVsIxjhwMj",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date of Discharge",
+     "uid": "yqemWQzbYE6",
+     "stage": "Discharge Summary",
+     "stage_uid": "DLVsIxjhwMj",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Value of Discharge Summary [DLVsIxjhwMj] › Date of Discharge [yqemWQzbYE6] (DATE) falls inside the report month",
+   "conditions": [
+    "• Discharge Summary [DLVsIxjhwMj] › Condition of Discharge [TjQOcW6tm8k] EQUALS ANY OF codes {4}  (Dead)"
+   ],
+   "disaggregation": [
+    "None"
+   ],
+   "formula": "—",
+   "notes": [
+    "Same logic as the existing program indicator 'Maternal Death' [hUocK37iZK5]."
+   ],
+   "additional_locations": [
+    "• Delivery summary [mdw5BoS50mb] › Measures Taken [l6UP3Tyt0M5] – value 'Death'(2) – cross-check"
+   ]
+  },
+  {
+   "row": 150,
+   "sno": "MAT_TngP_TPR",
+   "label": "Total number of teenage girls tested positive for pregnancy",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no pregnancy-test result element; every enrolled mother is already pregnant/postpartum, so an enrollment count is not a positive test"
+   ],
+   "disaggregation": [],
+   "formula": "= row 151 + row 152",
+   "notes": [],
+   "additional_locations": [
+    "• Enrollment (tracked entity attribute) [—] › Age [vbaNV9kiRFp] – only – enrollment is not a pregnancy test"
+   ]
+  },
+  {
+   "row": 151,
+   "sno": "MAT_TngP_TPR. 1",
+   "label": "10 - 14 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no pregnancy-test result element; every enrolled mother is already pregnant/postpartum, so an enrollment count is not a positive test"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Enrollment (tracked entity attribute) [—] › Age [vbaNV9kiRFp] – only – enrollment is not a pregnancy test"
+   ]
+  },
+  {
+   "row": 152,
+   "sno": "MAT_TngP_TPR. 2",
+   "label": "15 - 19 Years",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no pregnancy-test result element; every enrolled mother is already pregnant/postpartum, so an enrollment count is not a positive test"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Enrollment (tracked entity attribute) [—] › Age [vbaNV9kiRFp] – only – enrollment is not a pregnancy test"
+   ]
+  },
+  {
+   "row": 153,
+   "sno": "MAT_Tngtst.",
+   "label": "Total number of women tested positive for pregnancy",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no pregnancy-test result element; every enrolled mother is already pregnant/postpartum, so an enrollment count is not a positive test"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  }
+ ]
+}

@@ -1,0 +1,1297 @@
+{
+ "report": "Neonatal & Child Health report ↔ DHIS2 program \"Neonatal Care Form\" [QYJKpoUeg9F]",
+ "rows": [
+  {
+   "row": 3,
+   "sno": "Paediatric_OPD.",
+   "label": "NCH - IMNCI/Paediatric OPD services provided",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 4,
+   "sno": "CH",
+   "label": "Child Health",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 5,
+   "sno": "CH_IND",
+   "label": "Institutional neonatal death",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Newborn status at discharge n",
+     "uid": "XITh8vyfqaR",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date and time of discharge",
+     "uid": "VNV2QYQpebO",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "DATETIME"
+    },
+    {
+     "name": "Date of delivery",
+     "uid": "vKsjdwDyJhC",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "DATE"
+    },
+    {
+     "name": "Time of birth",
+     "uid": "oN2duJU7M53",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "TIME"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of Discharge care form [CbH1hYxJdL7] › Date and time of discharge [VNV2QYQpebO] (DATETIME) falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   • Discharge care form [CbH1hYxJdL7] › Newborn status at discharge n [XITh8vyfqaR] EQUALS ANY OF codes {0}  (Dead)",
+    "   • DEFINE age_hours = (Date and time of discharge [CbH1hYxJdL7 › VNV2QYQpebO]) − (Date of delivery [mv8iC65nP21 › vKsjdwDyJhC] + Time of birth [mv8iC65nP21 › oN2duJU7M53]); age_days = floor(age_hours ÷ 24). The NICU Admission Careform event is the SAME enrollment's event.",
+    "   • AND age_days ≤ 28"
+   ],
+   "disaggregation": [
+    "None – total"
+   ],
+   "formula": "= row 6 + row 7 + row 8",
+   "notes": [
+    "Covers neonates admitted to NICU only (not delivery-room or other-ward deaths).",
+    "Discharge care form is non-repeatable: one event per neonate."
+   ],
+   "additional_locations": [
+    "• Discharge care form [CbH1hYxJdL7] › Age at discharge [ntxJ8BqOY2T] – fallback if birth date/time is missing (unit not stored; assume days)",
+    "• Discharge care form [CbH1hYxJdL7] › Final Discharge Diagnosis/Cause of Death (primary) [hP9hE6B9mVQ] – cross-check",
+    "• Discharge care form [CbH1hYxJdL7] › Discharge Outcome n [YFp5BRt5BB0] – has NO death option – do not use for deaths"
+   ]
+  },
+  {
+   "row": 6,
+   "sno": "CH_IND. 1",
+   "label": "< 24 Hours",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Newborn status at discharge n",
+     "uid": "XITh8vyfqaR",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date and time of discharge",
+     "uid": "VNV2QYQpebO",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "DATETIME"
+    },
+    {
+     "name": "Date of delivery",
+     "uid": "vKsjdwDyJhC",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "DATE"
+    },
+    {
+     "name": "Time of birth",
+     "uid": "oN2duJU7M53",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "TIME"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of Discharge care form [CbH1hYxJdL7] › Date and time of discharge [VNV2QYQpebO] (DATETIME) falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   • Discharge care form [CbH1hYxJdL7] › Newborn status at discharge n [XITh8vyfqaR] EQUALS ANY OF codes {0}  (Dead)",
+    "   • DEFINE age_hours = (Date and time of discharge [CbH1hYxJdL7 › VNV2QYQpebO]) − (Date of delivery [mv8iC65nP21 › vKsjdwDyJhC] + Time of birth [mv8iC65nP21 › oN2duJU7M53]); age_days = floor(age_hours ÷ 24). The NICU Admission Careform event is the SAME enrollment's event.",
+    "   • AND age_hours < 24"
+   ],
+   "disaggregation": [
+    "< 24 Hours"
+   ],
+   "formula": "—",
+   "notes": [
+    "Covers neonates admitted to NICU only (not delivery-room or other-ward deaths).",
+    "Discharge care form is non-repeatable: one event per neonate."
+   ],
+   "additional_locations": [
+    "• Discharge care form [CbH1hYxJdL7] › Age at discharge [ntxJ8BqOY2T] – fallback if birth date/time is missing (unit not stored; assume days)",
+    "• Discharge care form [CbH1hYxJdL7] › Final Discharge Diagnosis/Cause of Death (primary) [hP9hE6B9mVQ] – cross-check",
+    "• Discharge care form [CbH1hYxJdL7] › Discharge Outcome n [YFp5BRt5BB0] – has NO death option – do not use for deaths"
+   ]
+  },
+  {
+   "row": 7,
+   "sno": "CH_IND. 2",
+   "label": "1-7 Days",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Newborn status at discharge n",
+     "uid": "XITh8vyfqaR",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date and time of discharge",
+     "uid": "VNV2QYQpebO",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "DATETIME"
+    },
+    {
+     "name": "Date of delivery",
+     "uid": "vKsjdwDyJhC",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "DATE"
+    },
+    {
+     "name": "Time of birth",
+     "uid": "oN2duJU7M53",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "TIME"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of Discharge care form [CbH1hYxJdL7] › Date and time of discharge [VNV2QYQpebO] (DATETIME) falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   • Discharge care form [CbH1hYxJdL7] › Newborn status at discharge n [XITh8vyfqaR] EQUALS ANY OF codes {0}  (Dead)",
+    "   • DEFINE age_hours = (Date and time of discharge [CbH1hYxJdL7 › VNV2QYQpebO]) − (Date of delivery [mv8iC65nP21 › vKsjdwDyJhC] + Time of birth [mv8iC65nP21 › oN2duJU7M53]); age_days = floor(age_hours ÷ 24). The NICU Admission Careform event is the SAME enrollment's event.",
+    "   • AND 1 ≤ age_days ≤ 7"
+   ],
+   "disaggregation": [
+    "1-7 Days"
+   ],
+   "formula": "—",
+   "notes": [
+    "Covers neonates admitted to NICU only (not delivery-room or other-ward deaths).",
+    "Discharge care form is non-repeatable: one event per neonate."
+   ],
+   "additional_locations": [
+    "• Discharge care form [CbH1hYxJdL7] › Age at discharge [ntxJ8BqOY2T] – fallback if birth date/time is missing (unit not stored; assume days)",
+    "• Discharge care form [CbH1hYxJdL7] › Final Discharge Diagnosis/Cause of Death (primary) [hP9hE6B9mVQ] – cross-check",
+    "• Discharge care form [CbH1hYxJdL7] › Discharge Outcome n [YFp5BRt5BB0] – has NO death option – do not use for deaths"
+   ]
+  },
+  {
+   "row": 8,
+   "sno": "CH_IND. 3",
+   "label": "8 - 28 Days",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Newborn status at discharge n",
+     "uid": "XITh8vyfqaR",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date and time of discharge",
+     "uid": "VNV2QYQpebO",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "DATETIME"
+    },
+    {
+     "name": "Date of delivery",
+     "uid": "vKsjdwDyJhC",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "DATE"
+    },
+    {
+     "name": "Time of birth",
+     "uid": "oN2duJU7M53",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "TIME"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of Discharge care form [CbH1hYxJdL7] › Date and time of discharge [VNV2QYQpebO] (DATETIME) falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   • Discharge care form [CbH1hYxJdL7] › Newborn status at discharge n [XITh8vyfqaR] EQUALS ANY OF codes {0}  (Dead)",
+    "   • DEFINE age_hours = (Date and time of discharge [CbH1hYxJdL7 › VNV2QYQpebO]) − (Date of delivery [mv8iC65nP21 › vKsjdwDyJhC] + Time of birth [mv8iC65nP21 › oN2duJU7M53]); age_days = floor(age_hours ÷ 24). The NICU Admission Careform event is the SAME enrollment's event.",
+    "   • AND 8 ≤ age_days ≤ 28"
+   ],
+   "disaggregation": [
+    "8-28 Days"
+   ],
+   "formula": "—",
+   "notes": [
+    "Covers neonates admitted to NICU only (not delivery-room or other-ward deaths).",
+    "Discharge care form is non-repeatable: one event per neonate."
+   ],
+   "additional_locations": [
+    "• Discharge care form [CbH1hYxJdL7] › Age at discharge [ntxJ8BqOY2T] – fallback if birth date/time is missing (unit not stored; assume days)",
+    "• Discharge care form [CbH1hYxJdL7] › Final Discharge Diagnosis/Cause of Death (primary) [hP9hE6B9mVQ] – cross-check",
+    "• Discharge care form [CbH1hYxJdL7] › Discharge Outcome n [YFp5BRt5BB0] – has NO death option – do not use for deaths"
+   ]
+  },
+  {
+   "row": 9,
+   "sno": "CH_TX_PNEU",
+   "label": "Under-five children with pneumonia received antibiotic treatment",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 10,
+   "sno": "CH_TX_PNEU.1.",
+   "label": "Number of under 5 children treated for pneumonia",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "Sub-Categories of Infection n",
+     "uid": "UGz9phsvHt4",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Sub-Categories of Infection(secondary):",
+     "uid": "NZBqF2igHgK",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Antibiotics administered?",
+     "uid": "hCb06Jbjqk3",
+     "stage": "Medication and Intervention",
+     "stage_uid": "YUfRatwZpLn",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date and time of discharge",
+     "uid": "VNV2QYQpebO",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "DATETIME"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of Discharge care form [CbH1hYxJdL7] › Date and time of discharge [VNV2QYQpebO] (DATETIME) falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   ▸ AT LEAST ONE of the following must be true (primary OR secondary infection category):",
+    "      • Discharge care form [CbH1hYxJdL7] › Sub-Categories of Infection n [UGz9phsvHt4] EQUALS ANY OF codes {5}  (Pneumonia)",
+    "      • Discharge care form [CbH1hYxJdL7] › Sub-Categories of Infection(secondary): [NZBqF2igHgK] EQUALS ANY OF codes {5}  (Pneumonia)",
+    "   • EXISTS ≥1 event of stage Medication and Intervention [YUfRatwZpLn] of the SAME enrollment where Antibiotics administered? [hCb06Jbjqk3] = code {1}  (Yes)"
+   ],
+   "disaggregation": [
+    "None"
+   ],
+   "formula": "—",
+   "notes": [
+    "PROXY: program covers neonates only, not children 2-59 months.",
+    "The same neonates also appear in row 14. If HMIS convention is to report 0-2-month infants only in row 14, leave this row blank/0 to avoid double counting."
+   ],
+   "additional_locations": [
+    "• Medication and Intervention [YUfRatwZpLn] › If yes - select antibiotic(s) [cRKvNNrQ9iX] – which antibiotic – cross-check",
+    "• NICU Progress Care Form [C5gxE7xp4tt] › Diagnosis n [pE7MCwaqQjC] – free text"
+   ]
+  },
+  {
+   "row": 11,
+   "sno": "CH_TX_SYI.1",
+   "label": "Number of sick young infants 0-2 months treated for Critical illness",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "Sub-Categories of Infection n",
+     "uid": "UGz9phsvHt4",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Sub-Categories of Infection(secondary):",
+     "uid": "NZBqF2igHgK",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Antibiotics administered?",
+     "uid": "hCb06Jbjqk3",
+     "stage": "Medication and Intervention",
+     "stage_uid": "YUfRatwZpLn",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date and time of discharge",
+     "uid": "VNV2QYQpebO",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "DATETIME"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of Discharge care form [CbH1hYxJdL7] › Date and time of discharge [VNV2QYQpebO] (DATETIME) falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   ▸ AT LEAST ONE of the following must be true:",
+    "      ▸ AT LEAST ONE of the following must be true (primary OR secondary infection category):",
+    "         • Discharge care form [CbH1hYxJdL7] › Sub-Categories of Infection n [UGz9phsvHt4] EQUALS ANY OF codes {1, 2, 3, 4}  (Probable Sepsis, Culture-Positive Sepsis, Probable Meningitis, Culture-Positive Meningitis)",
+    "         • Discharge care form [CbH1hYxJdL7] › Sub-Categories of Infection(secondary): [NZBqF2igHgK] EQUALS ANY OF codes {1, 2, 3, 4}  (Probable Sepsis, Culture-Positive Sepsis, Probable Meningitis, Culture-Positive Meningitis)",
+    "      ▸ AT LEAST ONE of the following must be true (primary OR secondary infection category):",
+    "         • Discharge care form [CbH1hYxJdL7] › Sub-Categories of Infection n [UGz9phsvHt4] EQUALS ANY OF codes {5}  (Pneumonia)",
+    "         • Discharge care form [CbH1hYxJdL7] › Sub-Categories of Infection(secondary): [NZBqF2igHgK] EQUALS ANY OF codes {5}  (Pneumonia)",
+    "      • neonate matches the row 13 rule",
+    "   • EXISTS ≥1 event of stage Medication and Intervention [YUfRatwZpLn] of the SAME enrollment where Antibiotics administered? [hCb06Jbjqk3] = code {1}  (Yes)"
+   ],
+   "disaggregation": [
+    "None – total"
+   ],
+   "formula": "= DISTINCT neonates matching row 12 OR row 13 OR row 14 (a neonate in two classes counts once here)",
+   "notes": [
+    "IMNCI classes are not recorded; rows are mapped from diagnosis categories.",
+    "Optional age filter (≤ 59 days): NICU Admission Careform [mv8iC65nP21] › Admission age [vcC9St3FWZY] converted with Admission age unit n [GCjCJ2kyyGo] (1=Minutes, 2=Hours, 3=Days)."
+   ],
+   "additional_locations": [
+    "• Medication and Intervention [YUfRatwZpLn] › If yes - select antibiotic(s) [cRKvNNrQ9iX] – which antibiotic – cross-check",
+    "• NICU Progress Care Form [C5gxE7xp4tt] › Diagnosis n [pE7MCwaqQjC] – free text"
+   ]
+  },
+  {
+   "row": 12,
+   "sno": "CH_TX_SYI.1. 1",
+   "label": "Very Severe Diseases",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "Sub-Categories of Infection n",
+     "uid": "UGz9phsvHt4",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Sub-Categories of Infection(secondary):",
+     "uid": "NZBqF2igHgK",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Antibiotics administered?",
+     "uid": "hCb06Jbjqk3",
+     "stage": "Medication and Intervention",
+     "stage_uid": "YUfRatwZpLn",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date and time of discharge",
+     "uid": "VNV2QYQpebO",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "DATETIME"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of Discharge care form [CbH1hYxJdL7] › Date and time of discharge [VNV2QYQpebO] (DATETIME) falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   ▸ AT LEAST ONE of the following must be true (primary OR secondary infection category):",
+    "      • Discharge care form [CbH1hYxJdL7] › Sub-Categories of Infection n [UGz9phsvHt4] EQUALS ANY OF codes {1, 2, 3, 4}  (Probable Sepsis, Culture-Positive Sepsis, Probable Meningitis, Culture-Positive Meningitis)",
+    "      • Discharge care form [CbH1hYxJdL7] › Sub-Categories of Infection(secondary): [NZBqF2igHgK] EQUALS ANY OF codes {1, 2, 3, 4}  (Probable Sepsis, Culture-Positive Sepsis, Probable Meningitis, Culture-Positive Meningitis)",
+    "   • EXISTS ≥1 event of stage Medication and Intervention [YUfRatwZpLn] of the SAME enrollment where Antibiotics administered? [hCb06Jbjqk3] = code {1}  (Yes)"
+   ],
+   "disaggregation": [
+    "IMNCI class 'Very Severe Disease'"
+   ],
+   "formula": "—",
+   "notes": [
+    "PROXY: 'Very severe disease' ≈ sepsis/meningitis category.",
+    "Optional age filter (≤ 59 days): NICU Admission Careform [mv8iC65nP21] › Admission age [vcC9St3FWZY] converted with Admission age unit n [GCjCJ2kyyGo] (1=Minutes, 2=Hours, 3=Days)."
+   ],
+   "additional_locations": [
+    "• NICU Admission Careform [mv8iC65nP21] › First Reason for Admission [iuIn2zpSUR6] – value 'Suspected Infection - sepsis/meningitis'(19); Second/Third Reason (lfqijX4DNqR, cX0JPpXiZSO) hold the same options",
+    "• Investigation sheet [YHiV8FUkx6I] › Blood culture for suspected sepsis [GwrkagnbTet] – blood culture result – cross-check",
+    "• Investigation sheet [YHiV8FUkx6I] › CSF culture for suspected meningitis [xiuakJzGNNG] – CSF culture result – cross-check",
+    "• Medication and Intervention [YUfRatwZpLn] › If yes - select antibiotic(s) [cRKvNNrQ9iX] – which antibiotic – cross-check"
+   ]
+  },
+  {
+   "row": 13,
+   "sno": "CH_TX_SYI.1. 2",
+   "label": "Local Bacterial Infection ( LBI)",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "First Reason for Admission",
+     "uid": "iuIn2zpSUR6",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Second Reason for Admission",
+     "uid": "lfqijX4DNqR",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Third Reason for Admission",
+     "uid": "cX0JPpXiZSO",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Antibiotics administered?",
+     "uid": "hCb06Jbjqk3",
+     "stage": "Medication and Intervention",
+     "stage_uid": "YUfRatwZpLn",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date of Admission n",
+     "uid": "PadsjZCM10U",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of NICU Admission Careform [mv8iC65nP21] › Date of Admission n [PadsjZCM10U] (DATE) falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   ▸ AT LEAST ONE of the following must be true (first/second/third reason for admission):",
+    "      • NICU Admission Careform [mv8iC65nP21] › First Reason for Admission [iuIn2zpSUR6] EQUALS ANY OF codes {12}  (Cord red/sticky (Danger signs))",
+    "      • NICU Admission Careform [mv8iC65nP21] › Second Reason for Admission [lfqijX4DNqR] EQUALS ANY OF codes {12}  (Cord red/sticky (Danger signs))",
+    "      • NICU Admission Careform [mv8iC65nP21] › Third Reason for Admission [cX0JPpXiZSO] EQUALS ANY OF codes {12}  (Cord red/sticky (Danger signs))",
+    "   • EXISTS ≥1 event of stage Medication and Intervention [YUfRatwZpLn] of the SAME enrollment where Antibiotics administered? [hCb06Jbjqk3] = code {1}  (Yes)"
+   ],
+   "disaggregation": [
+    "IMNCI class Local Bacterial Infection (LBI)"
+   ],
+   "formula": "—",
+   "notes": [
+    "PROXY: no LBI element; closest = admission reason Cord red/sticky.",
+    "Skin pustules / eye discharge are not captured.",
+    "Optional age filter (≤ 59 days): NICU Admission Careform [mv8iC65nP21] › Admission age [vcC9St3FWZY] converted with Admission age unit n [GCjCJ2kyyGo] (1=Minutes, 2=Hours, 3=Days)."
+   ],
+   "additional_locations": [
+    "• KMC ward follow up sheet [TI40LMTou2L] › Umbilicus draining pus [XsGA78HLvqO] – KMC ward sheet"
+   ]
+  },
+  {
+   "row": 14,
+   "sno": "CH_TX_SYI.1. 3",
+   "label": "Pneumonia",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "Sub-Categories of Infection n",
+     "uid": "UGz9phsvHt4",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Sub-Categories of Infection(secondary):",
+     "uid": "NZBqF2igHgK",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Antibiotics administered?",
+     "uid": "hCb06Jbjqk3",
+     "stage": "Medication and Intervention",
+     "stage_uid": "YUfRatwZpLn",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date and time of discharge",
+     "uid": "VNV2QYQpebO",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "DATETIME"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of Discharge care form [CbH1hYxJdL7] › Date and time of discharge [VNV2QYQpebO] (DATETIME) falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   ▸ AT LEAST ONE of the following must be true (primary OR secondary infection category):",
+    "      • Discharge care form [CbH1hYxJdL7] › Sub-Categories of Infection n [UGz9phsvHt4] EQUALS ANY OF codes {5}  (Pneumonia)",
+    "      • Discharge care form [CbH1hYxJdL7] › Sub-Categories of Infection(secondary): [NZBqF2igHgK] EQUALS ANY OF codes {5}  (Pneumonia)",
+    "   • EXISTS ≥1 event of stage Medication and Intervention [YUfRatwZpLn] of the SAME enrollment where Antibiotics administered? [hCb06Jbjqk3] = code {1}  (Yes)"
+   ],
+   "disaggregation": [
+    "IMNCI class Pneumonia"
+   ],
+   "formula": "—",
+   "notes": [
+    "Program covers neonates only.",
+    "Optional age filter (≤ 59 days): NICU Admission Careform [mv8iC65nP21] › Admission age [vcC9St3FWZY] converted with Admission age unit n [GCjCJ2kyyGo] (1=Minutes, 2=Hours, 3=Days)."
+   ],
+   "additional_locations": [
+    "• Medication and Intervention [YUfRatwZpLn] › If yes - select antibiotic(s) [cRKvNNrQ9iX] – which antibiotic – cross-check",
+    "• NICU Progress Care Form [C5gxE7xp4tt] › Diagnosis n [pE7MCwaqQjC] – free text"
+   ]
+  },
+  {
+   "row": 15,
+   "sno": "CH_TX_DIAR",
+   "label": "Children treated with Zinc and ORS for diarrhea",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 16,
+   "sno": "CH_TX_DIAR.1.",
+   "label": "Treated by ORS and zinc",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no diarrhoea, ORS or zinc element exists; the Neonatal Care Form covers neonates in NICU, not under-five OPD care"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 17,
+   "sno": "CH_TX_DIAR.2.",
+   "label": "Treated by ORS only",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no diarrhoea, ORS or zinc element exists; the Neonatal Care Form covers neonates in NICU, not under-five OPD care"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 18,
+   "sno": "CH_KMC",
+   "label": "Low birth weight or premature newborns for whom KMC was initiated after delivery",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "KMC coverage (%) = row 19 ÷ row 20 × 100",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 19,
+   "sno": "CH_KMC.1.",
+   "label": "Total number of newborns weighing <2000gm and/or premature newborns for which KMC initiated",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "KMC intiation date",
+     "uid": "OnCDZXEjrwV",
+     "stage": "KMC ward follow up sheet",
+     "stage_uid": "TI40LMTou2L",
+     "value_type": "DATE"
+    },
+    {
+     "name": "Birth Weight n",
+     "uid": "ZiI6RUqXLUl",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    },
+    {
+     "name": "Gestational age at delivery weeks",
+     "uid": "bJ4oRACbbLP",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    },
+    {
+     "name": "Gestational Age",
+     "uid": "rH78R1ZnGgh",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "TEXT"
+    }
+   ],
+   "aggregation_unit": "DISTINCT ENROLLMENT – count each mother/neonate once",
+   "period_filter": "Value of KMC ward follow up sheet [TI40LMTou2L] › KMC intiation date [OnCDZXEjrwV] (DATE) falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   • KMC ward follow up sheet [TI40LMTou2L] › KMC intiation date [OnCDZXEjrwV] HAS A VALUE",
+    "   ▸ AT LEAST ONE of the following must be true (low birth weight (g) OR preterm; evaluated on the NICU Admission Careform of the SAME enrollment):",
+    "      • NICU Admission Careform [mv8iC65nP21] › Birth Weight n [ZiI6RUqXLUl] < 2000",
+    "      • NICU Admission Careform [mv8iC65nP21] › Gestational age at delivery weeks [bJ4oRACbbLP] < 37",
+    "      • NICU Admission Careform [mv8iC65nP21] › Gestational Age [rH78R1ZnGgh] EQUALS ANY OF codes {2}  (Preterm)"
+   ],
+   "disaggregation": [
+    "None"
+   ],
+   "formula": "—",
+   "notes": [
+    "KMC ward follow up sheet is repeatable – count each neonate once."
+   ],
+   "additional_locations": [
+    "• Nurse followup Sheet [eCyte3bTjHS] › Kmc done [U3oBuzSBbWX] – value Yes(1) – alternative evidence of KMC",
+    "• KMC ward follow up sheet [TI40LMTou2L] › Type of KMC Practised [tDfQAEzX4dS] – continuous/intermittent",
+    "• Neonatal referral form [vir7ed0Qkyc] › Baby placed in iKMC [GUwjZu0z0x7] – KMC started before NICU admission",
+    "• NICU Admission Careform [mv8iC65nP21] › Placed skin to skin at birth [A53p2c5zwHN]",
+    "• KMC ward follow up sheet [TI40LMTou2L] › Weight (At admission to KMC ward) [OxHv6SYPGXh] – alternative weight source"
+   ]
+  },
+  {
+   "row": 20,
+   "sno": "CH_KMC.2.",
+   "label": "Total number of newborns weighing <2000gm and/or premature",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Birth Weight n",
+     "uid": "ZiI6RUqXLUl",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    },
+    {
+     "name": "Gestational age at delivery weeks",
+     "uid": "bJ4oRACbbLP",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "INTEGER_ZERO_OR_POSITIVE"
+    },
+    {
+     "name": "Gestational Age",
+     "uid": "rH78R1ZnGgh",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date of Admission n",
+     "uid": "PadsjZCM10U",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of NICU Admission Careform [mv8iC65nP21] › Date of Admission n [PadsjZCM10U] (DATE) falls inside the report month",
+   "conditions": [
+    "AT LEAST ONE of the following must be true (low birth weight (g) OR preterm; evaluated on the NICU Admission Careform of the SAME enrollment):",
+    "   • NICU Admission Careform [mv8iC65nP21] › Birth Weight n [ZiI6RUqXLUl] < 2000",
+    "   • NICU Admission Careform [mv8iC65nP21] › Gestational age at delivery weeks [bJ4oRACbbLP] < 37",
+    "   • NICU Admission Careform [mv8iC65nP21] › Gestational Age [rH78R1ZnGgh] EQUALS ANY OF codes {2}  (Preterm)"
+   ],
+   "disaggregation": [
+    "None"
+   ],
+   "formula": "—",
+   "notes": [
+    "Denominator of row 19."
+   ],
+   "additional_locations": [
+    "• NICU Admission Careform [mv8iC65nP21] › First Reason for Admission [iuIn2zpSUR6] – 'Small Baby / Preterm / Low Birthweight'(3) as First Reason for Admission (Second/Third: lfqijX4DNqR, cX0JPpXiZSO)",
+    "• NICU Admission Careform [mv8iC65nP21] › Ballard score [sXGMxjeJpsB] – use if GA is missing",
+    "• NICU Admission Careform [mv8iC65nP21] › Weight at admission n [qxnUrl2kb9J] – use only if birth weight is missing"
+   ]
+  },
+  {
+   "row": 21,
+   "sno": "NCH_CHIM_AsfxRS",
+   "label": "Asphyxiated neonates who were resuscitated (with bag & mask) and survived",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 22,
+   "sno": "CH_ASPH.1.",
+   "label": "Number of neonates resuscitated and survived",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Resuscitation  in delivery room",
+     "uid": "ylcI3fqJtYI",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "If Resuscitated, tick what was done",
+     "uid": "rJSMFrciEPO",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "MULTI_TEXT"
+    },
+    {
+     "name": "Newborn status at discharge n",
+     "uid": "XITh8vyfqaR",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date of Admission n",
+     "uid": "PadsjZCM10U",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of NICU Admission Careform [mv8iC65nP21] › Date of Admission n [PadsjZCM10U] (DATE) falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   • NICU Admission Careform [mv8iC65nP21] › Resuscitation  in delivery room [ylcI3fqJtYI] EQUALS ANY OF codes {1}  (Yes)",
+    "   • NICU Admission Careform [mv8iC65nP21] › If Resuscitated, tick what was done [rJSMFrciEPO] CONTAINS ANY OF codes {2}  (Bag mask ventilation)",
+    "   • EXISTS ≥1 event of stage Discharge care form [CbH1hYxJdL7] of the SAME enrollment where Newborn status at discharge n [XITh8vyfqaR] = code {1}  (Alive)"
+   ],
+   "disaggregation": [
+    "None"
+   ],
+   "formula": "—",
+   "notes": [
+    "Subset of row 23.",
+    "Cohort = admission month; the value rises as discharges are recorded (still-admitted babies are not yet counted)."
+   ],
+   "additional_locations": [
+    "• Neonatal referral form [vir7ed0Qkyc] › Neonatal resuscitation done [ecGZBSjIcZR] – Yes/No – for babies referred in",
+    "• Neonatal referral form [vir7ed0Qkyc] › If done tick what was done [KdCqXtfO0DI] – option 'Bag mask ventilation'(2) – referral form",
+    "• Neonatal referral form [vir7ed0Qkyc] › Bag and Mask [uI8HuCtHlFO] – Yes/No – referral form",
+    "• NICU Admission Careform [mv8iC65nP21] › Asphyxia [zLfS9HKLP4C] – Yes/No – optional extra filter",
+    "• NICU Admission Careform [mv8iC65nP21] › Asphyxia stage [F2P8YCMjHiH]"
+   ]
+  },
+  {
+   "row": 23,
+   "sno": "CH_ASPH.2.",
+   "label": "Total Number of neonates Resuscitated",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Resuscitation  in delivery room",
+     "uid": "ylcI3fqJtYI",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "If Resuscitated, tick what was done",
+     "uid": "rJSMFrciEPO",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "MULTI_TEXT"
+    },
+    {
+     "name": "Date of Admission n",
+     "uid": "PadsjZCM10U",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of NICU Admission Careform [mv8iC65nP21] › Date of Admission n [PadsjZCM10U] (DATE) falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   • NICU Admission Careform [mv8iC65nP21] › Resuscitation  in delivery room [ylcI3fqJtYI] EQUALS ANY OF codes {1}  (Yes)",
+    "   • NICU Admission Careform [mv8iC65nP21] › If Resuscitated, tick what was done [rJSMFrciEPO] CONTAINS ANY OF codes {2}  (Bag mask ventilation)"
+   ],
+   "disaggregation": [
+    "None"
+   ],
+   "formula": "—",
+   "notes": [
+    "Optional extra filter: Asphyxia [zLfS9HKLP4C] = Yes(1)."
+   ],
+   "additional_locations": [
+    "• Neonatal referral form [vir7ed0Qkyc] › Neonatal resuscitation done [ecGZBSjIcZR] – Yes/No – for babies referred in",
+    "• Neonatal referral form [vir7ed0Qkyc] › If done tick what was done [KdCqXtfO0DI] – option 'Bag mask ventilation'(2) – referral form",
+    "• Neonatal referral form [vir7ed0Qkyc] › Bag and Mask [uI8HuCtHlFO] – Yes/No – referral form",
+    "• NICU Admission Careform [mv8iC65nP21] › Asphyxia [zLfS9HKLP4C] – Yes/No – optional extra filter",
+    "• NICU Admission Careform [mv8iC65nP21] › Asphyxia stage [F2P8YCMjHiH]"
+   ]
+  },
+  {
+   "row": 24,
+   "sno": null,
+   "label": "Does the facility provide NICU service?",
+   "status": "COMPUTED",
+   "data_elements": [],
+   "aggregation_unit": "FACILITY-LEVEL Yes/No flag",
+   "period_filter": "—",
+   "conditions": [
+    "• Report 'Yes' if the program holds ≥1 event of stage NICU Admission Careform [mv8iC65nP21] for this facility (any date); otherwise 'No'."
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [
+    "Not a data element. May instead come from facility service configuration."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 25,
+   "sno": "NCH_CHIM_NICU",
+   "label": "Treatment outcome of neonates admitted to NICU",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 26,
+   "sno": "CH_TX_NICUA.",
+   "label": "Total neonates admitted to NICU",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Date of Admission n",
+     "uid": "PadsjZCM10U",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of NICU Admission Careform [mv8iC65nP21] › Date of Admission n [PadsjZCM10U] (DATE) falls inside the report month",
+   "conditions": [
+    "• NICU Admission Careform [mv8iC65nP21] › Date of Admission n [PadsjZCM10U] HAS A VALUE"
+   ],
+   "disaggregation": [
+    "None"
+   ],
+   "formula": "—",
+   "notes": [
+    "One event per admission; includes outborn babies and readmissions. Use distinct enrollments if the facility reports unique babies."
+   ],
+   "additional_locations": [
+    "• NICU Admission Careform [mv8iC65nP21] › Readmission [r6j58mnPS2h] – Yes/No",
+    "• NICU Admission Careform [mv8iC65nP21] › Place of delivery [MtIwjNsCLYy] – inborn/outborn – both included"
+   ]
+  },
+  {
+   "row": 27,
+   "sno": "CH_TX_NICUD",
+   "label": "Total neonates discharged from NICU",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Date and time of discharge",
+     "uid": "VNV2QYQpebO",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "DATETIME"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of Discharge care form [CbH1hYxJdL7] › Date and time of discharge [VNV2QYQpebO] (DATETIME) falls inside the report month",
+   "conditions": [
+    "• Discharge care form [CbH1hYxJdL7] › Date and time of discharge [VNV2QYQpebO] HAS A VALUE"
+   ],
+   "disaggregation": [
+    "None – total"
+   ],
+   "formula": "= row 28 + 29 + 30 + 31",
+   "notes": [
+    "Allocate each discharge ONCE in this order: Died (row 29) → Transferred out (row 30) → Recovered (row 28) → Others (row 31)."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 28,
+   "sno": "CH_TX_NICUD. 1",
+   "label": "Recovered",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Newborn status at discharge n",
+     "uid": "XITh8vyfqaR",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Discharge Outcome n",
+     "uid": "YFp5BRt5BB0",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date and time of discharge",
+     "uid": "VNV2QYQpebO",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "DATETIME"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of Discharge care form [CbH1hYxJdL7] › Date and time of discharge [VNV2QYQpebO] (DATETIME) falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   • Discharge care form [CbH1hYxJdL7] › Newborn status at discharge n [XITh8vyfqaR] EQUALS ANY OF codes {1}  (Alive)",
+    "   • Discharge care form [CbH1hYxJdL7] › Discharge Outcome n [YFp5BRt5BB0] EQUALS ANY OF codes {1}  (Discharged Alive)"
+   ],
+   "disaggregation": [
+    "Recovered"
+   ],
+   "formula": "—",
+   "notes": [
+    "Assumption: 'Recovered' = discharged alive; 'Discharged with complications' goes to Others."
+   ],
+   "additional_locations": []
+  },
+  {
+   "row": 29,
+   "sno": "CH_TX_NICUD. 2",
+   "label": "Died",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "Newborn status at discharge n",
+     "uid": "XITh8vyfqaR",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date and time of discharge",
+     "uid": "VNV2QYQpebO",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "DATETIME"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of Discharge care form [CbH1hYxJdL7] › Date and time of discharge [VNV2QYQpebO] (DATETIME) falls inside the report month",
+   "conditions": [
+    "• Discharge care form [CbH1hYxJdL7] › Newborn status at discharge n [XITh8vyfqaR] EQUALS ANY OF codes {0}  (Dead)"
+   ],
+   "disaggregation": [
+    "Died"
+   ],
+   "formula": "—",
+   "notes": [
+    "Should equal the total of rows 6-8 plus any death after day 28."
+   ],
+   "additional_locations": [
+    "• Discharge care form [CbH1hYxJdL7] › Final Discharge Diagnosis/Cause of Death (primary) [hP9hE6B9mVQ] – cross-check",
+    "• Discharge care form [CbH1hYxJdL7] › Discharge Outcome n [YFp5BRt5BB0] – has no death option, so deaths cannot come from this element"
+   ]
+  },
+  {
+   "row": 30,
+   "sno": "CH_TX_NICUD. 3",
+   "label": "Transferred out",
+   "status": "DIRECT",
+   "data_elements": [
+    {
+     "name": "Discharge Outcome n",
+     "uid": "YFp5BRt5BB0",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Newborn status at discharge n",
+     "uid": "XITh8vyfqaR",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date and time of discharge",
+     "uid": "VNV2QYQpebO",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "DATETIME"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of Discharge care form [CbH1hYxJdL7] › Date and time of discharge [VNV2QYQpebO] (DATETIME) falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   • Discharge care form [CbH1hYxJdL7] › Discharge Outcome n [YFp5BRt5BB0] EQUALS ANY OF codes {6}  (Referred/Transferred)",
+    "   • Discharge care form [CbH1hYxJdL7] › Newborn status at discharge n [XITh8vyfqaR] is NOT any of codes {0}  (Dead) (empty value passes)"
+   ],
+   "disaggregation": [
+    "Transferred out"
+   ],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": [
+    "• Neonatal referral form [vir7ed0Qkyc] › Intra/Inter facility transfer [BMkMd81yss3]",
+    "• Neonatal referral form [vir7ed0Qkyc] › Transferred to [Hme6E8LluaB]"
+   ]
+  },
+  {
+   "row": 31,
+   "sno": "CH_TX_NICUD. 4",
+   "label": "Others",
+   "status": "COMPUTED",
+   "data_elements": [
+    {
+     "name": "Discharge Outcome n",
+     "uid": "YFp5BRt5BB0",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Newborn status at discharge n",
+     "uid": "XITh8vyfqaR",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date and time of discharge",
+     "uid": "VNV2QYQpebO",
+     "stage": "Discharge care form",
+     "stage_uid": "CbH1hYxJdL7",
+     "value_type": "DATETIME"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of Discharge care form [CbH1hYxJdL7] › Date and time of discharge [VNV2QYQpebO] (DATETIME) falls inside the report month",
+   "conditions": [
+    "ALL of the following must be true:",
+    "   • Discharge care form [CbH1hYxJdL7] › Discharge Outcome n [YFp5BRt5BB0] EQUALS ANY OF codes {2, 3, 4, 5}  (Discharged with complications, Discharged against medical advice - poor prognosis, Discharged against medical advice - other, Absconded)",
+    "   • Discharge care form [CbH1hYxJdL7] › Newborn status at discharge n [XITh8vyfqaR] is NOT any of codes {0}  (Dead) (empty value passes)"
+   ],
+   "disaggregation": [
+    "Others"
+   ],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 32,
+   "sno": "CH_CHX",
+   "label": "Newborns that received at least one dose of CHX to the cord on the first day after birth",
+   "status": "HEADER",
+   "data_elements": [],
+   "aggregation_unit": "—",
+   "period_filter": "",
+   "conditions": [],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 33,
+   "sno": "CH_CHX.1.",
+   "label": "Number of Newborns received at least one dose of CHX on the 1st day after birth",
+   "status": "PARTIAL / PROXY",
+   "data_elements": [
+    {
+     "name": "Cord Chlorhexidine Administered",
+     "uid": "NK7eDXVZGar",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "TEXT"
+    },
+    {
+     "name": "Date of Admission n",
+     "uid": "PadsjZCM10U",
+     "stage": "NICU Admission Careform",
+     "stage_uid": "mv8iC65nP21",
+     "value_type": "DATE"
+    }
+   ],
+   "aggregation_unit": "EVENT – count each matching event",
+   "period_filter": "Value of NICU Admission Careform [mv8iC65nP21] › Date of Admission n [PadsjZCM10U] (DATE) falls inside the report month",
+   "conditions": [
+    "• NICU Admission Careform [mv8iC65nP21] › Cord Chlorhexidine Administered [NK7eDXVZGar] EQUALS ANY OF codes {1}  (Yes)"
+   ],
+   "disaggregation": [
+    "None"
+   ],
+   "formula": "—",
+   "notes": [
+    "PROXY: date/time of CHX is not recorded, so 'on the 1st day after birth' cannot be verified."
+   ],
+   "additional_locations": [
+    "• Neonatal referral form [vir7ed0Qkyc] › Chlorhexdine 4% [d3Pydqh4aMD] – given before referral (referral form)"
+   ]
+  },
+  {
+   "row": 34,
+   "sno": "CH_CHDM",
+   "label": "Children 0 to 59 months Assessed for developmental milestone",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no developmental-milestone assessment element exists; the Neonatal Care Form covers neonates in NICU only, not children 0-59 months"
+   ],
+   "disaggregation": [],
+   "formula": "= row 35 + row 36",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 35,
+   "sno": "CH_CHDM. 1",
+   "label": "0 to 24 Months",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no developmental-milestone assessment element exists; the Neonatal Care Form covers neonates in NICU only, not children 0-59 months"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 36,
+   "sno": "CH_CHDM. 2",
+   "label": "24 - 59 Months",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no developmental-milestone assessment element exists; the Neonatal Care Form covers neonates in NICU only, not children 0-59 months"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 37,
+   "sno": "CH_CHDMS",
+   "label": "Children 0 to 59 months Assessed for developmental milestone by status",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no developmental-milestone assessment element exists; the Neonatal Care Form covers neonates in NICU only, not children 0-59 months"
+   ],
+   "disaggregation": [],
+   "formula": "= row 38 + 39 + 40",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 38,
+   "sno": "CH_CHDMS. 1",
+   "label": "Suspected Developmental Delay",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no developmental-milestone assessment element exists; the Neonatal Care Form covers neonates in NICU only, not children 0-59 months"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 39,
+   "sno": "CH_CHDMS. 2",
+   "label": "Developmental Delay",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no developmental-milestone assessment element exists; the Neonatal Care Form covers neonates in NICU only, not children 0-59 months"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  },
+  {
+   "row": 40,
+   "sno": "CH_CHDMS. 3",
+   "label": "No Developmental Delay",
+   "status": "NOT CAPTURED",
+   "data_elements": [],
+   "aggregation_unit": "NOT COMPUTABLE",
+   "period_filter": "—",
+   "conditions": [
+    "• NOT COMPUTABLE: no developmental-milestone assessment element exists; the Neonatal Care Form covers neonates in NICU only, not children 0-59 months"
+   ],
+   "disaggregation": [],
+   "formula": "—",
+   "notes": [],
+   "additional_locations": []
+  }
+ ]
+}

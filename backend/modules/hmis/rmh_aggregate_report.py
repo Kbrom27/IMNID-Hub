@@ -887,14 +887,27 @@ def write_preview_excel(values: dict[str, int | None],
 
         bg  = _SECTION_COLOR.get(ind.section, "FFFFFF") + "44"   # lighter tint
         val = values.get(ind.code)
-        val_str = str(val) if val is not None else "—"
-        src = "DEL tracker" if ind.source == "DEL" else ind.source
+        if val == "Not available":
+            val_str = "Not available"
+            val_bg = "F4F4F4"
+            src = "Not in tracker"
+        elif val is not None:
+            val_str = str(val)
+            val_bg = "C8F4C8"
+            src = "DEL tracker" if ind.source == "DEL" else ind.source
+        else:
+            val_str = "—"
+            val_bg = "FFFFFF"
+            src = "HEADER"
 
         cell(row, 1, ind.code,  bg=None)
         cell(row, 2, ind.label, bg=None, wrap=True)
-        cell(row, 3, val_str,   bg=("C8F4C8" if val is not None else "F4F4F4"),
-             align="center")
-        cell(row, 4, src,       bg=None, align="center")
+        c_val = cell(row, 3, val_str, bg=val_bg, align="center")
+        if val == "Not available":
+            c_val.font = Font(italic=True, size=9, color="777777")
+        elif val is not None:
+            c_val.font = Font(bold=True, size=10)
+        cell(row, 4, src, bg=None, align="center")
         ws.row_dimensions[row].height = 15
         row += 1
 
@@ -1136,16 +1149,54 @@ def main():
     print("\nDone.")
 
 
-def compute_indicators(df: pd.DataFrame) -> dict[str, int | None]:
-    """Compute all indicators defined in INDICATORS registry for the given tracker dataframe."""
-    values: dict[str, int | None] = {}
+_REP_JSON_RMH = "01_2_-_Reproductive_and_Maternal_Health_Hospital_Health_center_Clinic_Monthly_DHIS2_mapped.json"
+
+
+def get_rmh_indicator_availability() -> dict[str, str]:
+    """Load indicator availability mapping from rep assessment JSON."""
+    candidates = [
+        Path("/home/kbrom/Work/IMNID/IMNID Developments/rep") / _REP_JSON_RMH,
+        Path(__file__).parent / "rep" / _REP_JSON_RMH,
+    ]
+    data = None
+    for c in candidates:
+        if c.exists():
+            try:
+                with open(c, encoding="utf-8") as f:
+                    data = json.load(f)
+                break
+            except Exception:
+                pass
+    if not data or "rows" not in data:
+        return {}
+    norm = lambda s: str(s).replace(" ", "").rstrip(".") if s else ""
+    by_sno = {norm(r.get("sno")): r.get("status") for r in data["rows"] if r.get("sno")}
+    by_lbl = {norm(r.get("label")).lower(): r.get("status") for r in data["rows"] if r.get("label")}
+    avail = {}
     for ind in INDICATORS:
-        values[ind.code] = ind.compute(df)
+        st = by_sno.get(norm(ind.code)) or by_lbl.get(norm(ind.label).lower())
+        avail[ind.code] = st or ("COMPUTED" if ind._fn is not None else "NOT CAPTURED")
+    return avail
+
+
+def compute_indicators(df: pd.DataFrame) -> dict[str, Any]:
+    """Compute all indicators defined in INDICATORS registry for the given tracker dataframe."""
+    avail_map = get_rmh_indicator_availability()
+    values: dict[str, Any] = {}
+    for ind in INDICATORS:
+        st = avail_map.get(ind.code, "COMPUTED" if ind._fn is not None else "NOT CAPTURED")
+        if st == "HEADER":
+            values[ind.code] = None
+        elif st == "NOT CAPTURED" or ind._fn is None:
+            values[ind.code] = "Not available"
+        else:
+            v = ind.compute(df)
+            values[ind.code] = v if v is not None else 0
     return values
 
 
 def build_import_json(
-    values: dict[str, int | None],
+    values: dict[str, Any],
     period: str,
     org_unit_uid: str,
     dataset_uid: str = "",
@@ -1156,7 +1207,7 @@ def build_import_json(
     de_map = de_uid_map or {}
     dv_list = []
     for code, val in values.items():
-        if val is not None:
+        if val is not None and val != "Not available":
             uid = de_map.get(code, code)
             item = {
                 "dataElement": uid,
