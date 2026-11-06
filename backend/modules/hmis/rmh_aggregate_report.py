@@ -424,17 +424,25 @@ class DHIS2Client:
 
     def paginate(self, endpoint: str, params: dict, data_key: str,
                  page_size: int = 250) -> list:
-        params = {**params, "pageSize": page_size, "page": 1}
+        params = {**params, "pageSize": page_size, "page": 1, "totalPages": "true"}
         items: list = []
         while True:
             data   = self.get(endpoint, params)
             chunk  = data.get(data_key, [])
             items.extend(chunk)
-            print(f"\r  Page {params['page']:>3}  |  this page: {len(chunk):>4}"
+            pager = data.get("pager", {})
+            page_count = pager.get("pageCount")
+            cur_page = pager.get("page", params["page"])
+            print(f"\r  Page {cur_page:>3}  |  this page: {len(chunk):>4}"
                   f"  |  total: {len(items):>6}", end="", flush=True)
-            if len(chunk) < page_size:
-                print()
-                break
+            if page_count is not None:
+                if cur_page >= page_count or not chunk:
+                    print()
+                    break
+            else:
+                if len(chunk) < page_size or not chunk:
+                    print()
+                    break
             params["page"] += 1
             time.sleep(0.05)
         return items
@@ -477,11 +485,24 @@ def fetch_tracker_df(client: DHIS2Client, program_uid: str, ou_uid: str,
             "  events[event,programStage,occurredAt,status,"
             "    dataValues[dataElement,value]]]"
         ),
+        "totalPages": "true",
     }
     if ou_uid:  params["orgUnit"] = ou_uid
-    # NOTE: no server-side date filter — enrollment may precede delivery by
-    # months (ANC) or follow it by ~a week, so we fetch a superset and filter
-    # client-side by the actual "Delivery summary_Date of Delivery" value.
+
+    if start:
+        try:
+            from datetime import datetime, timedelta
+            s_buf = (datetime.fromisoformat(str(start)[:10]) - timedelta(days=30)).strftime("%Y-%m-%d")
+            params["enrollmentEnrolledAfter"] = s_buf
+        except Exception:
+            params["enrollmentEnrolledAfter"] = start
+    if end:
+        try:
+            from datetime import datetime, timedelta
+            e_buf = (datetime.fromisoformat(str(end)[:10]) + timedelta(days=7)).strftime("%Y-%m-%d")
+            params["enrollmentEnrolledBefore"] = e_buf
+        except Exception:
+            params["enrollmentEnrolledBefore"] = end
 
     print(f"Fetching tracker data  (program={program_uid}, ouMode={ou_mode}) ...")
     probe    = client.get("tracker/trackedEntities", {**params, "pageSize": 1, "page": 1})
@@ -584,14 +605,27 @@ def fetch_tracker_df(client: DHIS2Client, program_uid: str, ou_uid: str,
     if "Age" in df.columns:
         df["Age"] = pd.to_numeric(df["Age"], errors="coerce")
 
-    # Filter to the reporting window by the ACTUAL delivery date
+    # Filter to the reporting window by the ACTUAL delivery date or enrollment date
     if (start or end) and not df.empty:
-        d = _delivery_dates(df)
-        mask = pd.Series(True, index=df.index)
+        d_del = _delivery_dates(df)
+        d_enr = pd.to_datetime(df.get("enrollment_date"), errors="coerce")
+        d_inc = pd.to_datetime(df.get("incident_date"), errors="coerce")
+        d = d_del.fillna(d_enr).fillna(d_inc)
+
+        mask_d = pd.Series(True, index=df.index)
+        mask_enr = pd.Series(True, index=df.index)
+        has_enr = d_enr.notna()
+
         if start:
-            mask &= d >= pd.to_datetime(start)
+            s_dt = pd.to_datetime(start)
+            mask_d &= (d >= s_dt)
+            mask_enr &= (d_enr >= s_dt)
         if end:
-            mask &= d <= pd.to_datetime(end)
+            e_dt = pd.to_datetime(end)
+            mask_d &= (d <= e_dt)
+            mask_enr &= (d_enr <= e_dt)
+
+        mask = mask_d | (has_enr & mask_enr)
         n_all = len(df)
         df = df[mask].reset_index(drop=True)
         print(f"  {len(df):,} deliveries within {start or '…'} → {end or '…'} "

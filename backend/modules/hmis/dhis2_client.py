@@ -106,17 +106,21 @@ class DHIS2Client:
     def paginate(
         self, endpoint: str, params: dict, data_key: str, page_size: int = 250
     ) -> list:
-        req_params = {**params, "pageSize": page_size, "page": 1}
+        req_params = {**params, "pageSize": page_size, "page": 1, "totalPages": "true"}
         items: list = []
         while True:
             data = self.get(endpoint, req_params)
             chunk = data.get(data_key, [])
             items.extend(chunk)
             pager = data.get("pager", {})
-            page_count = pager.get("pageCount", 1)
-            cur_page = pager.get("page", 1)
-            if cur_page >= page_count or not chunk:
-                break
+            page_count = pager.get("pageCount")
+            cur_page = pager.get("page", req_params["page"])
+            if page_count is not None:
+                if cur_page >= page_count or not chunk:
+                    break
+            else:
+                if len(chunk) < page_size or not chunk:
+                    break
             req_params["page"] += 1
         return items
 

@@ -169,18 +169,26 @@ class DHIS2Client:
 
     def paginate(self, endpoint: str, params: dict,
                  data_key: str, page_size: int = 250) -> list:
-        params = {**params, "pageSize": page_size, "page": 1}
+        params = {**params, "pageSize": page_size, "page": 1, "totalPages": "true"}
         all_items: list = []
         while True:
             data  = self.get(endpoint, params)
             items = data.get(data_key, [])
             all_items.extend(items)
-            print(f"\r  Page {params['page']:>3}  |  "
+            pager = data.get("pager", {})
+            page_count = pager.get("pageCount")
+            cur_page = pager.get("page", params["page"])
+            print(f"\r  Page {cur_page:>3}  |  "
                   f"Records this page: {len(items):>4}  |  "
                   f"Total: {len(all_items):>6}", end="", flush=True)
-            if len(items) < page_size:
-                print()
-                break
+            if page_count is not None:
+                if cur_page >= page_count or not items:
+                    print()
+                    break
+            else:
+                if len(items) < page_size or not items:
+                    print()
+                    break
             params["page"] += 1
             time.sleep(0.05)
         return all_items
@@ -359,9 +367,25 @@ class TEIFetcher:
                 "  events[event,programStage,occurredAt,status,"
                 "    dataValues[dataElement,value]]]"
             ),
+            "totalPages": "true",
         }
         if ou_uid:
             params["orgUnit"] = ou_uid
+
+        if start:
+            try:
+                from datetime import datetime, timedelta
+                s_buf = (datetime.fromisoformat(str(start)[:10]) - timedelta(days=30)).strftime("%Y-%m-%d")
+                params["enrollmentEnrolledAfter"] = s_buf
+            except Exception:
+                params["enrollmentEnrolledAfter"] = start
+        if end:
+            try:
+                from datetime import datetime, timedelta
+                e_buf = (datetime.fromisoformat(str(end)[:10]) + timedelta(days=7)).strftime("%Y-%m-%d")
+                params["enrollmentEnrolledBefore"] = e_buf
+            except Exception:
+                params["enrollmentEnrolledBefore"] = end
 
         print("Fetching tracked entities via /api/tracker/trackedEntities ...")
         print(f"  ouMode={ou_mode}")
@@ -386,9 +410,25 @@ class TEIFetcher:
             "ouMode":               ou_mode,
             "includeAllAttributes": "true",
             "fields":               "*,enrollments[*,events[*,dataValues[*]]]",
+            "totalPages":           "true",
         }
         if ou_uid:
             params["ou"] = ou_uid
+
+        if start:
+            try:
+                from datetime import datetime, timedelta
+                s_buf = (datetime.fromisoformat(str(start)[:10]) - timedelta(days=30)).strftime("%Y-%m-%d")
+                params["programStartDate"] = s_buf
+            except Exception:
+                params["programStartDate"] = start
+        if end:
+            try:
+                from datetime import datetime, timedelta
+                e_buf = (datetime.fromisoformat(str(end)[:10]) + timedelta(days=7)).strftime("%Y-%m-%d")
+                params["programEndDate"] = e_buf
+            except Exception:
+                params["programEndDate"] = end
 
         print("Fetching tracked entities via /api/trackedEntityInstances ...")
         items = self.client.paginate("trackedEntityInstances",
@@ -445,16 +485,28 @@ class TEIFetcher:
         d_val = pd.to_datetime(df[admit_col], errors="coerce") if admit_col in df.columns else pd.Series(pd.NaT, index=df.index)
         evt_col = "NICU Admission Careform_event_date"
         d_evt = pd.to_datetime(df[evt_col], errors="coerce") if evt_col in df.columns else pd.Series(pd.NaT, index=df.index)
-        d = d_val.fillna(d_evt)
+        d_enr = pd.to_datetime(df["enrollment_date"], errors="coerce") if "enrollment_date" in df.columns else pd.Series(pd.NaT, index=df.index)
+        d_inc = pd.to_datetime(df["incident_date"], errors="coerce") if "incident_date" in df.columns else pd.Series(pd.NaT, index=df.index)
+
+        d = d_val.fillna(d_evt).fillna(d_enr).fillna(d_inc)
         if d is None:
             print("  (no admission date column available — returning all rows)")
             return df
 
-        mask = pd.Series(True, index=df.index)
+        mask_d = pd.Series(True, index=df.index)
+        mask_enr = pd.Series(True, index=df.index)
+        has_enr = d_enr.notna()
+
         if start:
-            mask &= d >= pd.to_datetime(start)
+            s_dt = pd.to_datetime(start)
+            mask_d &= (d >= s_dt)
+            mask_enr &= (d_enr >= s_dt)
         if end:
-            mask &= d <= pd.to_datetime(end)
+            e_dt = pd.to_datetime(end)
+            mask_d &= (d <= e_dt)
+            mask_enr &= (d_enr <= e_dt)
+
+        mask = mask_d | (has_enr & mask_enr)
         kept = int(mask.sum())
         print(f"  {kept:,} admissions within {start or '…'} → {end or '…'} "
               f"(of {len(df):,} rows)")
