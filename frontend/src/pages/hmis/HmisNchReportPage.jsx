@@ -318,16 +318,16 @@ const HmisNchReportPage = () => {
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <DirectoryPicker
+                label="Output Directory"
+                value={outputDir}
+                onChange={setOutputDir}
+              />
               <TextInput
                 label="Output File Name"
                 value={outputFilename}
                 onChange={(e) => setOutputFilename(e.target.value)}
                 placeholder="nch_report.xlsx"
-              />
-              <DirectoryPicker
-                label="Output Directory"
-                value={outputDir}
-                onChange={setOutputDir}
               />
             </div>
 
@@ -409,16 +409,16 @@ const HmisNchReportPage = () => {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <DirectoryPicker
+                label="Output Directory"
+                value={outputDir}
+                onChange={setOutputDir}
+              />
               <TextInput
                 label="Output File Name"
                 value={outputFilename}
                 onChange={(e) => setOutputFilename(e.target.value)}
                 placeholder="nch_report_openmrs.xlsx"
-              />
-              <DirectoryPicker
-                label="Output Directory"
-                value={outputDir}
-                onChange={setOutputDir}
               />
             </div>
 
