@@ -16,3 +16,4 @@ else
     echo "Python 3 or bundled imnid-hub binary is required to start IMNID Hub."
     exit 1
 fi
+

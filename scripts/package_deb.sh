@@ -84,3 +84,4 @@ ln -sf /opt/imnid-hub/imnid-hub "${BUILD_ROOT}/usr/bin/imnid-hub"
 # Build deb package
 dpkg-deb --build "${BUILD_ROOT}" "${PKG_NAME}.deb"
 echo "Debian package created: ${PKG_NAME}.deb"
+

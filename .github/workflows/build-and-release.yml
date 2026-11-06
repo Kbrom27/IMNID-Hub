@@ -210,3 +210,4 @@ jobs:
             imnid-hub-linux-x64.tar.gz
             imnid-hub-windows-x64.zip
           generate_release_notes: true
+

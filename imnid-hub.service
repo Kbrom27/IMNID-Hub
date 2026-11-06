@@ -14,3 +14,4 @@ Environment=DATA_DIR=/var/lib/imnid-hub/data
 
 [Install]
 WantedBy=multi-user.target
+

@@ -17,3 +17,4 @@ if exist "IMNID-Hub.exe" (
 )
 
 pause
+
