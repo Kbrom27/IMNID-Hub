@@ -325,6 +325,7 @@ def run_rmh_aggregate_report_worker(
     period: str = "202610",
     start: Optional[str] = None,
     end: Optional[str] = None,
+    output_filename: Optional[str] = None,
     dataset: Optional[str] = None,
     dry_run: bool = True,
     submit: bool = False,
@@ -376,13 +377,17 @@ def run_rmh_aggregate_report_worker(
     target_dir = resolve_output_dir(output_dir, settings.exports_dir)
     target_dir.mkdir(parents=True, exist_ok=True)
 
-    # Preview Excel
-    prev_name = preview_filename or f"rmh_{period}_preview.xlsx"
-    prev_path = target_dir / prev_name
-    write_rmh_preview_excel(computed_values, period, ou_name, str(prev_path))
-    ctx.log(f"Saved indicator preview workbook: {prev_path.name}")
+    # Filled Report Excel
+    out_name = (output_filename or preview_filename or f"rmh_{period}.xlsx").strip()
+    if not out_name.lower().endswith(".xlsx"):
+        out_name = f"{out_name}.xlsx"
+    out_path = target_dir / out_name
+    write_rmh_preview_excel(computed_values, period, ou_name, str(out_path))
+    ctx.log(f"Saved filled RMH Report workbook: {out_path.name}")
+    json_path = target_dir / f"{out_path.stem}.json"
+    ctx.log(f"Saved filled RMH Report JSON: {json_path.name}")
 
-    # JSON summary
+    # Optional custom JSON summary
     summary_path = None
     if json_filename:
         summary_path = target_dir / json_filename
@@ -421,10 +426,12 @@ def run_rmh_aggregate_report_worker(
         "total_records": len(df),
         "computed_indicators_count": non_null_count,
         "values": computed_values,
-        "preview_file": str(prev_path),
-        "output_file": str(prev_path),
+        "preview_file": str(out_path),
+        "output_file": str(out_path),
+        "json_file": str(json_path),
         "output_dir": str(target_dir),
-        "filename": prev_path.name,
+        "filename": out_path.name,
+        "json_filename": json_path.name,
         "export_json_file": str(export_json_path) if export_json_path else None,
         "submit_response": submit_response,
     }
@@ -634,6 +641,7 @@ def run_nh_aggregate_report_worker(
     period: str = "202610",
     start: Optional[str] = None,
     end: Optional[str] = None,
+    output_filename: Optional[str] = None,
     dataset: Optional[str] = None,
     dry_run: bool = True,
     submit: bool = False,
@@ -685,13 +693,17 @@ def run_nh_aggregate_report_worker(
     target_dir = resolve_output_dir(output_dir, settings.exports_dir)
     target_dir.mkdir(parents=True, exist_ok=True)
 
-    # Preview Excel
-    prev_name = preview_filename or f"nh_{period}_preview.xlsx"
-    prev_path = target_dir / prev_name
-    write_nh_preview_excel(computed_values, period, ou_name, str(prev_path))
-    ctx.log(f"Saved indicator preview workbook: {prev_path.name}")
+    # Filled Report Excel
+    out_name = (output_filename or preview_filename or f"nh_{period}.xlsx").strip()
+    if not out_name.lower().endswith(".xlsx"):
+        out_name = f"{out_name}.xlsx"
+    out_path = target_dir / out_name
+    write_nh_preview_excel(computed_values, period, ou_name, str(out_path))
+    ctx.log(f"Saved filled NCH Report workbook: {out_path.name}")
+    json_path = target_dir / f"{out_path.stem}.json"
+    ctx.log(f"Saved filled NCH Report JSON: {json_path.name}")
 
-    # JSON summary
+    # Optional custom JSON summary
     summary_path = None
     if json_filename:
         summary_path = target_dir / json_filename
@@ -730,10 +742,12 @@ def run_nh_aggregate_report_worker(
         "total_records": len(df),
         "computed_indicators_count": non_null_count,
         "values": computed_values,
-        "preview_file": str(prev_path),
-        "output_file": str(prev_path),
+        "preview_file": str(out_path),
+        "output_file": str(out_path),
+        "json_file": str(json_path),
         "output_dir": str(target_dir),
-        "filename": prev_path.name,
+        "filename": out_path.name,
+        "json_filename": json_path.name,
         "export_json_file": str(export_json_path) if export_json_path else None,
         "submit_response": submit_response,
     }

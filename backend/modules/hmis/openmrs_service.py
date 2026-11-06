@@ -677,6 +677,7 @@ def run_rmh_aggregate_report_openmrs_worker(
     start: Optional[str] = None,
     end: Optional[str] = None,
     facility_name: Optional[str] = None,
+    output_filename: Optional[str] = None,
     preview_filename: Optional[str] = None,
     json_filename: Optional[str] = None,
     output_dir: Optional[str] = None,
@@ -713,16 +714,21 @@ def run_rmh_aggregate_report_openmrs_worker(
     ctx.log("Computing MoH 01.2 indicators from OpenMRS data...")
     ctx.update_progress(60, 100, "Computing indicators...")
     computed_values = compute_rmh_indicators(df)
-    non_null_count = sum(1 for v in computed_values.values() if v is not None)
-    ctx.log(f"Computed {non_null_count} indicators with valid values.")
+    non_null_count = sum(1 for v in computed_values.values() if isinstance(v, (int, float)))
+    not_avail_count = sum(1 for v in computed_values.values() if v == "Not available")
+    ctx.log(f"Computed {non_null_count} indicators with valid values ({not_avail_count} marked Not available).")
 
     target_dir = Path(output_dir) if output_dir else settings.exports_dir
     target_dir.mkdir(parents=True, exist_ok=True)
-    prev_name = preview_filename or f"rmh_{period}_openmrs_preview.xlsx"
-    prev_path = target_dir / prev_name
+    out_name = (output_filename or preview_filename or f"rmh_{period}_openmrs.xlsx").strip()
+    if not out_name.lower().endswith(".xlsx"):
+        out_name = f"{out_name}.xlsx"
+    prev_path = target_dir / out_name
     fac_label = facility_name or (df[RMH_RAW["facility"]].iloc[0] if len(df) and RMH_RAW["facility"] in df else "OpenMRS 3 Facility")
     write_rmh_preview_excel(computed_values, period, fac_label, str(prev_path))
-    ctx.log(f"Saved indicator preview workbook: {prev_path.name}")
+    ctx.log(f"Saved filled RMH Report workbook: {prev_path.name}")
+    json_path = target_dir / f"{prev_path.stem}.json"
+    ctx.log(f"Saved filled RMH Report JSON: {json_path.name}")
 
     summary_path = None
     if json_filename:
@@ -740,9 +746,14 @@ def run_rmh_aggregate_report_openmrs_worker(
         "values": computed_values,
         "preview_file": str(prev_path),
         "output_file": str(prev_path),
+        "json_file": str(json_path),
         "output_dir": str(target_dir),
         "filename": prev_path.name,
+        "json_filename": json_path.name,
     }
+    ctx.result_file = str(prev_path)
+    ctx.artifacts.update(res)
+    return res
     ctx.result_file = str(prev_path)
     ctx.artifacts.update(res)
     return res
@@ -879,6 +890,7 @@ def run_nh_aggregate_report_openmrs_worker(
     start: Optional[str] = None,
     end: Optional[str] = None,
     facility_name: Optional[str] = None,
+    output_filename: Optional[str] = None,
     preview_filename: Optional[str] = None,
     json_filename: Optional[str] = None,
     output_dir: Optional[str] = None,
@@ -915,16 +927,21 @@ def run_nh_aggregate_report_openmrs_worker(
     ctx.log("Computing MoH 04.2 indicators from OpenMRS data...")
     ctx.update_progress(60, 100, "Computing indicators...")
     computed_values = compute_nh_indicators(df)
-    non_null_count = sum(1 for v in computed_values.values() if v is not None)
-    ctx.log(f"Computed {non_null_count} indicators with valid values.")
+    non_null_count = sum(1 for v in computed_values.values() if isinstance(v, (int, float)))
+    not_avail_count = sum(1 for v in computed_values.values() if v == "Not available")
+    ctx.log(f"Computed {non_null_count} indicators with valid values ({not_avail_count} marked Not available).")
 
     target_dir = Path(output_dir) if output_dir else settings.exports_dir
     target_dir.mkdir(parents=True, exist_ok=True)
-    prev_name = preview_filename or f"nh_{period}_openmrs_preview.xlsx"
-    prev_path = target_dir / prev_name
+    out_name = (output_filename or preview_filename or f"nh_{period}_openmrs.xlsx").strip()
+    if not out_name.lower().endswith(".xlsx"):
+        out_name = f"{out_name}.xlsx"
+    prev_path = target_dir / out_name
     fac_label = facility_name or (df[NH_RAW["facility"]].iloc[0] if len(df) and NH_RAW["facility"] in df else "OpenMRS 3 Facility")
     write_nh_preview_excel(computed_values, period, fac_label, str(prev_path))
-    ctx.log(f"Saved indicator preview workbook: {prev_path.name}")
+    ctx.log(f"Saved filled NCH Report workbook: {prev_path.name}")
+    json_path = target_dir / f"{prev_path.stem}.json"
+    ctx.log(f"Saved filled NCH Report JSON: {json_path.name}")
 
     summary_path = None
     if json_filename:
@@ -942,8 +959,10 @@ def run_nh_aggregate_report_openmrs_worker(
         "values": computed_values,
         "preview_file": str(prev_path),
         "output_file": str(prev_path),
+        "json_file": str(json_path),
         "output_dir": str(target_dir),
         "filename": prev_path.name,
+        "json_filename": json_path.name,
     }
     ctx.result_file = str(prev_path)
     ctx.artifacts.update(res)

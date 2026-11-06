@@ -55,7 +55,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from typing import Any
+from typing import Any, Optional
 
 try:
     import requests
@@ -66,7 +66,8 @@ except ImportError:
     sys.exit(1)
 
 try:
-    from openpyxl import Workbook
+    import openpyxl
+    from openpyxl import Workbook, load_workbook
     from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
     from openpyxl.utils import get_column_letter
     HAS_OPENPYXL = True
@@ -826,11 +827,129 @@ _SECTION_COLOR = {
 }
 
 
-def write_preview_excel(values: dict[str, int | None],
+_RMH_TEMPLATE_FILENAME = "01.2 - Reproductive and Maternal Health _ Hospital, Health center, Clinic _ Monthly.xls.xlsx"
+
+
+def resolve_rmh_template_path() -> Optional[Path]:
+    """Find the official 01.2 RMH Report template."""
+    candidates = [
+        Path("/home/kbrom/Work/IMNID/IMNID Developments/Report template") / _RMH_TEMPLATE_FILENAME,
+        Path(__file__).parent / "templates" / _RMH_TEMPLATE_FILENAME,
+    ]
+    for c in candidates:
+        if c.is_file():
+            return c
+    return None
+
+
+def write_preview_excel(values: dict[str, Any],
                         period: str, ou_name: str,
                         output_path: str):
     if not HAS_OPENPYXL:
         print("ERROR: openpyxl not installed — cannot write Excel.  pip install openpyxl")
+        return
+
+    out_file = Path(output_path)
+    out_file.parent.mkdir(parents=True, exist_ok=True)
+    json_file = out_file.with_suffix(".json")
+
+    tmpl_path = resolve_rmh_template_path()
+    if tmpl_path and tmpl_path.is_file():
+        wb = openpyxl.load_workbook(tmpl_path)
+        ws = wb.active
+
+        # Update Title in Row 1
+        orig_title = str(ws.cell(1, 1).value or "").strip()
+        fac_label = ou_name or "All facilities"
+        ws.cell(1, 1).value = f"{orig_title}  |  Facility: {fac_label}  |  Period: {period}"
+        # Update Period Header in Row 2 Col 3
+        ws.cell(2, 3).value = str(period)
+
+        # Load rep metadata rows
+        rep_candidates = [
+            Path("/home/kbrom/Work/IMNID/IMNID Developments/rep") / _REP_JSON_RMH,
+            Path(__file__).parent / "rep" / _REP_JSON_RMH,
+        ]
+        rep_rows = []
+        for c in rep_candidates:
+            if c.is_file():
+                try:
+                    with open(c, encoding="utf-8") as f:
+                        rep_rows = json.load(f).get("rows", [])
+                    break
+                except Exception:
+                    pass
+
+        norm = lambda s: str(s).replace(" ", "").rstrip(".") if s else ""
+        norm_vals = {norm(k): v for k, v in values.items()}
+
+        align_center = Alignment(horizontal="center", vertical="center")
+        font_num = Font(name="Aptos Narrow", size=11, bold=True)
+        font_na = Font(name="Aptos Narrow", size=10, italic=True, color="666666")
+
+        rows_summary = []
+        if rep_rows:
+            for idx, rep_r in enumerate(rep_rows):
+                r_idx = idx + 3
+                if r_idx > ws.max_row:
+                    break
+                st = rep_r.get("status")
+                sno = rep_r.get("sno")
+                act = rep_r.get("label") or ws.cell(r_idx, 2).value
+                cell = ws.cell(r_idx, 3)
+                cell.alignment = align_center
+
+                if st == "HEADER":
+                    cell.value = None
+                    final_v = None
+                elif st == "NOT CAPTURED":
+                    cell.value = "Not available"
+                    cell.font = font_na
+                    final_v = "Not available"
+                else:
+                    v = norm_vals.get(norm(sno))
+                    if v is None:
+                        v = 0
+                    cell.value = v
+                    if isinstance(v, (int, float)):
+                        cell.font = font_num
+                    final_v = v
+
+                rows_summary.append({
+                    "sno": sno,
+                    "activity": act,
+                    "value": final_v,
+                    "status": st,
+                })
+        else:
+            for r_idx in range(3, ws.max_row + 1):
+                sno = ws.cell(r_idx, 1).value
+                cell = ws.cell(r_idx, 3)
+                cell.alignment = align_center
+                if sno and norm(sno) in norm_vals:
+                    v = norm_vals[norm(sno)]
+                    cell.value = v
+                    if v == "Not available":
+                        cell.font = font_na
+                    elif isinstance(v, (int, float)):
+                        cell.font = font_num
+                rows_summary.append({
+                    "sno": sno,
+                    "activity": ws.cell(r_idx, 2).value,
+                    "value": cell.value,
+                })
+
+        wb.save(out_file)
+
+        json_payload = {
+            "report": "01.2 - Reproductive and Maternal Health Monthly Report",
+            "facility": fac_label,
+            "period": period,
+            "indicators": values,
+            "rows": rows_summary,
+        }
+        json_file.write_text(json.dumps(json_payload, indent=2, ensure_ascii=False), encoding="utf-8")
+        print(f"Filled template saved → {out_file} and {json_file}")
         return
 
     wb = Workbook()
@@ -914,7 +1033,14 @@ def write_preview_excel(values: dict[str, int | None],
     # Freeze panes below header
     ws.freeze_panes = "A4"
     wb.save(output_path)
-    print(f"Preview saved → {output_path}")
+    json_payload = {
+        "report": "01.2 - Reproductive and Maternal Health Monthly Report",
+        "facility": ou_name,
+        "period": period,
+        "indicators": values,
+    }
+    json_file.write_text(json.dumps(json_payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"Preview saved → {output_path} and {json_file}")
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────

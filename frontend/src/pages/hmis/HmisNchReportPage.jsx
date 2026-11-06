@@ -18,11 +18,9 @@ import {
   TextInput,
   Select,
   DateInput,
-  Checkbox,
   JobPanel,
   FileDropzone,
   DirectoryPicker,
-  ConfirmDialog,
 } from '../../ui';
 import { useAuth } from '../../context/AuthContext';
 import { useHmisJob } from './useHmisJob';
@@ -76,13 +74,11 @@ const HmisNchReportPage = () => {
   const [periodType, setPeriodType] = useState('reporting'); // 'reporting' | 'custom'
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
+  const [outputFilename, setOutputFilename] = useState('nch_report.xlsx');
   const [dhis2System, setDhis2System] = useState('dhis2_online');
   const [programUid, setProgramUid] = useState('Neonatal Care Form');
   const [facility, setFacility] = useState('');
   const [ouMode, setOuMode] = useState('SELECTED');
-  const [datasetUid, setDatasetUid] = useState('');
-  const [dryRun, setDryRun] = useState(true);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [outputDir, setOutputDir] = useState('/data/exports');
 
   const [openmrsMode, setOpenmrsMode] = useState('live');
@@ -123,8 +119,13 @@ const HmisNchReportPage = () => {
     ? (customStartDate && customEndDate ? `${customStartDate}_${customEndDate}` : periodCode)
     : periodCode;
 
+  const getSanitizedFilename = (rawName, fallback) => {
+    const clean = (rawName || '').trim();
+    if (!clean) return fallback;
+    return clean.toLowerCase().endsWith('.xlsx') ? clean : `${clean}.xlsx`;
+  };
+
   const handleRunDhis2Report = () => {
-    setShowConfirm(false);
     handleSubmitJob('/api/hmis/nh/aggregate-report', {
       system: dhis2System,
       program_uid: programUid || 'Neonatal Care Form',
@@ -133,9 +134,7 @@ const HmisNchReportPage = () => {
       period: effectivePeriod,
       start: effectiveStart,
       end: effectiveEnd,
-      dataset: datasetUid || undefined,
-      dry_run: dryRun,
-      submit: !dryRun,
+      output_filename: getSanitizedFilename(outputFilename, 'nch_report.xlsx'),
       output_dir: outputDir && !outputDir.startsWith('[Local Folder]') ? outputDir.trim() : undefined,
     });
   };
@@ -148,6 +147,7 @@ const HmisNchReportPage = () => {
       period: effectivePeriod,
       start: effectiveStart,
       end: effectiveEnd,
+      output_filename: getSanitizedFilename(outputFilename, 'nch_report_openmrs.xlsx'),
       output_dir: outputDir && !outputDir.startsWith('[Local Folder]') ? outputDir.trim() : undefined,
     });
   };
@@ -318,36 +318,27 @@ const HmisNchReportPage = () => {
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <TextInput
+                label="Output File Name"
+                value={outputFilename}
+                onChange={(e) => setOutputFilename(e.target.value)}
+                placeholder="nch_report.xlsx"
+              />
               <DirectoryPicker
                 label="Output Directory"
                 value={outputDir}
                 onChange={setOutputDir}
-              />
-              <TextInput
-                label="DHIS2 Aggregate Dataset UID (Optional)"
-                value={datasetUid}
-                onChange={(e) => setDatasetUid(e.target.value)}
-                placeholder="e.g. jB92xP0q1Zv"
-              />
-            </div>
-
-            <div className="flex items-center justify-between pt-1">
-              <Checkbox
-                id="nh-dry-run"
-                checked={dryRun}
-                onChange={(e) => setDryRun(e.target.checked)}
-                label="Dry-run mode (Preview calculations without submitting to DHIS2)"
               />
             </div>
 
             <div className="flex items-center justify-center gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <Button
                 variant="primary"
-                onClick={() => (!dryRun ? setShowConfirm(true) : handleRunDhis2Report())}
+                onClick={handleRunDhis2Report}
                 disabled={isViewer || isStreaming}
               >
                 <BarChart2 className="w-4 h-4 mr-1.5" />
-                {dryRun ? 'Calculate NCH Report' : 'Calculate & Submit to DHIS2'}
+                Generate NCH Report
               </Button>
             </div>
           </CardContent>
@@ -417,11 +408,19 @@ const HmisNchReportPage = () => {
               </div>
             )}
 
-            <DirectoryPicker
-              label="Output Directory"
-              value={outputDir}
-              onChange={setOutputDir}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <TextInput
+                label="Output File Name"
+                value={outputFilename}
+                onChange={(e) => setOutputFilename(e.target.value)}
+                placeholder="nch_report_openmrs.xlsx"
+              />
+              <DirectoryPicker
+                label="Output Directory"
+                value={outputDir}
+                onChange={setOutputDir}
+              />
+            </div>
 
             <div className="flex items-center justify-center gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <Button
@@ -430,24 +429,12 @@ const HmisNchReportPage = () => {
                 disabled={isViewer || isStreaming}
               >
                 <BarChart2 className="w-4 h-4 mr-1.5" />
-                Calculate NCH Report from OpenMRS
+                Generate NCH Report from OpenMRS
               </Button>
             </div>
           </CardContent>
         </Card>
       )}
-
-      {/* Confirmation Dialog */}
-      <ConfirmDialog
-        isOpen={showConfirm}
-        onClose={() => setShowConfirm(false)}
-        onConfirm={handleRunDhis2Report}
-        title="Submit Aggregate Report to Live DHIS2?"
-        message={`You are about to submit the MoH 04.2 Neonatal & Child Health Monthly Report for period ${effectivePeriod} (${effectiveStart || '—'} to ${effectiveEnd || '—'}) to DHIS2. This operation updates aggregate data values.`}
-        confirmText="Confirm & Submit"
-        cancelText="Cancel"
-        variant="warning"
-      />
 
       {/* Job Panel */}
       <JobPanel

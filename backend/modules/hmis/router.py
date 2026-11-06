@@ -515,6 +515,7 @@ class RmhAggregateReportRequest(BaseModel):
     period: str = "202610"
     start: Optional[str] = None
     end: Optional[str] = None
+    output_filename: Optional[str] = None
     dataset: Optional[str] = None
     dry_run: bool = True
     submit: bool = False
@@ -544,6 +545,7 @@ async def run_rmh_aggregate_report(
         period=req.period,
         start=req.start,
         end=req.end,
+        output_filename=req.output_filename,
         dataset=req.dataset,
         dry_run=req.dry_run,
         submit=req.submit,
@@ -565,6 +567,7 @@ class RmhAggregateReportOpenmrsRequest(BaseModel):
     start: Optional[str] = None
     end: Optional[str] = None
     facility_name: Optional[str] = None
+    output_filename: Optional[str] = None
     preview_filename: Optional[str] = None
     json_filename: Optional[str] = None
     output_dir: Optional[str] = None
@@ -588,6 +591,7 @@ async def run_rmh_aggregate_report_openmrs(
         start=req.start,
         end=req.end,
         facility_name=req.facility_name,
+        output_filename=req.output_filename,
         preview_filename=req.preview_filename,
         json_filename=req.json_filename,
         output_dir=req.output_dir,
@@ -736,6 +740,7 @@ class NhAggregateReportRequest(BaseModel):
     period: str = "202610"
     start: Optional[str] = None
     end: Optional[str] = None
+    output_filename: Optional[str] = None
     dataset: Optional[str] = None
     dry_run: bool = True
     submit: bool = False
@@ -765,6 +770,7 @@ async def run_nh_aggregate_report(
         period=req.period,
         start=req.start,
         end=req.end,
+        output_filename=req.output_filename,
         dataset=req.dataset,
         dry_run=req.dry_run,
         submit=req.submit,
@@ -786,6 +792,7 @@ class NhAggregateReportOpenmrsRequest(BaseModel):
     start: Optional[str] = None
     end: Optional[str] = None
     facility_name: Optional[str] = None
+    output_filename: Optional[str] = None
     preview_filename: Optional[str] = None
     json_filename: Optional[str] = None
     output_dir: Optional[str] = None
@@ -809,6 +816,7 @@ async def run_nh_aggregate_report_openmrs(
         start=req.start,
         end=req.end,
         facility_name=req.facility_name,
+        output_filename=req.output_filename,
         preview_filename=req.preview_filename,
         json_filename=req.json_filename,
         output_dir=req.output_dir,
