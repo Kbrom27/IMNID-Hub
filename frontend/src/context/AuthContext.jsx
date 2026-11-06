@@ -1,6 +1,9 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 
 const AuthContext = createContext(null);
+
+// 10 minutes of user inactivity timeout
+const INACTIVITY_TIMEOUT_MS = 10 * 60 * 1000;
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem('imnid_token'));
@@ -9,6 +12,21 @@ export const AuthProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : null;
   });
   const [loading, setLoading] = useState(true);
+  const tokenRef = useRef(token);
+  tokenRef.current = token;
+
+  const logout = useCallback((reason) => {
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem('imnid_token');
+    localStorage.removeItem('imnid_user');
+    localStorage.removeItem('imnid_last_activity');
+    if (reason) {
+      localStorage.setItem('imnid_session_reason', reason);
+    } else {
+      localStorage.removeItem('imnid_session_reason');
+    }
+  }, []);
 
   useEffect(() => {
     if (token) {
@@ -30,7 +48,65 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, logout]);
+
+  // 10-Minute Inactivity Auto-Logout Monitor
+  useEffect(() => {
+    if (!token) return;
+
+    const recordActivity = () => {
+      localStorage.setItem('imnid_last_activity', Date.now().toString());
+    };
+
+    // Initialize activity timestamp
+    recordActivity();
+
+    // Check every 10 seconds if user has been inactive for 10 minutes
+    const checkInterval = setInterval(() => {
+      const now = Date.now();
+      const lastActivity = parseInt(localStorage.getItem('imnid_last_activity') || `${now}`, 10);
+      if (now - lastActivity >= INACTIVITY_TIMEOUT_MS) {
+        logout('Your session has expired due to 10 minutes of inactivity. Please sign in again.');
+      }
+    }, 10000);
+
+    // Activity events to track
+    const events = ['mousedown', 'keydown', 'touchstart', 'scroll', 'click'];
+    const handleActivity = () => {
+      recordActivity();
+    };
+
+    events.forEach((evt) => window.addEventListener(evt, handleActivity, { passive: true }));
+
+    // Periodic token refresh while user remains active (every 5 minutes)
+    const refreshInterval = setInterval(() => {
+      const now = Date.now();
+      const lastActivity = parseInt(localStorage.getItem('imnid_last_activity') || `${now}`, 10);
+      if (now - lastActivity < INACTIVITY_TIMEOUT_MS && tokenRef.current) {
+        fetch('/api/auth/refresh', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${tokenRef.current}`
+          }
+        })
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data?.access_token) {
+              setToken(data.access_token);
+              localStorage.setItem('imnid_token', data.access_token);
+            }
+          })
+          .catch(() => {});
+      }
+    }, 5 * 60 * 1000);
+
+    return () => {
+      clearInterval(checkInterval);
+      clearInterval(refreshInterval);
+      events.forEach((evt) => window.removeEventListener(evt, handleActivity));
+    };
+  }, [token, logout]);
 
   const login = async (username, password) => {
     const res = await fetch('/api/auth/login', {
@@ -49,6 +125,8 @@ export const AuthProvider = ({ children }) => {
     setUser(data.user);
     localStorage.setItem('imnid_token', data.access_token);
     localStorage.setItem('imnid_user', JSON.stringify(data.user));
+    localStorage.setItem('imnid_last_activity', Date.now().toString());
+    localStorage.removeItem('imnid_session_reason');
     return data;
   };
 
@@ -69,13 +147,6 @@ export const AuthProvider = ({ children }) => {
     setUser(updated);
     localStorage.setItem('imnid_user', JSON.stringify(updated));
     return true;
-  };
-
-  const logout = () => {
-    setToken(null);
-    setUser(null);
-    localStorage.removeItem('imnid_token');
-    localStorage.removeItem('imnid_user');
   };
 
   const authHeader = () => token ? { 'Authorization': `Bearer ${token}` } : {};

@@ -18,6 +18,14 @@ const Login = () => {
   const { login, changePassword } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const reason = localStorage.getItem('imnid_session_reason');
+    if (reason) {
+      setError(reason);
+      localStorage.removeItem('imnid_session_reason');
+    }
+  }, []);
+
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setError('');

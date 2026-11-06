@@ -81,6 +81,21 @@ def change_password(req: ChangePasswordRequest, current_user: Dict[str, Any] = D
 def get_me(user: Dict[str, Any] = Depends(get_current_user)):
     return {"user": user}
 
+@router.post("/refresh", response_model=LoginResponse)
+def refresh_token(current_user: Dict[str, Any] = Depends(get_current_user)):
+    user_data = {
+        "id": current_user.get("id"),
+        "username": current_user.get("username"),
+        "role": current_user.get("role", "viewer"),
+        "must_change_password": bool(current_user.get("must_change_password", False))
+    }
+    new_token = create_access_token(user_data)
+    return LoginResponse(
+        access_token=new_token,
+        must_change_password=user_data["must_change_password"],
+        user=user_data
+    )
+
 @router.post("/logout")
 def logout():
     return {"ok": True, "message": "Logged out successfully"}
