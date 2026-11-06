@@ -473,28 +473,8 @@ const NicuRegisterPage = () => {
         onCancel={handleCancelJob}
         onReset={resetJob}
         onDismiss={resetJob}
+        showDownloadButtons={false}
       />
-
-      {/* Success Artifacts */}
-      {activeJobId && isJobCompleted && resultFileName && (
-        <div className="flex items-center justify-between gap-3 p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 rounded-lg">
-          <div className="flex items-center gap-2.5">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-            <div>
-              <span className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">Register Generated</span>
-              <span className="text-xs text-emerald-700/70 dark:text-emerald-300/70 ml-2">{resultFileName}</span>
-            </div>
-          </div>
-          <a
-            href={`/api/hmis/download/${encodeURIComponent(resultFileName)}`}
-            download
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors"
-          >
-            <Download className="w-3.5 h-3.5" />
-            Download .xlsx
-          </a>
-        </div>
-      )}
 
       {/* Tallies */}
       {tallyEntries.length > 0 && (
