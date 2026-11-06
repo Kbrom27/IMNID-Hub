@@ -555,10 +555,15 @@ class TEIFetcher:
         row["parent_org_unit_id"]  = ""
 
         # ── TEI attributes (enrollment-level: MRN, Age, etc.) ─────────────────
-        for attr in tei.get("attributes", []):
-            col = self.meta.attr_uid_to_col.get(attr.get("attribute", ""))
+        attrs = tei.get("attributes") or (enr.get("attributes") if enr else []) or []
+        for attr in attrs:
+            attr_uid = attr.get("attribute", "")
+            col = self.meta.attr_uid_to_col.get(attr_uid) or attr.get("displayName")
+            val = attr.get("value", "")
             if col:
-                row[col] = attr.get("value", "")
+                row[col] = val
+            if attr_uid:
+                row[attr_uid] = val
 
         # ── Events: one per stage (most recent wins if repeated) ───────────────
         best_event: dict[str, dict] = {}   # stage_uid → event dict
@@ -831,7 +836,15 @@ def generate_excel(df: pd.DataFrame, args, meta: MetadataResolver,
               "to match the stage/DE names above.")
 
         if df.empty:
-            print("Also no raw TEI rows to export.")
+            print("Also no raw TEI rows to export. Generating empty register workbook.")
+            wb = Workbook()
+            wb.remove(wb.active)
+            ws = wb.create_sheet(title="Delivery Register")
+            write_sheet(ws, pd.DataFrame(), str(ou_name), "", "—", "—")
+            ws_tally = wb.create_sheet(title="Tally Summary")
+            write_tally_sheet(ws_tally, [])
+            wb.save(args.output)
+            print(f"\nSaved empty register → {args.output}")
             return
         print("\nWriting workbook from the raw TEI rows found (delivery fields blank).")
         df_del = df  # fall back: use everything we have so the file still exists
@@ -888,17 +901,18 @@ def generate_excel(df: pd.DataFrame, args, meta: MetadataResolver,
     print(f"\nSaved → {args.output}")
 
     # Console summary
-    combined = {
-        k: sum(t[k] for t in all_tallies
-               if isinstance(t.get(k), (int, float)))
-        for k in all_tallies[0]
-        if not k.startswith("_")
-    }
-    print("\n" + "=" * 52)
-    print(f"  TALLY SUMMARY  [{meta.program_name}]")
-    print("=" * 52)
-    for k, v in combined.items():
-        print(f"  {k:<36} {v:>6}")
+    if all_tallies:
+        combined = {
+            k: sum(t[k] for t in all_tallies
+                   if isinstance(t.get(k), (int, float)))
+            for k in all_tallies[0]
+            if not k.startswith("_")
+        }
+        print("\n" + "=" * 52)
+        print(f"  TALLY SUMMARY  [{meta.program_name}]")
+        print("=" * 52)
+        for k, v in combined.items():
+            print(f"  {k:<36} {v:>6}")
 
 
 # ── Main ───────────────────────────────────────────────────────────────────────

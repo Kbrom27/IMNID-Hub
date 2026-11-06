@@ -634,7 +634,9 @@ def run_rmh_delivery_register_openmrs_worker(
 
     target_dir = Path(output_dir) if output_dir else settings.exports_dir
     target_dir.mkdir(parents=True, exist_ok=True)
-    out_name = output_filename or "delivery_register_openmrs.xlsx"
+    out_name = (output_filename or "delivery_register_openmrs.xlsx").strip()
+    if not out_name.lower().endswith(".xlsx"):
+        out_name = f"{out_name}.xlsx"
     out_path = target_dir / out_name
     wb.save(out_path)
     ctx.log(f"Successfully generated Delivery Register: {out_path.name}")
@@ -834,7 +836,9 @@ def run_nh_neonatal_register_openmrs_worker(
 
     target_dir = Path(output_dir) if output_dir else settings.exports_dir
     target_dir.mkdir(parents=True, exist_ok=True)
-    out_name = output_filename or "nicu_register_openmrs.xlsx"
+    out_name = (output_filename or "nicu_register_openmrs.xlsx").strip()
+    if not out_name.lower().endswith(".xlsx"):
+        out_name = f"{out_name}.xlsx"
     out_path = target_dir / out_name
     wb.save(out_path)
     ctx.log(f"Successfully generated NICU Register: {out_path.name}")

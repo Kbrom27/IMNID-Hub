@@ -243,6 +243,75 @@ def _other_proc(lm):
     return TICK if "operative" in str(lm).lower() else ""
 
 
+def _extract_patient_name(row) -> str:
+    """Extract mother/patient name from DHIS2 TEI attributes, CSV export or OpenMRS columns."""
+    if not isinstance(row, (dict, pd.Series)):
+        return ""
+
+    def _val(keys):
+        for k in keys:
+            if k in row and pd.notna(row[k]):
+                v = str(row[k]).strip()
+                if v and v.lower() not in ("nan", "none", "null", ""):
+                    return v
+        return ""
+
+    # 1. Ethiopian 3-part name attributes (Mothers First Name, Father Name, Grandfather Name)
+    first = _val([
+        "Mothers First Name", "Mother First Name", "Mother's First Name",
+        "Neonate First Name", "First Name", "first_name", "given_name", "firstName",
+        "X9OEn2gPhss"
+    ])
+    father = _val([
+        "Mothers Father Name", "Mother Father Name", "Mother's Father Name",
+        "Father Name", "Middle Name", "middle_name", "middleName",
+        "NZramclXjFR"
+    ])
+    grand = _val([
+        "Mothers Grandfather Name", "Mother Grandfather Name", "Mother's Grandfather Name",
+        "Grandfather Name", "Neonate Last Name", "Last Name", "last_name", "familyName", "lastName",
+        "DiPJa4otIL7"
+    ])
+
+    parts = [p for p in (first, father, grand) if p]
+    if parts:
+        return " ".join(parts)
+
+    # 2. Combined full name fields
+    full = _val([
+        "Mothers Name", "Mother Name", "Mother's Name", "maternal_name",
+        "Patient Name", "patient_name", "Full Name", "full_name",
+        "Name", "name", "client_name", "Client Name", "patient_display"
+    ])
+    if full:
+        return full
+
+    # 3. Dynamic search across all row keys for any key containing name
+    cols = row.index if hasattr(row, "index") else row.keys()
+    for col in cols:
+        col_str = str(col).lower()
+        if "name" in col_str and not any(skip in col_str for skip in ["staff", "drug", "facility", "medication", "user", "order", "reason", "org"]):
+            val = row[col]
+            if pd.notna(val):
+                v_str = str(val).strip()
+                if v_str and v_str.lower() not in ("nan", "none", "null", ""):
+                    return v_str
+
+    return ""
+
+
+def _extract_newborn_mrn(row) -> str:
+    """Extract newborn MRN if present."""
+    if not isinstance(row, (dict, pd.Series)):
+        return ""
+    for k in ["Neonate MRN", "Newborn MRN", "MRN (Newborn)", "Child MRN", "Infant MRN", "newborn_mrn"]:
+        if k in row and pd.notna(row[k]):
+            v = str(row[k]).strip()
+            if v and v.lower() not in ("nan", "none", "null", ""):
+                return v
+    return ""
+
+
 # ── Register row builder ──────────────────────────────────────────────────────
 
 def build_row(row, sn):
@@ -263,7 +332,7 @@ def build_row(row, sn):
         # ── Identification ──────────────────────────────────────────
         "(1) S.N":                  sn,
         "(2) MRN":                  _g(row, "mrn") or "",
-        "(3) Name":                 "",
+        "(3) Name":                 _extract_patient_name(row),
         "(4) Age":                  int(_g(row, "age")) if pd.notna(_g(row, "age")) else "",
         "(5) Kebele":               _g(row, "address") or "",
 
@@ -303,7 +372,7 @@ def build_row(row, sn):
         "(30) Live birth died":     "",
 
         # ── Preventive services: Newborn ─────────────────────────────
-        "(31) MRN (Newborn)":       "",
+        "(31) MRN (Newborn)":       _extract_newborn_mrn(row),
         "(32) Vitamin K":           _nb_code(nb, {"1"}),
         "(33) TTC eye ointment":    _nb_code(nb, {"2"}),
         "(34) Chlorhexidine":       _nb_code(nb, {"3"}),
@@ -671,7 +740,11 @@ def write_tally_sheet(ws, all_tallies: list[dict]):
     """Write aggregated tally sheet comparing facilities."""
     ws.title = "Tally Summary"
 
-    headers = ["Indicator"] + [t["_facility"] for t in all_tallies] + ["TOTAL"]
+    if not all_tallies:
+        all_tallies = [compute_tally(pd.DataFrame())]
+        all_tallies[0]["_facility"] = "Total"
+
+    headers = ["Indicator"] + [t.get("_facility", "Facility") for t in all_tallies] + ["TOTAL"]
     indicators = [k for k in all_tallies[0].keys() if not k.startswith("_")]
 
     # Header row

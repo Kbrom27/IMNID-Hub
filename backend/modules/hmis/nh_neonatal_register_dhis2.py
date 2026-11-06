@@ -485,10 +485,15 @@ class TEIFetcher:
         row["parent_org_unit"]     = self.meta.ou_parent(ou_uid)
         row["parent_org_unit_id"]  = ""
 
-        for attr in tei.get("attributes", []):
-            col = self.meta.attr_uid_to_col.get(attr.get("attribute", ""))
+        attrs = tei.get("attributes") or (enr.get("attributes") if enr else []) or []
+        for attr in attrs:
+            attr_uid = attr.get("attribute", "")
+            col = self.meta.attr_uid_to_col.get(attr_uid) or attr.get("displayName")
+            val = attr.get("value", "")
             if col:
-                row[col] = attr.get("value", "")
+                row[col] = val
+            if attr_uid:
+                row[attr_uid] = val
 
         best_event: dict[str, dict] = {}
         for evt in enr.get("events", []):

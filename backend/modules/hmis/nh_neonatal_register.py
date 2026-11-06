@@ -400,14 +400,43 @@ def build_row(row, sn):
                 parts.append(v)
         return "; ".join(dict.fromkeys(parts))
 
+    def _extract_newborn_name():
+        fn = _raw(_g(row, "first_name"))
+        ln = _raw(_g(row, "last_name"))
+        name = (fn + " " + ln).strip()
+        if name:
+            return name
+        for k in ["patient_name", "Patient Name", "full_name", "Full Name", "Name", "name", "patient_display"]:
+            if k in row and pd.notna(row[k]):
+                v = str(row[k]).strip()
+                if v and v.lower() not in ("nan", "none", "null", ""):
+                    return v
+        return ""
+
+    def _extract_maternal_name():
+        mn = _raw(_g(row, "maternal_name"))
+        if mn:
+            return mn
+        for k in ["Mothers Name", "Mother Name", "Mother's Name", "maternal_name"]:
+            if k in row and pd.notna(row[k]):
+                v = str(row[k]).strip()
+                if v and v.lower() not in ("nan", "none", "null", ""):
+                    return v
+        # Try 3-part mother name if present
+        m_parts = [
+            _raw(row[k]) for k in ["Mothers First Name", "Mothers Father Name", "Mothers Grandfather Name"]
+            if k in row and pd.notna(row[k])
+        ]
+        m_name = " ".join(p for p in m_parts if p).strip()
+        return m_name
+
     return {
         # ── Identification (1-9) ────────────────────────────────────
         "S.No":                      sn,
         "MRN":                       _raw(_g(row, "mrn")),
-        "Name of newborn":           (_raw(_g(row, "first_name")) + " " +
-                                       _raw(_g(row, "last_name"))).strip(),
+        "Name of newborn":           _extract_newborn_name(),
         "Sex (M/F)":                 _sex(_g(row, "sex")),
-        "Name of mother":            _raw(_g(row, "maternal_name")),
+        "Name of mother":            _extract_maternal_name(),
         "Zone":                      _raw(_g(row, "zone")),
         "Woreda":                    _raw(_g(row, "woreda")),
         "Gote":                      _raw(_g(row, "gote")),
@@ -808,7 +837,11 @@ def write_sheet(ws, reg: pd.DataFrame, facility: str, region: str,
 def write_tally_sheet(ws, all_tallies: list[dict]):
     ws.title = "Tally Summary"
 
-    headers = ["Indicator"] + [t["_facility"] for t in all_tallies] + ["TOTAL"]
+    if not all_tallies:
+        all_tallies = [compute_tally(pd.DataFrame())]
+        all_tallies[0]["_facility"] = "Total"
+
+    headers = ["Indicator"] + [t.get("_facility", "Facility") for t in all_tallies] + ["TOTAL"]
     indicators = [k for k in all_tallies[0].keys() if not k.startswith("_")]
 
     for ci, h in enumerate(headers, start=1):

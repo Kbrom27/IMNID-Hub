@@ -17,6 +17,7 @@ import {
   CardContent,
   Button,
   TextInput,
+  DateInput,
   Select,
   Checkbox,
   JobPanel,
@@ -74,6 +75,9 @@ const NicuRegisterPage = () => {
   } = useHmisJob();
 
   const [sourceTab, setSourceTab] = useState('dhis2');
+  const [periodType, setPeriodType] = useState('reporting'); // 'reporting' | 'custom'
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
   const [facility, setFacility] = useState('');
   const [region, setRegion] = useState('');
   const [sheetPerFacility, setSheetPerFacility] = useState(false);
@@ -82,7 +86,6 @@ const NicuRegisterPage = () => {
   const [dhis2System, setDhis2System] = useState('dhis2_online');
   const [programUid, setProgramUid] = useState('Neonatal Care Form');
   const [openmrsMode, setOpenmrsMode] = useState('live');
-  const openmrsVisitType = 'NICU';
   const [openmrsFacility, setOpenmrsFacility] = useState('');
   const [openmrsCsvFile, setOpenmrsCsvFile] = useState(null);
   const [openmrsCsvPath, setOpenmrsCsvPath] = useState('');
@@ -113,16 +116,24 @@ const NicuRegisterPage = () => {
 
   const startDate = calendarInfo?.gregorian_start || '';
   const endDate = calendarInfo?.gregorian_end || '';
+  const effectiveStart = periodType === 'custom' ? (customStartDate || undefined) : (startDate || undefined);
+  const effectiveEnd = periodType === 'custom' ? (customEndDate || undefined) : (endDate || undefined);
+
+  const getSanitizedFilename = (rawName, fallback) => {
+    const clean = (rawName || '').trim();
+    if (!clean) return fallback;
+    return clean.toLowerCase().endsWith('.xlsx') ? clean : `${clean}.xlsx`;
+  };
 
   const handleRunDhis2 = () => {
     handleSubmitJob('/api/hmis/nh/nicu-register-dhis2', {
       system: dhis2System,
       program_uid: programUid || 'Neonatal Care Form',
       org_unit: facility || undefined,
-      start: startDate || undefined,
-      end: endDate || undefined,
+      start: effectiveStart,
+      end: effectiveEnd,
       sheet_per_facility: sheetPerFacility,
-      output_filename: outputFilename || undefined,
+      output_filename: getSanitizedFilename(outputFilename, 'nicu_register.xlsx'),
       output_dir: outputDir && !outputDir.startsWith('[Local Folder]') ? outputDir.trim() : undefined,
     });
   };
@@ -132,10 +143,10 @@ const NicuRegisterPage = () => {
       input_file: openmrsMode === 'csv' ? openmrsCsvPath || (openmrsCsvFile?.name || '') : undefined,
       visit_type: 'NICU',
       facility_name: openmrsFacility || facility || undefined,
-      start: startDate || undefined,
-      end: endDate || undefined,
+      start: effectiveStart,
+      end: effectiveEnd,
       sheet_per_facility: sheetPerFacility,
-      output_filename: outputFilename || undefined,
+      output_filename: getSanitizedFilename(outputFilename, 'nicu_register_openmrs.xlsx'),
       output_dir: outputDir && !outputDir.startsWith('[Local Folder]') ? outputDir.trim() : undefined,
     });
   };
@@ -145,10 +156,10 @@ const NicuRegisterPage = () => {
       input_file: trackerCsvPath || (trackerCsvFile?.name || ''),
       facility: facility || undefined,
       region: region || undefined,
-      start: startDate || undefined,
-      end: endDate || undefined,
+      start: effectiveStart,
+      end: effectiveEnd,
       sheet_per_facility: sheetPerFacility,
-      output_filename: outputFilename || undefined,
+      output_filename: getSanitizedFilename(outputFilename, 'nicu_register.xlsx'),
       output_dir: outputDir && !outputDir.startsWith('[Local Folder]') ? outputDir.trim() : undefined,
     });
   };
@@ -169,6 +180,98 @@ const NicuRegisterPage = () => {
     }
   };
 
+  const renderPeriodSelector = () => (
+    <div className="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200/80 dark:border-slate-800 space-y-3">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          Period Selection
+        </span>
+        <div className="inline-flex rounded-lg p-0.5 bg-slate-200/70 dark:bg-slate-800 border border-slate-300/60 dark:border-slate-700 text-xs font-semibold">
+          <button
+            type="button"
+            onClick={() => setPeriodType('reporting')}
+            className={`px-3 py-1 rounded-md transition-all ${
+              periodType === 'reporting'
+                ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-300 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            Reporting Period (Ethiopian)
+          </button>
+          <button
+            type="button"
+            onClick={() => setPeriodType('custom')}
+            className={`px-3 py-1 rounded-md transition-all ${
+              periodType === 'custom'
+                ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-300 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            Custom Period (Date Range)
+          </button>
+        </div>
+      </div>
+
+      {periodType === 'reporting' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+          <Select
+            label="Ethiopian Year"
+            value={ethYear}
+            onChange={(e) => handleYearMonthChange(Number(e.target.value), ethMonth)}
+            options={(calendarInfo?.available_years || ['2016', '2017', '2018', '2019']).map((y) => ({
+              label: `${y} E.C.`,
+              value: Number(y),
+            }))}
+          />
+          <Select
+            label="Ethiopian Month"
+            value={ethMonth}
+            onChange={(e) => handleYearMonthChange(ethYear, Number(e.target.value))}
+            options={ETH_MONTHS.map((m) => ({
+              label: m.name,
+              value: m.val,
+            }))}
+          />
+          <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 rounded-lg text-xs">
+            <Calendar className="w-4 h-4 text-teal-600 dark:text-teal-400 flex-shrink-0" />
+            <div className="truncate">
+              <span className="font-bold text-teal-900 dark:text-teal-200">
+                {startDate || '—'} → {endDate || '—'}
+              </span>
+              <span className="text-teal-600 dark:text-teal-400 font-medium ml-1.5">
+                ({calendarInfo?.period_code || `${ethYear}${String(ethMonth).padStart(2, '0')}`})
+              </span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+          <DateInput
+            label="Start Date"
+            value={customStartDate}
+            onChange={(e) => setCustomStartDate(e.target.value)}
+          />
+          <DateInput
+            label="End Date"
+            value={customEndDate}
+            onChange={(e) => setCustomEndDate(e.target.value)}
+          />
+          <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 rounded-lg text-xs">
+            <Calendar className="w-4 h-4 text-teal-600 dark:text-teal-400 flex-shrink-0" />
+            <div className="truncate">
+              <span className="font-bold text-teal-900 dark:text-teal-200">
+                {customStartDate || 'Start'} → {customEndDate || 'End'}
+              </span>
+              <span className="text-teal-600 dark:text-teal-400 font-medium ml-1.5">
+                (Custom Range)
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   const isJobCompleted = jobState?.status === 'completed';
   const resultFileName =
     (Array.isArray(outputArtifacts) && outputArtifacts[0]) ||
@@ -183,51 +286,14 @@ const NicuRegisterPage = () => {
   return (
     <div className="space-y-6 w-full">
       <PageHeader
-        title="NICU Register Generator"
+        title="NICU Admission Register Generator"
         breadcrumbs={[
           { label: 'Reporting', href: '/hmis' },
           { label: 'NICU Register' },
         ]}
       />
 
-      {/* Reporting Period */}
-      <Card>
-        <CardContent className="p-5 sm:p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
-            <Select
-              label="Ethiopian Year"
-              value={ethYear}
-              onChange={(e) => handleYearMonthChange(Number(e.target.value), ethMonth)}
-              options={(calendarInfo?.available_years || ['2016', '2017', '2018', '2019']).map((y) => ({
-                label: `${y} E.C.`,
-                value: Number(y),
-              }))}
-            />
-            <Select
-              label="Ethiopian Month"
-              value={ethMonth}
-              onChange={(e) => handleYearMonthChange(ethYear, Number(e.target.value))}
-              options={ETH_MONTHS.map((m) => ({
-                label: m.name,
-                value: m.val,
-              }))}
-            />
-            <div className="flex items-center gap-3 px-4 py-2.5 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 rounded-lg text-sm">
-              <Calendar className="w-5 h-5 text-teal-600 dark:text-teal-400 flex-shrink-0" />
-              <div>
-                <span className="font-bold text-teal-900 dark:text-teal-200">
-                  {startDate || '—'} → {endDate || '—'}
-                </span>
-                <span className="text-teal-600 dark:text-teal-400 font-medium ml-2">
-                  ({calendarInfo?.period_code || `${ethYear}${String(ethMonth).padStart(2, '0')}`})
-                </span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Source Tabs */}
+      {/* Source Selection Tabs */}
       <div className="flex gap-2 p-1.5 bg-slate-100 dark:bg-slate-800/70 rounded-xl border border-slate-200/80 dark:border-slate-700/80 w-fit">
         {TAB_ITEMS.map(({ key, label, icon: Icon }) => (
           <button
@@ -255,6 +321,7 @@ const NicuRegisterPage = () => {
               selectedSystem={dhis2System}
               onSystemChange={setDhis2System}
             />
+            {renderPeriodSelector()}
             <Dhis2OrgUnitSelect
               system={dhis2System}
               value={facility}
@@ -271,7 +338,7 @@ const NicuRegisterPage = () => {
               />
             </div>
             <Checkbox
-              id="nicu-dhis2-sheet-split"
+              id="dhis2-sheet-split"
               checked={sheetPerFacility}
               onChange={(e) => setSheetPerFacility(e.target.checked)}
               label="Separate sheet per facility"
@@ -322,10 +389,11 @@ const NicuRegisterPage = () => {
             {openmrsMode === 'live' ? (
               <div className="space-y-3">
                 <HmisConnectionCard type="openmrs" />
+                {renderPeriodSelector()}
                 <OpenmrsLocationSelect value={openmrsFacility} onChange={setOpenmrsFacility} label="Location" />
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <FileDropzone label="Upload NICU CSV" accept=".csv" onFileSelect={handleOpenmrsCsvSelect} />
                 {openmrsCsvFile && (
                   <div className="px-3 py-2 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-lg text-xs flex items-center justify-between text-teal-800 dark:text-teal-200">
@@ -333,6 +401,7 @@ const NicuRegisterPage = () => {
                     <span className="text-teal-600/70">{(openmrsCsvFile.size / 1024).toFixed(1)} KB</span>
                   </div>
                 )}
+                {renderPeriodSelector()}
               </div>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -345,7 +414,7 @@ const NicuRegisterPage = () => {
               />
             </div>
             <Checkbox
-              id="nicu-openmrs-sheet-split"
+              id="openmrs-sheet-split"
               checked={sheetPerFacility}
               onChange={(e) => setSheetPerFacility(e.target.checked)}
               label="Separate sheet per facility"
@@ -371,14 +440,15 @@ const NicuRegisterPage = () => {
                 <span className="text-teal-600/70">{(trackerCsvFile.size / 1024).toFixed(1)} KB</span>
               </div>
             )}
+            {renderPeriodSelector()}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
               <TextInput label="Facility (optional)" value={facility} onChange={(e) => setFacility(e.target.value)} placeholder="Leave blank for all" />
-              <TextInput label="Region (optional)" value={region} onChange={(e) => setRegion(e.target.value)} placeholder="e.g. Amhara" />
+              <TextInput label="Region (optional)" value={region} onChange={(e) => setRegion(e.target.value)} placeholder="e.g. Tigray" />
               <DirectoryPicker label="Output Directory" value={outputDir} onChange={setOutputDir} />
               <TextInput label="Output Filename" value={outputFilename} onChange={(e) => setOutputFilename(e.target.value)} placeholder="nicu_register.xlsx" />
             </div>
             <Checkbox
-              id="nicu-csv-sheet-split"
+              id="csv-sheet-split"
               checked={sheetPerFacility}
               onChange={(e) => setSheetPerFacility(e.target.checked)}
               label="Separate sheet per facility"
@@ -406,7 +476,7 @@ const NicuRegisterPage = () => {
       />
 
       {/* Success Artifacts */}
-      {isJobCompleted && resultFileName && (
+      {activeJobId && isJobCompleted && resultFileName && (
         <div className="flex items-center justify-between gap-3 p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 rounded-lg">
           <div className="flex items-center gap-2.5">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />

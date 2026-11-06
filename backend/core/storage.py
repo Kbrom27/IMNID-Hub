@@ -94,6 +94,17 @@ def resolve_export_file(filename: str, include_uploads: bool = False) -> Optiona
         matches.sort(key=lambda m: m.stat().st_mtime, reverse=True)
         return matches[0]
 
+    # 4b. If base_name lacked .xlsx, also check base_name + ".xlsx"
+    if not base_name.lower().endswith(".xlsx"):
+        xlsx_name = f"{base_name}.xlsx"
+        direct_xlsx = exports_dir / xlsx_name
+        if direct_xlsx.is_file():
+            return direct_xlsx
+        xlsx_matches = [m for m in exports_dir.rglob(xlsx_name) if m.is_file()]
+        if xlsx_matches:
+            xlsx_matches.sort(key=lambda m: m.stat().st_mtime, reverse=True)
+            return xlsx_matches[0]
+
     # 5. Check if file exists under any [Local Folder] folder created in /app or working dir
     try:
         app_matches = [
@@ -132,6 +143,16 @@ def resolve_export_file(filename: str, include_uploads: bool = False) -> Optiona
 def build_file_response(file_path: Path, download_name: Optional[str] = None) -> FileResponse:
     """Build a robust FileResponse with explicit attachment disposition and correct MIME type."""
     target_name = download_name or file_path.name
+    # If the file on disk is an openxml archive (magic bytes PK\x03\x04), ensure .xlsx extension:
+    try:
+        if file_path.is_file():
+            with open(file_path, "rb") as f:
+                magic = f.read(4)
+            if magic == b"PK\x03\x04" and not target_name.lower().endswith((".xlsx", ".xlsm", ".zip")):
+                target_name = f"{target_name}.xlsx"
+    except Exception:
+        pass
+
     media_type = get_media_type(target_name)
     return FileResponse(
         path=str(file_path),

@@ -186,7 +186,9 @@ def run_rmh_delivery_register_csv_worker(
 
     target_dir = resolve_output_dir(output_dir, settings.exports_dir)
     target_dir.mkdir(parents=True, exist_ok=True)
-    out_name = output_filename or "delivery_register_csv.xlsx"
+    out_name = (output_filename or "delivery_register_csv.xlsx").strip()
+    if not out_name.lower().endswith(".xlsx"):
+        out_name = f"{out_name}.xlsx"
     out_path = target_dir / out_name
     wb.save(out_path)
     ctx.log(f"Successfully generated Delivery Register workbook: {out_path.name}")
@@ -285,7 +287,9 @@ def run_rmh_delivery_register_dhis2_worker(
 
     target_dir = resolve_output_dir(output_dir, settings.exports_dir)
     target_dir.mkdir(parents=True, exist_ok=True)
-    out_name = output_filename or "delivery_register_dhis2.xlsx"
+    out_name = (output_filename or "delivery_register_dhis2.xlsx").strip()
+    if not out_name.lower().endswith(".xlsx"):
+        out_name = f"{out_name}.xlsx"
     out_path = target_dir / out_name
 
     class DummyArgs:
@@ -488,7 +492,9 @@ def run_nh_neonatal_register_csv_worker(
 
     target_dir = resolve_output_dir(output_dir, settings.exports_dir)
     target_dir.mkdir(parents=True, exist_ok=True)
-    out_name = output_filename or "nicu_register_csv.xlsx"
+    out_name = (output_filename or "nicu_register_csv.xlsx").strip()
+    if not out_name.lower().endswith(".xlsx"):
+        out_name = f"{out_name}.xlsx"
     out_path = target_dir / out_name
     wb.save(out_path)
     ctx.log(f"Successfully generated NICU Register workbook: {out_path.name}")
@@ -589,7 +595,9 @@ def run_nh_neonatal_register_dhis2_worker(
 
     target_dir = resolve_output_dir(output_dir, settings.exports_dir)
     target_dir.mkdir(parents=True, exist_ok=True)
-    out_name = output_filename or "nicu_register_dhis2.xlsx"
+    out_name = (output_filename or "nicu_register_dhis2.xlsx").strip()
+    if not out_name.lower().endswith(".xlsx"):
+        out_name = f"{out_name}.xlsx"
     out_path = target_dir / out_name
 
     class DummyArgs:
