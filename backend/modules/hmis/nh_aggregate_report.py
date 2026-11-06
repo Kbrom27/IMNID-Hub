@@ -121,6 +121,105 @@ def _col(df: pd.DataFrame, col: str) -> pd.Series:
     return pd.Series("", index=df.index)
 
 
+def _get_field_val(row: Any, de_uid: str, col_name: str = "") -> str:
+    """Retrieve string value from a row dictionary or Series by DE UID or column fallback."""
+    v = row.get(de_uid) if hasattr(row, "get") else None
+    if v is not None and str(v).strip() != "":
+        return str(v).strip()
+    if col_name and hasattr(row, "get"):
+        cv = row.get(col_name)
+        if cv is not None and str(cv).strip() != "":
+            return str(cv).strip()
+    return ""
+
+
+def _has_code_or_label(
+    row: Any,
+    de_uid: str,
+    target_codes: set[str],
+    target_labels: Optional[set[str]] = None,
+    col_name: str = "",
+) -> bool:
+    """Check if row contains target codes or target labels for a data element."""
+    if not hasattr(row, "get"):
+        return False
+
+    # 1. Check accumulated sets across all events for this TEI
+    all_v = row.get(f"{de_uid}_all")
+    if isinstance(all_v, (set, list)):
+        for tc in target_codes:
+            if tc.lower() in all_v:
+                return True
+
+    if target_labels:
+        all_l = row.get(f"{de_uid}_all_labels")
+        if isinstance(all_l, (set, list)):
+            for tl in target_labels:
+                for item in all_l:
+                    if tl.lower() in item:
+                        return True
+
+    # 2. Check current row's primary value
+    v = _get_field_val(row, de_uid, col_name).lower()
+    if v:
+        parts = [p.strip() for p in v.split(",")]
+        for tc in target_codes:
+            if tc.lower() in parts or tc.lower() == v:
+                return True
+        if target_labels:
+            for tl in target_labels:
+                if tl.lower() in v:
+                    return True
+
+    # 3. Check label field if present
+    lbl = str(row.get(f"{de_uid}_label", "")).strip().lower()
+    if lbl and target_labels:
+        for tl in target_labels:
+            if tl.lower() in lbl:
+                return True
+
+    return False
+
+
+def _calc_neonatal_age_hours(row: Any) -> Optional[float]:
+    """Calculate age in hours between delivery datetime and discharge datetime."""
+    dis_str = _get_field_val(row, "VNV2QYQpebO", _DIS_DATE)
+    del_str = _get_field_val(row, "vKsjdwDyJhC", _DOB)
+    time_str = _get_field_val(row, "oN2duJU7M53", "")
+
+    if not del_str or not dis_str:
+        return None
+
+    try:
+        del_dt = pd.to_datetime(del_str)
+        if time_str:
+            t_parts = str(time_str).strip().split(":")
+            if len(t_parts) >= 2:
+                del_dt = del_dt.replace(
+                    hour=int(t_parts[0]),
+                    minute=int(t_parts[1]),
+                    second=int(t_parts[2]) if len(t_parts) > 2 else 0,
+                )
+    except Exception:
+        del_dt = None
+
+    try:
+        dis_dt = pd.to_datetime(dis_str)
+    except Exception:
+        dis_dt = None
+
+    if del_dt is None or dis_dt is None:
+        return None
+
+    try:
+        diff_hours = (dis_dt - del_dt).total_seconds() / 3600.0
+        if -2.0 <= diff_hours < 0:
+            diff_hours = 0.0
+        return diff_hours
+    except Exception:
+        return None
+
+
 def _str_match(df: pd.DataFrame, col: str, patterns: list[str]) -> int:
     s = _col(df, col)
     mask = pd.Series(False, index=df.index)
@@ -135,22 +234,33 @@ def _numeric(df: pd.DataFrame, col: str) -> pd.Series:
 
 def _birth_weight(df: pd.DataFrame) -> pd.Series:
     bw = _numeric(df, _BW)
+    if _BW not in df.columns and "ZiI6RUqXLUl" in df.columns:
+        bw = _numeric(df, "ZiI6RUqXLUl")
     bw.loc[(bw > 0) & (bw < 20)] *= 1000   # entered in kg → grams
     return bw
 
 
 def _preterm(df: pd.DataFrame) -> pd.Series:
     cat = _col(df, _GA_CAT).str.lower().str.contains("preterm", na=False)
+    if "rH78R1ZnGgh" in df.columns:
+        cat |= _col(df, "rH78R1ZnGgh").str.lower().str.contains("preterm|2", na=False)
     weeks = _numeric(df, _GA_WEEKS)
+    if _GA_WEEKS not in df.columns and "bJ4oRACbbLP" in df.columns:
+        weeks = _numeric(df, "bJ4oRACbbLP")
     return cat | (weeks < 37)
 
 
 def _admission_dates(df: pd.DataFrame) -> pd.Series:
     """Admission date series: 'Date of Admission' value, falling back to the
-    NICU admission event date."""
-    dval = pd.to_datetime(df[_ADM_DATE], errors="coerce") if _ADM_DATE in df.columns else pd.Series(pd.NaT, index=df.index)
+    NICU admission event date, enrollment date, or incident date."""
+    admit_col = _ADM_DATE if _ADM_DATE in df.columns else "PadsjZCM10U"
+    dval = pd.to_datetime(df[admit_col], errors="coerce") if admit_col in df.columns else pd.Series(pd.NaT, index=df.index)
+    if "PadsjZCM10U" in df.columns:
+        dval = dval.fillna(pd.to_datetime(df["PadsjZCM10U"], errors="coerce"))
     devt = pd.to_datetime(df[_ADM_EVT], errors="coerce") if _ADM_EVT in df.columns else pd.Series(pd.NaT, index=df.index)
-    return dval.fillna(devt)
+    denr = pd.to_datetime(df.get("enrollment_date"), errors="coerce") if "enrollment_date" in df.columns else pd.Series(pd.NaT, index=df.index)
+    dinc = pd.to_datetime(df.get("incident_date"), errors="coerce") if "incident_date" in df.columns else pd.Series(pd.NaT, index=df.index)
+    return dval.fillna(devt).fillna(denr).fillna(dinc)
 
 
 def _death_age_days(df: pd.DataFrame) -> pd.Series:
@@ -530,9 +640,15 @@ def fetch_tracker_df(client: DHIS2Client, program_uid: str, ou_uid: str,
                 "incident_date":   (enr.get("incidentAt") or "")[:10],
             }
             for attr in tei.get("attributes", []):
-                col = attr_map.get(attr.get("attribute", ""))
+                a_uid = attr.get("attribute", "")
+                a_val = str(attr.get("value", "")).strip()
+                if a_uid:
+                    row[a_uid] = a_val
+                col = attr_map.get(a_uid)
                 if col:
-                    row[col] = attr.get("value", "")
+                    row[col] = a_val
+                if col and col.lower() == "age":
+                    row["Age"] = a_val
 
             best: dict[str, dict] = {}
             for evt in enr.get("events", []):
@@ -547,12 +663,18 @@ def fetch_tracker_df(client: DHIS2Client, program_uid: str, ou_uid: str,
                     row[f"{s_name}_event_id"]     = evt.get("event", "")
                     row[f"{s_name}_event_date"]   = occ[:10] if occ else ""
                     row[f"{s_name}_event_status"] = evt.get("status", "")
+
+            # Process all events in enrollment to ensure no clinical data or medications are missed
+            for evt in enr.get("events", []):
+                s_uid  = evt.get("programStage", "")
+                s_name = stage_map.get(s_uid, "")
                 for dv in evt.get("dataValues", []):
-                    col = de_map.get((s_uid, dv.get("dataElement", "")))
-                    if not col:
+                    de_id = dv.get("dataElement", "")
+                    if not de_id:
                         continue
-                    val = str(dv.get("value", ""))
-                    opts = de_opts.get((s_uid, dv.get("dataElement", "")))
+                    val = str(dv.get("value", "")).strip()
+                    opts = de_opts.get((s_uid, de_id))
+                    label = val
                     if opts:
                         labels = []
                         for part in val.split(","):
@@ -561,8 +683,32 @@ def fetch_tracker_df(client: DHIS2Client, program_uid: str, ou_uid: str,
                                 labels.append(opts[part])
                             elif part:
                                 labels.append(part)
-                        val = ", ".join(labels)
-                    row[col] = val
+                        label = ", ".join(labels)
+
+                    # Store primary values by UID, (stage_uid, de_uid), and column name
+                    row[de_id] = val
+                    row[f"{de_id}_raw"] = val
+                    row[f"{de_id}_label"] = label
+                    row[f"{s_uid}_{de_id}"] = val
+                    col = de_map.get((s_uid, de_id))
+                    if col:
+                        row[col] = label
+
+                    # Collect all values across all events for this TEI enrollment
+                    all_key = f"{de_id}_all"
+                    if all_key not in row:
+                        row[all_key] = set()
+                    row[all_key].add(val.lower())
+                    for p in val.split(","):
+                        row[all_key].add(p.strip().lower())
+
+                    all_lbl_key = f"{de_id}_all_labels"
+                    if all_lbl_key not in row:
+                        row[all_lbl_key] = set()
+                    row[all_lbl_key].add(label.lower())
+                    for p in label.split(","):
+                        row[all_lbl_key].add(p.strip().lower())
+
             rows.append(row)
 
     df = pd.DataFrame(rows)
@@ -803,6 +949,7 @@ def write_preview_excel(values: dict[str, Any],
 
         # Load rep metadata rows
         rep_candidates = [
+            Path("/home/kbrom/Work/IMNID/IMNID Developments/HMIS Report/rep") / _REP_JSON_NH,
             Path("/home/kbrom/Work/IMNID/IMNID Developments/rep") / _REP_JSON_NH,
             Path(__file__).parent / "rep" / _REP_JSON_NH,
         ]
@@ -843,11 +990,19 @@ def write_preview_excel(values: dict[str, Any],
                     cell.font = font_na
                     final_v = "Not available"
                 else:
-                    v = norm_vals.get(norm(sno))
+                    v = values.get(f"row_{r_idx}")
+                    if v is None and sno:
+                        v = values.get(sno)
+                    if v is None and sno:
+                        v = norm_vals.get(norm(sno))
                     if v is None:
                         v = 0
                     cell.value = v
                     if isinstance(v, (int, float)):
+                        cell.font = font_num
+                    elif v == "Not available":
+                        cell.font = font_na
+                    else:
                         cell.font = font_num
                     final_v = v
 
@@ -1197,26 +1352,31 @@ def main():
 _REP_JSON_NH = "04_2_-_Neonatal_and_Child_Health_Health_center_Hospital_and_clinic_Monthly_DHIS2_mapped.json"
 
 
-def get_nh_indicator_availability() -> dict[str, str]:
-    """Load indicator availability mapping from rep assessment JSON."""
+def _load_nh_rep_rows() -> list[dict]:
+    """Load indicator specification rows from rep mapped JSON."""
     candidates = [
+        Path("/home/kbrom/Work/IMNID/IMNID Developments/HMIS Report/rep") / _REP_JSON_NH,
         Path("/home/kbrom/Work/IMNID/IMNID Developments/rep") / _REP_JSON_NH,
         Path(__file__).parent / "rep" / _REP_JSON_NH,
     ]
-    data = None
     for c in candidates:
-        if c.exists():
+        if c.is_file():
             try:
                 with open(c, encoding="utf-8") as f:
-                    data = json.load(f)
-                break
+                    return json.load(f).get("rows", [])
             except Exception:
                 pass
-    if not data or "rows" not in data:
+    return []
+
+
+def get_nh_indicator_availability() -> dict[str, str]:
+    """Load indicator availability mapping from rep assessment JSON."""
+    rows = _load_nh_rep_rows()
+    if not rows:
         return {}
     norm = lambda s: str(s).replace(" ", "").rstrip(".") if s else ""
-    by_sno = {norm(r.get("sno")): r.get("status") for r in data["rows"] if r.get("sno")}
-    by_lbl = {norm(r.get("label")).lower(): r.get("status") for r in data["rows"] if r.get("label")}
+    by_sno = {norm(r.get("sno")): r.get("status") for r in rows if r.get("sno")}
+    by_lbl = {norm(r.get("label")).lower(): r.get("status") for r in rows if r.get("label")}
     avail = {}
     for ind in INDICATORS:
         st = by_sno.get(norm(ind.code)) or by_lbl.get(norm(ind.label).lower())
@@ -1225,18 +1385,222 @@ def get_nh_indicator_availability() -> dict[str, str]:
 
 
 def compute_indicators(df: pd.DataFrame) -> dict[str, Any]:
-    """Compute all indicators defined in INDICATORS registry for the given tracker dataframe."""
-    avail_map = get_nh_indicator_availability()
-    values: dict[str, Any] = {}
-    for ind in INDICATORS:
-        st = avail_map.get(ind.code, "COMPUTED" if ind._fn is not None else "NOT CAPTURED")
-        if st == "HEADER":
-            values[ind.code] = None
-        elif st == "NOT CAPTURED" or ind._fn is None:
-            values[ind.code] = "Not available"
+    """Compute all 04.2 MoH Neonatal and Child Health indicators from tracker data
+    following the exact specification in 04_2_-_Neonatal_and_Child_Health_..._DHIS2_mapped.json."""
+    rep_rows = _load_nh_rep_rows()
+    norm = lambda s: str(s).replace(" ", "").rstrip(".") if s else ""
+
+    if df is None or df.empty:
+        values: dict[str, Any] = {}
+        for idx, r in enumerate(rep_rows):
+            st = r.get("status")
+            sno = r.get("sno")
+            r_idx = idx + 3
+            if st == "HEADER":
+                val = None
+            elif st == "NOT CAPTURED":
+                val = "Not available"
+            elif r.get("label") == "Does the facility provide NICU service?":
+                val = "No"
+            else:
+                val = 0
+            if sno:
+                values[sno] = val
+                values[norm(sno)] = val
+            values[f"row_{r_idx}"] = val
+        return values
+
+    n_records = len(df)
+
+    # 1. Age and Vital Status
+    age_hours = [_calc_neonatal_age_hours(row) for _, row in df.iterrows()]
+    is_dead = [
+        _has_code_or_label(row, "XITh8vyfqaR", {"0"}, {"dead", "died"}, col_name=_DIS_STATUS)
+        for _, row in df.iterrows()
+    ]
+    is_alive = [
+        _has_code_or_label(row, "XITh8vyfqaR", {"1"}, {"alive"}, col_name=_DIS_STATUS)
+        for _, row in df.iterrows()
+    ]
+
+    death_under_24h = 0
+    death_1_to_7d = 0
+    death_8_to_28d = 0
+    death_total = 0
+
+    for idx, (_, row) in enumerate(df.iterrows()):
+        if not is_dead[idx]:
+            continue
+        h = age_hours[idx]
+        if h is not None:
+            if 0.0 <= h < 24.0:
+                death_under_24h += 1
+                death_total += 1
+            elif 24.0 <= h <= 168.0:
+                death_1_to_7d += 1
+                death_total += 1
+            elif 168.0 < h <= 672.0:
+                death_8_to_28d += 1
+                death_total += 1
+            elif h <= 672.0:
+                death_total += 1
         else:
-            v = ind.compute(df)
-            values[ind.code] = v if v is not None else 0
+            dis_d = pd.to_datetime(_get_field_val(row, "VNV2QYQpebO", _DIS_DATE), errors="coerce")
+            del_d = pd.to_datetime(_get_field_val(row, "vKsjdwDyJhC", _DOB), errors="coerce")
+            if pd.notna(dis_d) and pd.notna(del_d):
+                days = (dis_d.date() - del_d.date()).days
+                if days == 0:
+                    death_under_24h += 1
+                    death_total += 1
+                elif 1 <= days <= 7:
+                    death_1_to_7d += 1
+                    death_total += 1
+                elif 8 <= days <= 28:
+                    death_8_to_28d += 1
+                    death_total += 1
+                elif days <= 28:
+                    death_total += 1
+            else:
+                death_total += 1
+
+    # 2. Infection & Antibiotics Treatment (Pneumonia / Critical Illness / LBI)
+    has_abx = [
+        _has_code_or_label(row, "hCb06Jbjqk3", {"1"}, {"yes", "true"},
+                           col_name="Medication and Intervention_Antibiotics administered?")
+        for _, row in df.iterrows()
+    ]
+
+    has_pneu_inf = [
+        _has_code_or_label(row, "UGz9phsvHt4", {"5"}, {"pneumonia"},
+                           col_name="Discharge care form_Sub-Categories of Infection n")
+        or _has_code_or_label(row, "NZBqF2igHgK", {"5"}, {"pneumonia"},
+                              col_name="Discharge care form_Sub-Categories of Infection(secondary):")
+        for _, row in df.iterrows()
+    ]
+
+    has_severe_inf = [
+        _has_code_or_label(row, "UGz9phsvHt4", {"1", "2", "3", "4"},
+                           {"probable sepsis", "culture-positive sepsis", "probable meningitis", "culture-positive meningitis", "sepsis", "meningitis"},
+                           col_name="Discharge care form_Sub-Categories of Infection n")
+        or _has_code_or_label(row, "NZBqF2igHgK", {"1", "2", "3", "4"},
+                              {"probable sepsis", "culture-positive sepsis", "probable meningitis", "culture-positive meningitis", "sepsis", "meningitis"},
+                              col_name="Discharge care form_Sub-Categories of Infection(secondary):")
+        for _, row in df.iterrows()
+    ]
+
+    has_lbi_reason = [
+        _has_code_or_label(row, "iuIn2zpSUR6", {"12"}, {"cord red", "sticky"},
+                           col_name="NICU Admission Careform_First Reason for Admission")
+        or _has_code_or_label(row, "lfqijX4DNqR", {"12"}, {"cord red", "sticky"},
+                              col_name="NICU Admission Careform_Second Reason for Admission")
+        or _has_code_or_label(row, "cX0JPpXiZSO", {"12"}, {"cord red", "sticky"},
+                              col_name="NICU Admission Careform_Third Reason for Admission")
+        for _, row in df.iterrows()
+    ]
+
+    treated_pneu = sum(1 for i in range(n_records) if has_pneu_inf[i] and has_abx[i])
+    treated_severe = sum(1 for i in range(n_records) if has_severe_inf[i] and has_abx[i])
+    treated_lbi = sum(1 for i in range(n_records) if has_lbi_reason[i] and has_abx[i])
+    treated_syi_total = sum(1 for i in range(n_records) if (has_severe_inf[i] or has_lbi_reason[i] or has_pneu_inf[i]) and has_abx[i])
+
+    # 3. Kangaroo Mother Care (KMC)
+    bw_series = _birth_weight(df)
+    preterm_series = _preterm(df)
+    lbw_or_preterm = (bw_series < 2000) | preterm_series
+    total_lbw_preterm = int(lbw_or_preterm.sum())
+
+    kmc_initiated = _kmc_initiated(df)
+    kmc_on_lbw_preterm = int((kmc_initiated & lbw_or_preterm).sum())
+
+    # 4. Asphyxia / Resuscitation
+    resus_series = _resuscitated(df)
+    total_resuscitated = int(resus_series.sum())
+    resus_survived = int((resus_series & pd.Series(is_alive, index=df.index)).sum())
+
+    # 5. NICU Admission & Outcomes
+    total_admitted = n_records
+    discharged_recovered = sum(
+        1 for idx, (_, row) in enumerate(df.iterrows())
+        if is_alive[idx] and _has_code_or_label(row, "YFp5BRt5BB0", {"1"}, {"discharged alive", "recovered"}, col_name=_DIS_OUTCOME)
+    )
+
+    discharged_died = sum(1 for d in is_dead if d)
+
+    discharged_transferred = sum(
+        1 for idx, (_, row) in enumerate(df.iterrows())
+        if not is_dead[idx] and (
+            _has_code_or_label(row, "YFp5BRt5BB0", {"6"}, {"referred", "transferred"}, col_name=_DIS_OUTCOME)
+            or bool(_get_field_val(row, "referred_to", _REFERRED))
+        )
+    )
+
+    discharged_others = sum(
+        1 for idx, (_, row) in enumerate(df.iterrows())
+        if not is_dead[idx] and _has_code_or_label(row, "YFp5BRt5BB0", {"2", "3", "4", "5"}, {"complication", "advice", "absconded", "other"}, col_name=_DIS_OUTCOME)
+    )
+
+    total_discharged = discharged_recovered + discharged_died + discharged_transferred + discharged_others
+
+    # 6. Cord Chlorhexidine
+    chx_count = sum(
+        1 for _, row in df.iterrows()
+        if _has_code_or_label(row, "NK7eDXVZGar", {"1"}, {"yes", "true"}, col_name=_CHX)
+    )
+
+    # 7. Facility NICU Service Flag
+    nicu_service_flag = "Yes" if n_records > 0 else "No"
+
+    # Assemble into values dictionary
+    calculated_by_sno: dict[str, Any] = {
+        "CH_IND":        death_under_24h + death_1_to_7d + death_8_to_28d,
+        "CH_IND. 1":     death_under_24h,
+        "CH_IND. 2":     death_1_to_7d,
+        "CH_IND. 3":     death_8_to_28d,
+        "CH_TX_PNEU.1.": treated_pneu,
+        "CH_TX_SYI.1":   treated_syi_total,
+        "CH_TX_SYI.1. 1": treated_severe,
+        "CH_TX_SYI.1. 2": treated_lbi,
+        "CH_TX_SYI.1. 3": treated_pneu,
+        "CH_KMC.1.":     kmc_on_lbw_preterm,
+        "CH_KMC.2.":     total_lbw_preterm,
+        "CH_ASPH.1.":    resus_survived,
+        "CH_ASPH.2.":    total_resuscitated,
+        "CH_TX_NICUA.":  total_admitted,
+        "CH_TX_NICUD":   total_discharged,
+        "CH_TX_NICUD. 1": discharged_recovered,
+        "CH_TX_NICUD. 2": discharged_died,
+        "CH_TX_NICUD. 3": discharged_transferred,
+        "CH_TX_NICUD. 4": discharged_others,
+        "CH_CHX.1.":     chx_count,
+    }
+
+    values: dict[str, Any] = {}
+    for idx, r in enumerate(rep_rows):
+        r_idx = idx + 3
+        st = r.get("status")
+        sno = r.get("sno")
+        act = r.get("label") or ""
+
+        if st == "HEADER":
+            val = None
+        elif st == "NOT CAPTURED":
+            val = "Not available"
+        elif act == "Does the facility provide NICU service?":
+            val = nicu_service_flag
+        else:
+            val = calculated_by_sno.get(sno)
+            if val is None and sno:
+                val = calculated_by_sno.get(norm(sno))
+            if val is None:
+                val = 0
+
+        values[f"row_{r_idx}"] = val
+        if sno:
+            values[sno] = val
+            values[norm(sno)] = val
+        if act == "Does the facility provide NICU service?":
+            values["Does the facility provide NICU service?"] = val
+
     return values
 
 

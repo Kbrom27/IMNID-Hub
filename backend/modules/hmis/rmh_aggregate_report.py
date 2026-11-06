@@ -112,8 +112,73 @@ def _str_match(df: pd.DataFrame, col: str, patterns: list[str]) -> int:
     return int(mask.sum())
 
 
+def _get_field_val(row: Any, de_uid: str, col_name: str = "") -> str:
+    """Retrieve string value from a row dictionary or Series by DE UID or column fallback."""
+    v = row.get(de_uid) if hasattr(row, "get") else None
+    if v is not None and str(v).strip() != "":
+        return str(v).strip()
+    if col_name and hasattr(row, "get"):
+        cv = row.get(col_name)
+        if cv is not None and str(cv).strip() != "":
+            return str(cv).strip()
+    return ""
+
+
+def _has_code_or_label(
+    row: Any,
+    de_uid: str,
+    target_codes: set[str],
+    target_labels: Optional[set[str]] = None,
+    col_name: str = "",
+) -> bool:
+    """Check if row contains target codes or target labels for a data element."""
+    if not hasattr(row, "get"):
+        return False
+
+    # 1. Check accumulated sets across all events for this TEI
+    all_v = row.get(f"{de_uid}_all")
+    if isinstance(all_v, (set, list)):
+        for tc in target_codes:
+            if tc.lower() in all_v:
+                return True
+
+    if target_labels:
+        all_l = row.get(f"{de_uid}_all_labels")
+        if isinstance(all_l, (set, list)):
+            for tl in target_labels:
+                for item in all_l:
+                    if tl.lower() in item:
+                        return True
+
+    # 2. Check current row's primary value
+    v = _get_field_val(row, de_uid, col_name).lower()
+    if v:
+        parts = [p.strip() for p in v.split(",")]
+        for tc in target_codes:
+            if tc.lower() in parts or tc.lower() == v:
+                return True
+        if target_labels:
+            for tl in target_labels:
+                if tl.lower() in v:
+                    return True
+
+    # 3. Check label field if present
+    lbl = str(row.get(f"{de_uid}_label", "")).strip().lower()
+    if lbl and target_labels:
+        for tl in target_labels:
+            if tl.lower() in lbl:
+                return True
+
+    return False
+
+
 def _ages(df: pd.DataFrame) -> pd.Series:
-    return pd.to_numeric(df.get(_AGE, pd.Series(dtype=float)), errors="coerce")
+    a = _numeric(df, _AGE)
+    if "vbaNV9kiRFp" in df.columns:
+        a = a.fillna(_numeric(df, "vbaNV9kiRFp"))
+    if "Age" in df.columns:
+        a = a.fillna(_numeric(df, "Age"))
+    return a
 
 
 def _age_mask(df: pd.DataFrame, low: int, high: int | None) -> pd.Series:
@@ -127,11 +192,15 @@ def _gest_weeks(df: pd.DataFrame) -> pd.Series:
 
 def _delivery_dates(df: pd.DataFrame) -> pd.Series:
     """Delivery date series: the 'Date of Delivery' value, falling back to the
-    delivery event date. Empty series if neither exists."""
+    delivery event date, enrollment date, or incident date."""
     col1 = "Delivery summary_Date of Delivery"
     dval = pd.to_datetime(df[col1], errors="coerce") if col1 in df.columns else pd.Series(pd.NaT, index=df.index)
+    if "hjQZsV03OYe" in df.columns:
+        dval = dval.fillna(pd.to_datetime(df["hjQZsV03OYe"], errors="coerce"))
     devt = pd.to_datetime(df[_DEL_DATE], errors="coerce") if _DEL_DATE in df.columns else pd.Series(pd.NaT, index=df.index)
-    return dval.fillna(devt)
+    denr = pd.to_datetime(df.get("enrollment_date"), errors="coerce") if "enrollment_date" in df.columns else pd.Series(pd.NaT, index=df.index)
+    dinc = pd.to_datetime(df.get("incident_date"), errors="coerce") if "incident_date" in df.columns else pd.Series(pd.NaT, index=df.index)
+    return dval.fillna(devt).fillna(denr).fillna(dinc)
 
 
 def _pnc_days(df: pd.DataFrame) -> pd.Series:
@@ -563,9 +632,15 @@ def fetch_tracker_df(client: DHIS2Client, program_uid: str, ou_uid: str,
                 "incident_date":   (enr.get("incidentAt") or "")[:10],
             }
             for attr in tei.get("attributes", []):
-                col = attr_map.get(attr.get("attribute", ""))
+                a_uid = attr.get("attribute", "")
+                a_val = str(attr.get("value", "")).strip()
+                if a_uid:
+                    row[a_uid] = a_val
+                col = attr_map.get(a_uid)
                 if col:
-                    row[col] = attr.get("value", "")
+                    row[col] = a_val
+                if col and col.lower() == "age":
+                    row["Age"] = a_val
 
             # Most-recent event per stage
             best: dict[str, dict] = {}
@@ -581,14 +656,19 @@ def fetch_tracker_df(client: DHIS2Client, program_uid: str, ou_uid: str,
                     row[f"{s_name}_event_id"]     = evt.get("event", "")
                     row[f"{s_name}_event_date"]   = occ[:10] if occ else ""
                     row[f"{s_name}_event_status"] = evt.get("status", "")
+
+            # Process all events in enrollment to ensure no clinical data, lab tests, or PNC visits are missed
+            for evt in enr.get("events", []):
+                s_uid  = evt.get("programStage", "")
+                s_name = stage_map.get(s_uid, "")
                 for dv in evt.get("dataValues", []):
-                    col = de_map.get((s_uid, dv.get("dataElement", "")))
-                    if not col:
+                    de_id = dv.get("dataElement", "")
+                    if not de_id:
                         continue
-                    val = str(dv.get("value", ""))
-                    opts = de_opts.get((s_uid, dv.get("dataElement", "")))
+                    val = str(dv.get("value", "")).strip()
+                    opts = de_opts.get((s_uid, de_id))
+                    label = val
                     if opts:
-                        # option-code stored → decode to label(s)
                         labels = []
                         for part in val.split(","):
                             part = part.strip()
@@ -596,8 +676,32 @@ def fetch_tracker_df(client: DHIS2Client, program_uid: str, ou_uid: str,
                                 labels.append(opts[part])
                             elif part:
                                 labels.append(part)
-                        val = ", ".join(labels)
-                    row[col] = val
+                        label = ", ".join(labels)
+
+                    # Store primary values by UID, (stage_uid, de_uid), and column name
+                    row[de_id] = val
+                    row[f"{de_id}_raw"] = val
+                    row[f"{de_id}_label"] = label
+                    row[f"{s_uid}_{de_id}"] = val
+                    col = de_map.get((s_uid, de_id))
+                    if col:
+                        row[col] = label
+
+                    # Collect all values across all events for this TEI enrollment
+                    all_key = f"{de_id}_all"
+                    if all_key not in row:
+                        row[all_key] = set()
+                    row[all_key].add(val.lower())
+                    for p in val.split(","):
+                        row[all_key].add(p.strip().lower())
+
+                    all_lbl_key = f"{de_id}_all_labels"
+                    if all_lbl_key not in row:
+                        row[all_lbl_key] = set()
+                    row[all_lbl_key].add(label.lower())
+                    for p in label.split(","):
+                        row[all_lbl_key].add(p.strip().lower())
+
             rows.append(row)
 
     df = pd.DataFrame(rows)
@@ -867,6 +971,7 @@ def write_preview_excel(values: dict[str, Any],
 
         # Load rep metadata rows
         rep_candidates = [
+            Path("/home/kbrom/Work/IMNID/IMNID Developments/HMIS Report/rep") / _REP_JSON_RMH,
             Path("/home/kbrom/Work/IMNID/IMNID Developments/rep") / _REP_JSON_RMH,
             Path(__file__).parent / "rep" / _REP_JSON_RMH,
         ]
@@ -907,11 +1012,19 @@ def write_preview_excel(values: dict[str, Any],
                     cell.font = font_na
                     final_v = "Not available"
                 else:
-                    v = norm_vals.get(norm(sno))
+                    v = values.get(f"row_{r_idx}")
+                    if v is None and sno:
+                        v = values.get(sno)
+                    if v is None and sno:
+                        v = norm_vals.get(norm(sno))
                     if v is None:
                         v = 0
                     cell.value = v
                     if isinstance(v, (int, float)):
+                        cell.font = font_num
+                    elif v == "Not available":
+                        cell.font = font_na
+                    else:
                         cell.font = font_num
                     final_v = v
 
@@ -1278,26 +1391,31 @@ def main():
 _REP_JSON_RMH = "01_2_-_Reproductive_and_Maternal_Health_Hospital_Health_center_Clinic_Monthly_DHIS2_mapped.json"
 
 
-def get_rmh_indicator_availability() -> dict[str, str]:
-    """Load indicator availability mapping from rep assessment JSON."""
+def _load_rmh_rep_rows() -> list[dict]:
+    """Load indicator specification rows from rep mapped JSON."""
     candidates = [
+        Path("/home/kbrom/Work/IMNID/IMNID Developments/HMIS Report/rep") / _REP_JSON_RMH,
         Path("/home/kbrom/Work/IMNID/IMNID Developments/rep") / _REP_JSON_RMH,
         Path(__file__).parent / "rep" / _REP_JSON_RMH,
     ]
-    data = None
     for c in candidates:
-        if c.exists():
+        if c.is_file():
             try:
                 with open(c, encoding="utf-8") as f:
-                    data = json.load(f)
-                break
+                    return json.load(f).get("rows", [])
             except Exception:
                 pass
-    if not data or "rows" not in data:
+    return []
+
+
+def get_rmh_indicator_availability() -> dict[str, str]:
+    """Load indicator availability mapping from rep assessment JSON."""
+    rows = _load_rmh_rep_rows()
+    if not rows:
         return {}
     norm = lambda s: str(s).replace(" ", "").rstrip(".") if s else ""
-    by_sno = {norm(r.get("sno")): r.get("status") for r in data["rows"] if r.get("sno")}
-    by_lbl = {norm(r.get("label")).lower(): r.get("status") for r in data["rows"] if r.get("label")}
+    by_sno = {norm(r.get("sno")): r.get("status") for r in rows if r.get("sno")}
+    by_lbl = {norm(r.get("label")).lower(): r.get("status") for r in rows if r.get("label")}
     avail = {}
     for ind in INDICATORS:
         st = by_sno.get(norm(ind.code)) or by_lbl.get(norm(ind.label).lower())
@@ -1306,18 +1424,298 @@ def get_rmh_indicator_availability() -> dict[str, str]:
 
 
 def compute_indicators(df: pd.DataFrame) -> dict[str, Any]:
-    """Compute all indicators defined in INDICATORS registry for the given tracker dataframe."""
-    avail_map = get_rmh_indicator_availability()
+    """Compute all 01.2 MoH Reproductive and Maternal Health indicators from tracker data
+    following the exact specification in 01_2_-_Reproductive_and_Maternal_Health_..._DHIS2_mapped.json."""
+    rep_rows = _load_rmh_rep_rows()
+    norm = lambda s: str(s).replace(" ", "").rstrip(".") if s else ""
+
+    if df is None or df.empty:
+        values: dict[str, Any] = {}
+        for idx, r in enumerate(rep_rows):
+            st = r.get("status")
+            sno = r.get("sno")
+            r_idx = idx + 3
+            val = None if st == "HEADER" else ("Not available" if st == "NOT CAPTURED" else 0)
+            if sno and st != "HEADER":
+                values[sno] = val
+                values[norm(sno)] = val
+            values[f"row_{r_idx}"] = val
+        return values
+
+    n_records = len(df)
+
+    # Pre-evaluate Mother Age per row
+    ages = []
+    for _, row in df.iterrows():
+        a = row.get("vbaNV9kiRFp") or row.get("Age") or row.get(_AGE)
+        try:
+            ages.append(float(a) if a is not None and str(a).strip() != "" else None)
+        except Exception:
+            ages.append(None)
+
+    # 1. Immediate Postpartum Family Planning (PPFP) within 48h
+    # Date/stay pp [z7Eb2yFLOBI] in {1, 2} (24h or 25-48h)
+    stay_48h = [
+        _has_code_or_label(row, "z7Eb2yFLOBI", {"1", "2"}, {"24 hrs stay", "25- 48 hrs", "24", "48"},
+                           col_name="Postpartum care_Date/stay pp")
+        for _, row in df.iterrows()
+    ]
+
+    fp_pills = [
+        _has_code_or_label(row, "Q1p7CxWGUoi", {"1"}, {"pills", "pill", "oral"},
+                           col_name="Postpartum care_FP Counseling and Method Provided pp")
+        for _, row in df.iterrows()
+    ]
+    fp_implants = [
+        _has_code_or_label(row, "Q1p7CxWGUoi", {"3"}, {"implants", "implant"},
+                           col_name="Postpartum care_FP Counseling and Method Provided pp")
+        for _, row in df.iterrows()
+    ]
+    fp_iucd = [
+        _has_code_or_label(row, "Q1p7CxWGUoi", {"4"}, {"iucd"},
+                           col_name="Postpartum care_FP Counseling and Method Provided pp")
+        for _, row in df.iterrows()
+    ]
+    fp_inj = [
+        _has_code_or_label(row, "Q1p7CxWGUoi", {"2"}, {"injectables", "injectable"},
+                           col_name="Postpartum care_FP Counseling and Method Provided pp")
+        for _, row in df.iterrows()
+    ]
+    fp_condom = [
+        _has_code_or_label(row, "Q1p7CxWGUoi", {"5"}, {"condom", "condoms"},
+                           col_name="Postpartum care_FP Counseling and Method Provided pp")
+        for _, row in df.iterrows()
+    ]
+    fp_other = [fp_inj[i] or fp_condom[i] for i in range(n_records)]
+
+    has_ppfp = [stay_48h[i] and (fp_pills[i] or fp_implants[i] or fp_iucd[i] or fp_other[i]) for i in range(n_records)]
+
+    # PPFP by Age
+    ppfp_age_10_14 = sum(1 for i in range(n_records) if has_ppfp[i] and ages[i] is not None and 10 <= ages[i] <= 14)
+    ppfp_age_15_19 = sum(1 for i in range(n_records) if has_ppfp[i] and ages[i] is not None and 15 <= ages[i] <= 19)
+    ppfp_age_20_24 = sum(1 for i in range(n_records) if has_ppfp[i] and ages[i] is not None and 20 <= ages[i] <= 24)
+    ppfp_age_25_29 = sum(1 for i in range(n_records) if has_ppfp[i] and ages[i] is not None and 25 <= ages[i] <= 29)
+    ppfp_age_30_49 = sum(1 for i in range(n_records) if has_ppfp[i] and ages[i] is not None and 30 <= ages[i] <= 49)
+    ppfp_age_total = sum(1 for i in range(n_records) if has_ppfp[i] and (ages[i] is None or (10 <= ages[i] <= 49)))
+
+    # PPFP by Method
+    ppfp_mtd_oral = sum(1 for i in range(n_records) if stay_48h[i] and fp_pills[i])
+    ppfp_mtd_implants = sum(1 for i in range(n_records) if stay_48h[i] and fp_implants[i])
+    ppfp_mtd_iucd = sum(1 for i in range(n_records) if stay_48h[i] and fp_iucd[i])
+    ppfp_mtd_other = sum(1 for i in range(n_records) if stay_48h[i] and fp_other[i])
+    ppfp_mtd_total = ppfp_mtd_oral + ppfp_mtd_implants + ppfp_mtd_iucd + ppfp_mtd_other
+
+    # 2. Antenatal Care (ANC) First Contact by Maternal Age
+    has_anc1 = [
+        _has_code_or_label(row, "DwoKlEc3tRR", {"1"}, {"yes", "true"},
+                           col_name="Maternal History_ANC Contact")
+        for _, row in df.iterrows()
+    ]
+    anc1_10_14 = sum(1 for i in range(n_records) if has_anc1[i] and ages[i] is not None and 10 <= ages[i] <= 14)
+    anc1_15_19 = sum(1 for i in range(n_records) if has_anc1[i] and ages[i] is not None and 15 <= ages[i] <= 19)
+    anc1_ge_20 = sum(1 for i in range(n_records) if has_anc1[i] and (ages[i] is None or ages[i] >= 20))
+    anc1_total = sum(1 for i in range(n_records) if has_anc1[i])
+
+    # 3. ANC 4+ & 8+ Contacts by Maternal Age
+    anc_contacts = []
+    for _, row in df.iterrows():
+        ac = row.get("XY0SSEpmHo0") or row.get("Maternal History_Number of ANC contacts")
+        try:
+            anc_contacts.append(float(ac) if ac is not None and str(ac).strip() != "" else 0.0)
+        except Exception:
+            anc_contacts.append(0.0)
+
+    has_anc4 = [anc_contacts[i] >= 4 for i in range(n_records)]
+    has_anc8 = [anc_contacts[i] >= 8 for i in range(n_records)]
+
+    anc4_10_14 = sum(1 for i in range(n_records) if has_anc4[i] and ages[i] is not None and 10 <= ages[i] <= 14)
+    anc4_15_19 = sum(1 for i in range(n_records) if has_anc4[i] and ages[i] is not None and 15 <= ages[i] <= 19)
+    anc4_ge_20 = sum(1 for i in range(n_records) if has_anc4[i] and (ages[i] is None or ages[i] >= 20))
+    anc4_total = sum(1 for i in range(n_records) if has_anc4[i])
+    anc8_total = sum(1 for i in range(n_records) if has_anc8[i])
+
+    # 4. Syphilis Testing (VDRL [qX792urzmwj])
+    vdrl_pos = [
+        _has_code_or_label(row, "qX792urzmwj", {"1"}, {"positive", "reactive"}, col_name="Laboratory_VDRL")
+        for _, row in df.iterrows()
+    ]
+    vdrl_neg = [
+        _has_code_or_label(row, "qX792urzmwj", {"2"}, {"negative", "non-reactive"}, col_name="Laboratory_VDRL")
+        for _, row in df.iterrows()
+    ]
+    syp_tested = sum(1 for i in range(n_records) if vdrl_pos[i] or vdrl_neg[i])
+    syp_reactive = sum(1 for i in range(n_records) if vdrl_pos[i])
+    syp_non_reactive = sum(1 for i in range(n_records) if vdrl_neg[i] and not vdrl_pos[i])
+
+    # 5. Hepatitis B Testing (HBsAg [WKXq0p4Nbfl])
+    hbsag_pos = [
+        _has_code_or_label(row, "WKXq0p4Nbfl", {"1"}, {"positive", "reactive"}, col_name="Laboratory_HBsAg")
+        for _, row in df.iterrows()
+    ]
+    hbsag_neg = [
+        _has_code_or_label(row, "WKXq0p4Nbfl", {"2"}, {"negative", "non-reactive"}, col_name="Laboratory_HBsAg")
+        for _, row in df.iterrows()
+    ]
+    hepa_tested = sum(1 for i in range(n_records) if hbsag_pos[i] or hbsag_neg[i])
+    hepa_reactive = sum(1 for i in range(n_records) if hbsag_pos[i])
+    hepa_non_reactive = sum(1 for i in range(n_records) if hbsag_neg[i] and not hbsag_pos[i])
+
+    # 6. Delivery & Skilled Attendant
+    sba_total = n_records
+
+    # 7. Postpartum Hemorrhage (PPH)
+    has_pph = [
+        _has_code_or_label(row, "CJiTafFo0TS", {"3"}, {"pph", "hemorrhage", "postpartum hemorrhage"},
+                           col_name="Delivery summary_Obstetric condition at delivery")
+        for _, row in df.iterrows()
+    ]
+    pph_count = sum(1 for i in range(n_records) if has_pph[i])
+
+    # 8. Uterotonics
+    has_oxy = [
+        _has_code_or_label(row, "yVRLuRU943e", {"2"}, {"oxytocin"},
+                           col_name="Delivery summary_Uterotonics given")
+        for _, row in df.iterrows()
+    ]
+    has_miso = [
+        _has_code_or_label(row, "yVRLuRU943e", {"3"}, {"misoprostol", "mesoprostol"},
+                           col_name="Delivery summary_Uterotonics given")
+        for _, row in df.iterrows()
+    ]
+    has_ergo = [
+        _has_code_or_label(row, "yVRLuRU943e", {"1"}, {"ergometrine", "ergometrin"},
+                           col_name="Delivery summary_Uterotonics given")
+        for _, row in df.iterrows()
+    ]
+    uter_oxy = sum(1 for i in range(n_records) if has_oxy[i])
+    uter_miso = sum(1 for i in range(n_records) if has_miso[i])
+    uter_ergo = sum(1 for i in range(n_records) if has_ergo[i])
+    uter_total = sum(1 for i in range(n_records) if has_oxy[i] or has_miso[i] or has_ergo[i])
+
+    # 9. Stillbirths and Live Births
+    nb_elements = ["wZig9cek3Gv", "BiFmMp0p2CB", "ZX1tFRjBAEe", "htcUfQyftnv"]
+    total_stillbirths = 0
+    total_livebirths = 0
+    for _, row in df.iterrows():
+        for uid in nb_elements:
+            if _has_code_or_label(row, uid, {"2"}, {"stillbirth"}):
+                total_stillbirths += 1
+            elif _has_code_or_label(row, uid, {"1"}, {"alive", "live birth"}):
+                total_livebirths += 1
+    if total_stillbirths == 0 and total_livebirths == 0:
+        total_livebirths = int((_str_match_mask(df, _OUTCOME, ["live", "alive"])).sum()) or n_records
+        total_stillbirths = int((_str_match_mask(df, _OUTCOME, ["still"])).sum()) or int((_str_match_mask(df, _STILLBIRTH, ["yes"])).sum())
+
+    # 10. Early Postnatal Care (PNC) within 7 days
+    pnc_24h = [
+        _has_code_or_label(row, "z7Eb2yFLOBI", {"1"}, {"24 hrs stay", "24"},
+                           col_name="Postpartum care_Date/stay pp")
+        for _, row in df.iterrows()
+    ]
+    pnc_48h = [
+        _has_code_or_label(row, "z7Eb2yFLOBI", {"2"}, {"25- 48 hrs", "48"},
+                           col_name="Postpartum care_Date/stay pp")
+        for _, row in df.iterrows()
+    ]
+    pnc_72h = [
+        _has_code_or_label(row, "z7Eb2yFLOBI", {"3"}, {"49-72 hrs", "72"},
+                           col_name="Postpartum care_Date/stay pp")
+        for _, row in df.iterrows()
+    ]
+    pnc_7d = [
+        _has_code_or_label(row, "z7Eb2yFLOBI", {"4"}, {"73hrs-7 days", "7 days"},
+                           col_name="Postpartum care_Date/stay pp")
+        for _, row in df.iterrows()
+    ]
+
+    epnc_24h = sum(1 for i in range(n_records) if pnc_24h[i])
+    epnc_48h = sum(1 for i in range(n_records) if pnc_48h[i])
+    epnc_72h = sum(1 for i in range(n_records) if pnc_72h[i])
+    epnc_7d = sum(1 for i in range(n_records) if pnc_7d[i])
+    epnc_total = sum(1 for i in range(n_records) if pnc_24h[i] or pnc_48h[i] or pnc_72h[i] or pnc_7d[i])
+
+    # 11. Caesarean Section
+    cs_total = sum(
+        1 for _, row in df.iterrows()
+        if _has_code_or_label(row, "lphtwP2ViZU", {"2"}, {"cesarean", "c-section", "cesarean section (c-section)"},
+                              col_name="Delivery summary_Mode of Delivery maternal")
+    )
+
+    # 12. Institutional Maternal Death
+    imd_total = sum(
+        1 for _, row in df.iterrows()
+        if _has_code_or_label(row, "TjQOcW6tm8k", {"4"}, {"dead", "died"},
+                              col_name="Discharge Summary_Condition of Discharge")
+    )
+
+    # Map by S.No and Row index
+    calculated_by_sno: dict[str, Any] = {
+        "MAT_IPPCAR_Age":    ppfp_age_total,
+        "MAT_IPPCAR_Age. 1": ppfp_age_10_14,
+        "MAT_IPPCAR_Age. 2": ppfp_age_15_19,
+        "MAT_IPPCAR_Age. 3": ppfp_age_20_24,
+        "MAT_IPPCAR_Age. 4": ppfp_age_25_29,
+        "MAT_IPPCAR_Age. 5": ppfp_age_30_49,
+        "MAT_IPPCAR_Mtd":    ppfp_mtd_total,
+        "MAT_IPPCAR_Mtd. 1": ppfp_mtd_oral,
+        "MAT_IPPCAR_Mtd. 2": ppfp_mtd_implants,
+        "MAT_IPPCAR_Mtd. 3": ppfp_mtd_iucd,
+        "MAT_IPPCAR_Mtd. 5": ppfp_mtd_other,
+        "MAT_ANC1_MA.1":     anc1_total,
+        "MAT_ANC1_MA.1. 1":  anc1_10_14,
+        "MAT_ANC1_MA.1. 2":  anc1_15_19,
+        "MAT_ANC1_MA.1. 3":  anc1_ge_20,
+        "MAT_ANC4+_MA.1":    anc4_total,
+        "MAT_ANC4+_MA.1. 1": anc4_10_14,
+        "MAT_ANC4+_MA.1. 2": anc4_15_19,
+        "MAT_ANC4+_MA.1. 3": anc4_ge_20,
+        "MAT_ANC8+.":        anc8_total,
+        "MAT_SYPH.1":        syp_tested,
+        "MAT_SYPH.1. 1":     syp_reactive,
+        "MAT_SYPH.1. 2":     syp_non_reactive,
+        "MAT_Hepa":          hepa_tested,
+        "MAT_Hepa. 1":       hepa_reactive,
+        "MAT_Hepa. 2":       hepa_non_reactive,
+        "L&D_SBA.1.":        sba_total,
+        "MAT_PPH.1":         pph_count,
+        "MAT_PPH.1. 2":      pph_count,
+        "MAT_UTER.1":        uter_total,
+        "MAT_UTER.1. 1":     uter_oxy,
+        "MAT_UTER.1. 2":     uter_miso,
+        "MAT_UTER.1. 3":     uter_ergo,
+        "MAT_SBR.SB.":       total_stillbirths,
+        "MAT_SBR.LB.":       total_livebirths,
+        "MAT_EPNC.1":        epnc_total,
+        "MAT_EPNC.1. 2":     epnc_24h,
+        "MAT_EPNC.1. 3":     epnc_48h,
+        "MAT_EPNC.1. 4":     epnc_72h,
+        "MAT_EPNC.1. 5":     epnc_7d,
+        "MAT_CS.1.":         cs_total,
+        "MAT_IMD.1.":        imd_total,
+    }
+
     values: dict[str, Any] = {}
-    for ind in INDICATORS:
-        st = avail_map.get(ind.code, "COMPUTED" if ind._fn is not None else "NOT CAPTURED")
+    for idx, r in enumerate(rep_rows):
+        r_idx = idx + 3
+        st = r.get("status")
+        sno = r.get("sno")
+
         if st == "HEADER":
-            values[ind.code] = None
-        elif st == "NOT CAPTURED" or ind._fn is None:
-            values[ind.code] = "Not available"
+            val = None
+        elif st == "NOT CAPTURED":
+            val = "Not available"
         else:
-            v = ind.compute(df)
-            values[ind.code] = v if v is not None else 0
+            val = calculated_by_sno.get(sno)
+            if val is None and sno:
+                val = calculated_by_sno.get(norm(sno))
+            if val is None:
+                val = 0
+
+        values[f"row_{r_idx}"] = val
+        if sno and st != "HEADER":
+            values[sno] = val
+            values[norm(sno)] = val
+
     return values
 
 
