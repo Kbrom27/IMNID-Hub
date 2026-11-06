@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=IMNID Hub
+Comment=Health Information Interoperability & Data Platform
+Exec=/usr/bin/imnid-hub
+Icon=imnid-hub
+Terminal=false
+Categories=Medical;Office;Database;Utility;
+Keywords=IMNID;Health;DHIS2;OpenMRS;SmartCare;HMIS;Interoperability;

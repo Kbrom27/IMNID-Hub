@@ -1,0 +1,212 @@
+name: Build and Package IMNID Hub
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - final-ui-polish
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-frontend:
+    name: Build Frontend UI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build Production Assets
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Upload Frontend Dist Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          retention-days: 7
+
+  build-linux:
+    name: Package for Linux (Ubuntu deb & tar.gz)
+    needs: build-frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Download Frontend Dist
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+      - name: Install Linux Build Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt pyinstaller pillow
+
+      - name: Build Standalone Linux Executable with PyInstaller
+        run: |
+          pyinstaller --noconfirm --clean \
+            --name "imnid-hub" \
+            --onedir \
+            --add-data "frontend/dist:frontend/dist" \
+            --add-data "backend/modules/interop/Resources:backend/modules/interop/Resources" \
+            --add-data "backend/modules/hmis/templates:backend/modules/hmis/templates" \
+            --add-data "frontend/public/icon.jpeg:frontend/public" \
+            --add-data "frontend/public/IMNID_Hub_logo.png:frontend/public" \
+            run_hub.py
+
+      - name: Add Run Script to Standalone Bundle
+        run: |
+          cp start-linux.sh dist/imnid-hub/
+          chmod +x dist/imnid-hub/start-linux.sh
+          chmod +x dist/imnid-hub/imnid-hub
+
+      - name: Build Debian Package (.deb)
+        run: |
+          bash scripts/package_deb.sh
+          mv imnid-hub_1.0.0_amd64.deb imnid-hub-linux-amd64.deb
+
+      - name: Build Compressed Linux Tarball (.tar.gz)
+        run: |
+          tar -czvf imnid-hub-linux-x64.tar.gz -C dist imnid-hub
+
+      - name: Upload Linux DEB Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: imnid-hub-linux-amd64.deb
+          path: imnid-hub-linux-amd64.deb
+          retention-days: 30
+
+      - name: Upload Linux Tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: imnid-hub-linux-x64.tar.gz
+          path: imnid-hub-linux-x64.tar.gz
+          retention-days: 30
+
+  build-windows:
+    name: Package for Windows (x64 zip)
+    needs: build-frontend
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Download Frontend Dist
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+      - name: Install Windows Build Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt pyinstaller pillow
+
+      - name: Generate Windows Icon (.ico)
+        shell: python
+        run: |
+          from PIL import Image
+          img = Image.open('frontend/public/icon.jpeg')
+          img.save('icon.ico', format='ICO', sizes=[(16,16),(32,32),(48,48),(64,64),(128,128),(256,256)])
+          print("Icon generated successfully")
+
+      - name: Build Standalone Windows Executable with PyInstaller
+        shell: pwsh
+        run: |
+          pyinstaller --noconfirm --clean `
+            --name "IMNID-Hub" `
+            --onedir `
+            --icon "icon.ico" `
+            --add-data "frontend/dist;frontend/dist" `
+            --add-data "backend/modules/interop/Resources;backend/modules/interop/Resources" `
+            --add-data "backend/modules/hmis/templates;backend/modules/hmis/templates" `
+            --add-data "frontend/public/icon.jpeg;frontend/public" `
+            --add-data "frontend/public/IMNID_Hub_logo.png;frontend/public" `
+            run_hub.py
+
+      - name: Copy Windows Launcher Batch File
+        shell: pwsh
+        run: |
+          Copy-Item "start-windows.bat" -Destination "dist\IMNID-Hub\"
+
+      - name: Create Windows ZIP Package
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist\IMNID-Hub\* -DestinationPath imnid-hub-windows-x64.zip -Force
+
+      - name: Upload Windows Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: imnid-hub-windows-x64.zip
+          path: imnid-hub-windows-x64.zip
+          retention-days: 30
+
+  release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Linux DEB
+        uses: actions/download-artifact@v4
+        with:
+          name: imnid-hub-linux-amd64.deb
+
+      - name: Download Linux Tarball
+        uses: actions/download-artifact@v4
+        with:
+          name: imnid-hub-linux-x64.tar.gz
+
+      - name: Download Windows ZIP
+        uses: actions/download-artifact@v4
+        with:
+          name: imnid-hub-windows-x64.zip
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            imnid-hub-linux-amd64.deb
+            imnid-hub-linux-x64.tar.gz
+            imnid-hub-windows-x64.zip
+          generate_release_notes: true

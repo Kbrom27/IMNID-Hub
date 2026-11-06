@@ -919,7 +919,7 @@ def resume_sync(
 
 
 def get_mappings_storage_dir() -> Path:
-    if Path("/data").exists():
+    if Path("/data").is_dir() and os.access("/data", os.W_OK):
         base = Path("/data/mappings")
     else:
         base = Path(settings.DATA_DIR) / "mappings"

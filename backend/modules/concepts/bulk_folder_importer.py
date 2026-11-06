@@ -18,6 +18,7 @@ from backend.modules.concepts.openmrs_importer import (
     error_detail,
     CODED_DATATYPES,
 )
+from backend.core.config import settings
 
 
 import zipfile
@@ -43,7 +44,7 @@ def resolve_concept_directory(target_path: str | Path) -> Path:
 
     # 1. Zip archive extraction
     if p.is_file() and p.suffix.lower() == ".zip":
-        extract_dir = Path("/data/uploads") / f"extracted_{p.stem}"
+        extract_dir = settings.uploads_dir / f"extracted_{p.stem}"
         extract_dir.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(p, "r") as z:
             z.extractall(extract_dir)
@@ -57,7 +58,13 @@ def resolve_concept_directory(target_path: str | Path) -> Path:
         return p
 
     # 3. Check candidate base roots
+    data_dir = Path(settings.DATA_DIR)
     roots = [
+        data_dir / "output_concepts",
+        data_dir / "exports" / "dhis2-concepts",
+        data_dir / "exports",
+        data_dir / "uploads",
+        data_dir / "exports" / "Tests",
         Path("/data/output_concepts"),
         Path("/data/exports/dhis2-concepts"),
         Path("/data/exports"),
@@ -86,8 +93,11 @@ def resolve_concept_directory(target_path: str | Path) -> Path:
         except Exception:
             pass
 
-    # 5. Check if a zip with this name exists in /data/uploads or /data/exports
-    for root in [Path("/data/exports"), Path("/data/uploads"), Path("/data/output_concepts")]:
+    # 5. Check if a zip with this name exists in uploads or exports
+    zip_roots = [data_dir / "exports", data_dir / "uploads", data_dir / "output_concepts", Path("/data/exports"), Path("/data/uploads"), Path("/data/output_concepts")]
+    for root in zip_roots:
+        if not root.is_dir():
+            continue
         for zf in [root / f"{name_only}.zip", root / f"{p.stem}.zip"]:
             if zf.is_file():
                 return resolve_concept_directory(zf)
@@ -102,7 +112,13 @@ def resolve_concept_directory(target_path: str | Path) -> Path:
 
 def get_available_concept_directories() -> list[dict]:
     """Scan and return a list of valid concept program directories on the server."""
+    data_dir = Path(settings.DATA_DIR)
     candidates = [
+        data_dir / "output_concepts",
+        data_dir / "exports" / "dhis2-concepts",
+        data_dir / "exports" / "Tests",
+        data_dir / "exports",
+        data_dir / "uploads",
         Path("/data/output_concepts"),
         Path("/data/exports/dhis2-concepts"),
         Path("/data/exports/Tests"),

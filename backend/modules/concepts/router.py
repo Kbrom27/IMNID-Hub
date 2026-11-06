@@ -740,11 +740,14 @@ async def import_form_schemas_endpoint(
     if not target_path or not target_path.exists():
         fname = Path(req.forms_dir).name if req.forms_dir else ""
         cand_upload = settings.uploads_dir / fname
-        cand_schema = Path("/data/schemas") / fname
+        cand_schema_local = Path(settings.DATA_DIR) / "schemas" / fname
+        cand_schema_docker = Path("/data/schemas") / fname
         if fname and cand_upload.exists():
             req.forms_dir = str(cand_upload)
-        elif fname and cand_schema.exists():
-            req.forms_dir = str(cand_schema)
+        elif fname and cand_schema_local.exists():
+            req.forms_dir = str(cand_schema_local)
+        elif fname and cand_schema_docker.exists():
+            req.forms_dir = str(cand_schema_docker)
         else:
             raise HTTPException(
                 status_code=400,

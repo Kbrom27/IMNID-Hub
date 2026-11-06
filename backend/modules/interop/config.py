@@ -1,9 +1,15 @@
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-RESOURCES_DIR = Path(__file__).resolve().with_name("Resources")
+if getattr(sys, "frozen", False):
+    base_dir = Path(getattr(sys, "_MEIPASS", ""))
+    cand_res = base_dir / "backend" / "modules" / "interop" / "Resources"
+    RESOURCES_DIR = cand_res if cand_res.exists() else Path(__file__).resolve().with_name("Resources")
+else:
+    RESOURCES_DIR = Path(__file__).resolve().with_name("Resources")
 
 O3_SCHEMA_ROOT = RESOURCES_DIR / "O3" / "Schemas"
 O3_METADATA_PATH = RESOURCES_DIR / "O3" / "metadata_for_openmrs_3x.json"

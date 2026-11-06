@@ -260,7 +260,11 @@ def run_o3_sync(
     log_callback: Optional[Callable[[str], None]] = None,
 ) -> Dict[str, Any]:
     start_time = time.time()
-    default_export_base = Path("/data/exports") if Path("/data/exports").exists() else Path("exports")
+    try:
+        from backend.core.config import settings
+        default_export_base = Path("/data/exports") if Path("/data/exports").exists() else settings.exports_dir
+    except Exception:
+        default_export_base = Path("/data/exports") if Path("/data/exports").exists() else Path("exports").resolve()
     work_dir = Path(output_dir) if output_dir else (default_export_base / f"job_o3_{int(time.time() * 1000)}")
     work_dir.mkdir(parents=True, exist_ok=True)
     resolved_code = facility_code.strip() or FACILITY_CODES.get(facility_name.strip(), facility_name.strip())

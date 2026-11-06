@@ -15,6 +15,8 @@ import re
 from pathlib import Path
 from typing import Callable, Optional
 
+from backend.core.config import settings
+
 from backend.modules.concepts.openmrs_importer import OpenMRSClient, error_detail
 
 REQUEST_TIMEOUT = 30
@@ -249,14 +251,16 @@ def export_form_concepts(
 
     form_files = find_form_files(fdir)
     if not form_files:
-        # Check if the folder exists under /data/schemas
-        alt_path = Path("/data/schemas") / fdir.name
-        if alt_path.is_dir():
-            alt_files = find_form_files(alt_path)
-            if alt_files:
-                log(f"Notice: No form schemas found in '{fdir}', but found {len(alt_files)} schemas in '{alt_path}'. Automatically using '{alt_path}'.")
-                fdir = alt_path
-                form_files = alt_files
+        # Check if the folder exists under schemas in DATA_DIR or /data/schemas
+        for candidate_root in [Path(settings.DATA_DIR) / "schemas", Path("/data/schemas")]:
+            alt_path = candidate_root / fdir.name
+            if alt_path.is_dir():
+                alt_files = find_form_files(alt_path)
+                if alt_files:
+                    log(f"Notice: No form schemas found in '{fdir}', but found {len(alt_files)} schemas in '{alt_path}'. Automatically using '{alt_path}'.")
+                    fdir = alt_path
+                    form_files = alt_files
+                    break
 
     if not form_files:
         log(f"No form schema (.json) files found in {fdir}")

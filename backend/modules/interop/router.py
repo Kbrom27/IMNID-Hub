@@ -167,27 +167,48 @@ async def upload_interop_file(
 
 @router.get("/directories")
 def list_export_directories(current_user: Dict = Depends(get_current_user)):
+    base_data = Path(settings.DATA_DIR)
     std_dirs = [
-        "/data/schemas",
-        "/data/schemas/Maternal Inpatient Data",
-        "/data/schemas/Neonatal Care Form",
-        "/data/schemas/enhanced",
-        "/data/exports",
-        "/data/exports/form-concepts",
-        "/data/exports/bahmni",
-        "/data/exports/o3",
-        "/data/exports/data-export",
-        "/data/exports/analysis",
-        "/data/exports/archive",
-        "/data/uploads",
+        str(base_data / "schemas"),
+        str(base_data / "schemas" / "Maternal Inpatient Data"),
+        str(base_data / "schemas" / "Neonatal Care Form"),
+        str(base_data / "schemas" / "enhanced"),
+        str(base_data / "exports"),
+        str(base_data / "exports" / "form-concepts"),
+        str(base_data / "exports" / "bahmni"),
+        str(base_data / "exports" / "o3"),
+        str(base_data / "exports" / "data-export"),
+        str(base_data / "exports" / "analysis"),
+        str(base_data / "exports" / "archive"),
+        str(base_data / "uploads"),
     ]
+    if Path("/data").exists():
+        docker_dirs = [
+            "/data/schemas",
+            "/data/schemas/Maternal Inpatient Data",
+            "/data/schemas/Neonatal Care Form",
+            "/data/schemas/enhanced",
+            "/data/exports",
+            "/data/exports/form-concepts",
+            "/data/exports/bahmni",
+            "/data/exports/o3",
+            "/data/exports/data-export",
+            "/data/exports/analysis",
+            "/data/exports/archive",
+            "/data/uploads",
+        ]
+        std_dirs = docker_dirs + std_dirs
+
     for d in std_dirs:
         try:
             Path(d).mkdir(parents=True, exist_ok=True)
         except Exception:
             pass
     discovered = []
-    for base in [Path("/data/schemas"), Path("/data/exports")]:
+    bases_to_check = [base_data / "schemas", base_data / "exports"]
+    if Path("/data").exists():
+        bases_to_check.extend([Path("/data/schemas"), Path("/data/exports")])
+    for base in bases_to_check:
         if base.exists():
             try:
                 for item in sorted(base.iterdir()):

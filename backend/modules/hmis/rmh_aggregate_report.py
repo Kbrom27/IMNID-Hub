@@ -936,10 +936,15 @@ _RMH_TEMPLATE_FILENAME = "01.2 - Reproductive and Maternal Health _ Hospital, He
 
 def resolve_rmh_template_path() -> Optional[Path]:
     """Find the official 01.2 RMH Report template."""
+    import sys
     candidates = [
-        Path("/home/kbrom/Work/IMNID/IMNID Developments/Report template") / _RMH_TEMPLATE_FILENAME,
         Path(__file__).parent / "templates" / _RMH_TEMPLATE_FILENAME,
+        Path.cwd() / "backend" / "modules" / "hmis" / "templates" / _RMH_TEMPLATE_FILENAME,
     ]
+    if getattr(sys, "frozen", False):
+        base_dir = Path(getattr(sys, "_MEIPASS", ""))
+        candidates.append(base_dir / "backend" / "modules" / "hmis" / "templates" / _RMH_TEMPLATE_FILENAME)
+    candidates.append(Path("/home/kbrom/Work/IMNID/IMNID Developments/Report template") / _RMH_TEMPLATE_FILENAME)
     for c in candidates:
         if c.is_file():
             return c

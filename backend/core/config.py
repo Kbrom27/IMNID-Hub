@@ -2,6 +2,16 @@ import os
 from pathlib import Path
 from pydantic_settings import BaseSettings
 
+def _default_data_dir() -> str:
+    env_val = os.getenv("DATA_DIR")
+    if env_val:
+        return env_val
+    import sys
+    if getattr(sys, "frozen", False):
+        exe_dir = Path(sys.executable).resolve().parent
+        return str(exe_dir / "data")
+    return str(Path(__file__).resolve().parent.parent.parent / "data")
+
 class Settings(BaseSettings):
     # Application & Server Ports
     FRONTEND_PORT: int = 3000
@@ -55,7 +65,7 @@ class Settings(BaseSettings):
     BACKEND_URL: str = "http://backend:8085"
 
     # Storage Paths
-    DATA_DIR: str = os.getenv("DATA_DIR", str(Path(__file__).resolve().parent.parent.parent / "data"))
+    DATA_DIR: str = _default_data_dir()
 
     class Config:
         env_file = ".env"

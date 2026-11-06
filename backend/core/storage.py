@@ -107,13 +107,15 @@ def resolve_export_file(filename: str, include_uploads: bool = False) -> Optiona
 
     # 5. Check if file exists under any [Local Folder] folder created in /app or working dir
     try:
-        app_matches = [
-            m for m in Path("/app").glob(f"**/{base_name}")
-            if m.is_file() and not m.name.startswith(".") and ".git" not in str(m)
-        ]
-        if app_matches:
-            app_matches.sort(key=lambda m: m.stat().st_mtime, reverse=True)
-            return app_matches[0]
+        search_roots = [r for r in [Path("/app"), Path.cwd()] if r.exists()]
+        for s_root in search_roots:
+            app_matches = [
+                m for m in s_root.glob(f"**/{base_name}")
+                if m.is_file() and not m.name.startswith(".") and ".git" not in str(m)
+            ]
+            if app_matches:
+                app_matches.sort(key=lambda m: m.stat().st_mtime, reverse=True)
+                return app_matches[0]
     except Exception:
         pass
 

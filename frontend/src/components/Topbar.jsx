@@ -181,8 +181,12 @@ export const Topbar = ({ onMenuClick, isCollapsed, onToggleCollapse }) => {
               className="flex md:hidden items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded-lg p-1 group flex-shrink-0 ml-1"
               title="IMNID Hub Dashboard"
             >
-              <div className="w-8 h-8 flex-shrink-0 rounded-lg bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 shadow-xs">
-                <Activity className="w-4 h-4 text-teal-400" />
+              <div className="h-8 px-1.5 flex-shrink-0 rounded-lg bg-white border border-slate-700/60 flex items-center justify-center shadow-xs overflow-hidden">
+                <img
+                  src="/IMNID_Hub_logo.png"
+                  alt="IMNID Hub"
+                  className="h-6 w-auto object-contain"
+                />
               </div>
               <span className="text-base font-bold text-white tracking-tight leading-none">
                 IMNID Hub
@@ -197,8 +201,12 @@ export const Topbar = ({ onMenuClick, isCollapsed, onToggleCollapse }) => {
               className="flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded-xl px-3 py-1.5 group transition-colors hover:bg-slate-900/60"
               title="IMNID Hub Dashboard"
             >
-              <div className="w-9 h-9 flex-shrink-0 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 shadow-xs group-hover:bg-teal-500/30 group-hover:scale-105 transition-all">
-                <Activity className="w-5 h-5 text-teal-400" />
+              <div className="h-10 px-2.5 flex-shrink-0 rounded-xl bg-white border border-slate-700/60 flex items-center justify-center shadow-xs group-hover:scale-105 transition-all overflow-hidden">
+                <img
+                  src="/IMNID_Hub_logo.png"
+                  alt="IMNID Hub"
+                  className="h-7 w-auto object-contain"
+                />
               </div>
               <div className="min-w-0 flex flex-col text-left">
                 <span className="text-[17px] font-bold text-white tracking-tight leading-none">

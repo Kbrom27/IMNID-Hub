@@ -68,8 +68,14 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="w-14 h-14 rounded-2xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 mx-auto shadow-lg shadow-teal-500/10 mb-4">
-          <Activity className="w-8 h-8 text-teal-400" />
+        <div className="flex justify-center mb-5">
+          <div className="h-20 px-4 py-2 rounded-2xl bg-white border border-slate-700/60 shadow-xl shadow-teal-500/10 flex items-center justify-center">
+            <img
+              src="/IMNID_Hub_logo.png"
+              alt="IMNID Hub Logo"
+              className="h-16 w-auto max-w-[260px] object-contain"
+            />
+          </div>
         </div>
         <h2 className="text-3xl font-extrabold text-white tracking-tight">IMNID Hub</h2>
         <p className="mt-2 text-sm text-slate-400">

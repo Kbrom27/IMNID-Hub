@@ -914,10 +914,15 @@ _NH_TEMPLATE_FILENAME = "04.2 - Neonatal and Child Health _ Health center, Hospi
 
 def resolve_nh_template_path() -> Optional[Path]:
     """Find the official 04.2 NCH Report template."""
+    import sys
     candidates = [
-        Path("/home/kbrom/Work/IMNID/IMNID Developments/Report template") / _NH_TEMPLATE_FILENAME,
         Path(__file__).parent / "templates" / _NH_TEMPLATE_FILENAME,
+        Path.cwd() / "backend" / "modules" / "hmis" / "templates" / _NH_TEMPLATE_FILENAME,
     ]
+    if getattr(sys, "frozen", False):
+        base_dir = Path(getattr(sys, "_MEIPASS", ""))
+        candidates.append(base_dir / "backend" / "modules" / "hmis" / "templates" / _NH_TEMPLATE_FILENAME)
+    candidates.append(Path("/home/kbrom/Work/IMNID/IMNID Developments/Report template") / _NH_TEMPLATE_FILENAME)
     for c in candidates:
         if c.is_file():
             return c

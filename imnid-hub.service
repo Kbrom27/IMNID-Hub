@@ -1,0 +1,16 @@
+[Unit]
+Description=IMNID Hub Background Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/imnid-hub
+ExecStart=/usr/bin/imnid-hub --no-browser --host 0.0.0.0 --port 8085
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+Environment=DATA_DIR=/var/lib/imnid-hub/data
+
+[Install]
+WantedBy=multi-user.target

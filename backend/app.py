@@ -64,6 +64,8 @@ from backend.modules.data_management import router as data_management_router
 from backend.modules.interop import router as interop_router
 from backend.modules.concepts import router as concepts_router
 from backend.modules.hmis import router as hmis_router
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
 # Mount core routers
 app.include_router(auth.router)
@@ -77,6 +79,42 @@ app.include_router(interop_router.router)
 app.include_router(concepts_router.router)
 app.include_router(hmis_router.router)
 
+# Mount static frontend if available (for native desktop / standalone installations)
+def setup_frontend_serving(application: FastAPI):
+    import sys
+    candidates = []
+    if getattr(sys, "frozen", False):
+        base_dir = Path(getattr(sys, "_MEIPASS", ""))
+        candidates.append(base_dir / "frontend" / "dist")
+        candidates.append(base_dir / "dist")
+    candidates.extend([
+        Path(__file__).resolve().parent.parent / "frontend" / "dist",
+        Path.cwd() / "frontend" / "dist",
+        Path.cwd() / "dist",
+        Path(__file__).resolve().parent / "dist",
+    ])
+    dist_dir = None
+    for cand in candidates:
+        if cand.is_dir() and (cand / "index.html").is_file():
+            dist_dir = cand
+            break
+
+    if dist_dir:
+        assets_dir = dist_dir / "assets"
+        if assets_dir.is_dir():
+            application.mount("/assets", StaticFiles(directory=str(assets_dir)), name="frontend_assets")
+
+        @application.get("/{full_path:path}", include_in_schema=False)
+        async def serve_frontend(request: Request, full_path: str):
+            if full_path.startswith("api/") or full_path in ("api", "docs", "redoc", "openapi.json"):
+                return JSONResponse(status_code=404, content={"detail": "Not found"})
+            file_path = dist_dir / full_path
+            if file_path.is_file():
+                return FileResponse(file_path)
+            return FileResponse(dist_dir / "index.html")
+
+setup_frontend_serving(app)
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("backend.app:app", host="0.0.0.0", port=settings.BACKEND_PORT, reload=True)
+    uvicorn.run(app, host="0.0.0.0", port=settings.BACKEND_PORT)

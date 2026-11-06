@@ -12,6 +12,7 @@ import json
 import re
 import uuid
 from pathlib import Path
+from backend.core.config import settings
 from typing import Callable, Optional
 
 from backend.modules.concepts.openmrs_importer import OpenMRSClient, error_detail
@@ -288,17 +289,19 @@ def import_form_schemas(
     fdir = Path(forms_dir)
     form_files = find_form_files(fdir)
 
-    # Fallback to /data/schemas/<name> if user selected a directory with no schemas
+    # Fallback to schemas/<name> under DATA_DIR or /data/schemas if user selected a directory with no schemas
     if not form_files and fdir.is_dir():
-        alt_path = Path("/data/schemas") / fdir.name
-        if alt_path.is_dir():
-            alt_files = find_form_files(alt_path)
-            if alt_files:
-                log(
-                    f"Notice: No form schemas found in '{fdir}', but found {len(alt_files)} schemas in '{alt_path}'. Automatically using '{alt_path}'."
-                )
-                fdir = alt_path
-                form_files = alt_files
+        for candidate_root in [Path(settings.DATA_DIR) / "schemas", Path("/data/schemas")]:
+            alt_path = candidate_root / fdir.name
+            if alt_path.is_dir():
+                alt_files = find_form_files(alt_path)
+                if alt_files:
+                    log(
+                        f"Notice: No form schemas found in '{fdir}', but found {len(alt_files)} schemas in '{alt_path}'. Automatically using '{alt_path}'."
+                    )
+                    fdir = alt_path
+                    form_files = alt_files
+                    break
 
     if not form_files:
         log(f"No valid form schema (.json) files found in {fdir}.")

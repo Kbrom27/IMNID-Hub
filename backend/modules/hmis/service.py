@@ -775,15 +775,21 @@ def run_moh_aggregate_worker(
     target_mapping = (mapping_file or "").strip() or "Maternal aggregate.xlsx"
     mapping_path = Path(target_mapping)
     if not mapping_path.is_file():
+        import sys
         candidates = [
-            Path("/app") / target_mapping,
-            Path("/app/backend/modules/hmis/templates") / target_mapping,
-            settings.uploads_dir / target_mapping,
             Path(__file__).resolve().parent / "templates" / target_mapping,
             Path(__file__).resolve().parent / "templates" / "Maternal aggregate.xlsx",
+            Path.cwd() / "backend/modules/hmis/templates" / target_mapping,
+            settings.uploads_dir / target_mapping,
+            Path("/app") / target_mapping,
+            Path("/app/backend/modules/hmis/templates") / target_mapping,
             Path("/app/backend/modules/hmis/templates/Maternal aggregate.xlsx"),
             Path("/app/Maternal aggregate.xlsx"),
         ]
+        if getattr(sys, "frozen", False):
+            base_dir = Path(getattr(sys, "_MEIPASS", ""))
+            candidates.insert(0, base_dir / "backend" / "modules" / "hmis" / "templates" / target_mapping)
+            candidates.insert(1, base_dir / "backend" / "modules" / "hmis" / "templates" / "Maternal aggregate.xlsx")
         found = False
         for c in candidates:
             if c.is_file():
