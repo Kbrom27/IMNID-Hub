@@ -166,17 +166,30 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
       {/* Scrollable Navigation Area with edge fades */}
       <div className="relative flex-1 min-h-0 flex flex-col">
         {/* Subtle Top Scroll Edge Fade */}
-        <div className="pointer-events-none absolute top-0 left-0 right-0 h-3 bg-gradient-to-b from-slate-900 to-transparent z-10" />
+        <div className="pointer-events-none absolute top-0 left-0 right-0 h-2 bg-gradient-to-b from-slate-900 to-transparent z-10" />
 
-        <nav className="flex-1 overflow-y-auto px-3.5 py-4 space-y-5">
+        <nav className="flex-1 overflow-y-auto sidebar-scroll px-3 py-2.5 space-y-3">
           {NAV_GROUPS.map((group) => (
-            <div key={group.title} className="space-y-1.5">
+            <div key={group.title} className="space-y-1">
               {!isCollapsed && (
-                <div className="px-3 pb-1 text-xs font-bold uppercase tracking-wider text-slate-400">
+                <div
+                  onClick={() => {
+                    if (group.items.length === 1) {
+                      const itm = group.items[0];
+                      if (itm.subItems && itm.subItems.length > 0) {
+                        toggleGroup(itm.to);
+                      }
+                    }
+                  }}
+                  className={`px-3 py-0.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 select-none ${
+                    group.items.length === 1 && group.items[0].subItems ? 'cursor-pointer hover:text-teal-300 transition-colors' : ''
+                  }`}
+                  title={group.items.length === 1 && group.items[0].subItems ? `Toggle ${group.title} submenu` : undefined}
+                >
                   {group.title}
                 </div>
               )}
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 {group.items.map((item) => {
                   const Icon = item.icon;
                   const hasSubs = item.subItems && item.subItems.length > 0;
@@ -191,7 +204,7 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
                       onClick={handleLinkClick}
                       className={({ isActive }) => {
                         const active = hasSubs ? isGroupActive : isActive;
-                        return `relative flex items-center gap-3 px-3 h-10 min-h-[40px] rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${
+                        return `relative flex items-center gap-3 px-3 h-9 min-h-[36px] rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${
                           active
                             ? 'bg-teal-500/15 text-teal-300 font-semibold shadow-xs'
                             : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
@@ -207,7 +220,7 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
                               <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-teal-400 rounded-r shadow-xs" />
                             )}
 
-                            <Icon className="w-5 h-5 flex-shrink-0 text-slate-400 group-hover:text-slate-200" />
+                            <Icon className="w-4.5 h-4.5 flex-shrink-0 text-slate-400 group-hover:text-slate-200" />
                             {!isCollapsed && (
                               <span className="flex-1 whitespace-nowrap text-left text-sm leading-tight">
                                 {item.label}
@@ -258,9 +271,9 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
                         linkElement
                       )}
 
-                      {/* Sub-items for accordion group: standard 36px row height */}
+                      {/* Sub-items for accordion group: standard row height */}
                       {!isCollapsed && hasSubs && isOpen && (
-                        <div className="ml-5 pl-2.5 border-l border-slate-700/60 space-y-1 py-1.5 animate-in fade-in duration-100">
+                        <div className="ml-5 pl-2.5 border-l border-slate-700/60 space-y-0.5 py-1 animate-in fade-in duration-100">
                           {item.subItems.map((sub) => {
                             const isSubActive =
                               location.pathname === sub.to ||
@@ -271,7 +284,7 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
                                 key={sub.to}
                                 to={sub.to}
                                 onClick={handleLinkClick}
-                                className={`flex items-center px-3 h-9 min-h-[36px] rounded-md text-sm font-medium transition-colors truncate focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal-400 ${
+                                className={`flex items-center px-2.5 h-8 min-h-[32px] rounded-md text-[13px] font-medium transition-colors truncate focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal-400 ${
                                   isSubActive
                                     ? 'text-teal-300 bg-teal-500/15 font-semibold'
                                     : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
@@ -292,15 +305,15 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
         </nav>
 
         {/* Subtle Bottom Scroll Edge Fade */}
-        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-slate-900 to-transparent z-10" />
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-t from-slate-900 to-transparent z-10" />
       </div>
 
       {/* Pinned Administration Block: Always reachable above footer */}
-      <div className="p-3 border-t border-slate-800 bg-slate-950/40 flex-shrink-0">
+      <div className="p-2 px-3 border-t border-slate-800 bg-slate-950/40 flex-shrink-0">
         <NavLink
           to="/settings"
           onClick={handleLinkClick}
-          className={({ isActive }) => `relative flex items-center gap-3 px-3 h-10 min-h-[40px] rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${
+          className={({ isActive }) => `relative flex items-center gap-3 px-3 h-9 min-h-[36px] rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 ${
             isActive
               ? 'bg-teal-500/15 text-teal-300 font-semibold shadow-xs'
               : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
@@ -311,7 +324,7 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
               {isActive && (
                 <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-teal-400 rounded-r shadow-xs" />
               )}
-              <Settings className="w-5 h-5 flex-shrink-0 text-slate-400 group-hover:text-slate-200" />
+              <Settings className="w-4.5 h-4.5 flex-shrink-0 text-slate-400 group-hover:text-slate-200" />
               {!isCollapsed && (
                 <span className="flex-1 whitespace-nowrap text-left text-sm leading-tight">
                   Settings & Connections
@@ -323,7 +336,7 @@ export const Sidebar = ({ isMobileOpen, setIsMobileOpen, isCollapsed }) => {
       </div>
 
       {/* Pinned Footer: Version ONLY */}
-      <div className="p-3 border-t border-slate-800 bg-slate-950 text-xs text-slate-400 flex flex-col items-center flex-shrink-0">
+      <div className="py-2 px-3.5 border-t border-slate-800 bg-slate-950 text-xs text-slate-400 flex flex-col items-center flex-shrink-0">
         {!isCollapsed ? (
           <div className="w-full flex items-center justify-between">
             <span className="font-semibold text-slate-300 text-xs">
