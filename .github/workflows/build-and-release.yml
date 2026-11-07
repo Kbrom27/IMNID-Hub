@@ -164,6 +164,10 @@ jobs:
             --paths "backend" `
             --paths "backend/modules/interop" `
             --collect-all "backend" `
+            --exclude-module tkinter `
+            --exclude-module matplotlib `
+            --exclude-module scipy `
+            --exclude-module IPython `
             --add-data "frontend/dist;frontend/dist" `
             --add-data "backend/modules/interop/Resources;backend/modules/interop/Resources" `
             --add-data "backend/modules/hmis/templates;backend/modules/hmis/templates" `
@@ -203,31 +207,41 @@ jobs:
 
   release:
     name: Publish GitHub Release
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     needs: [build-linux, build-windows]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Download Linux DEB
         uses: actions/download-artifact@v4
         with:
           name: imnid-hub-linux-amd64.deb
+          path: release_assets
 
       - name: Download Linux Tarball
         uses: actions/download-artifact@v4
         with:
           name: imnid-hub-linux-x64.tar.gz
+          path: release_assets
 
       - name: Download Windows Setup Installer
         uses: actions/download-artifact@v4
         with:
           name: IMNID-Hub-Setup
+          path: release_assets
 
-      - name: Create GitHub Release
+      - name: Verify Downloaded Assets
+        run: |
+          ls -lh release_assets/
+
+      - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            imnid-hub-linux-amd64.deb
-            imnid-hub-linux-x64.tar.gz
-            IMNID-Hub-Setup.exe
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'latest' }}
+          name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'IMNID Hub Latest Release' }}
+          draft: false
+          prerelease: false
+          files: release_assets/*
           generate_release_notes: true
 
