@@ -5,7 +5,6 @@ on:
     branches:
       - main
       - master
-      - final-ui-polish
     tags:
       - 'v*'
   pull_request:
@@ -80,6 +79,10 @@ jobs:
           pyinstaller --noconfirm --clean \
             --name "imnid-hub" \
             --onedir \
+            --paths "." \
+            --paths "backend" \
+            --paths "backend/modules/interop" \
+            --collect-all "backend" \
             --add-data "frontend/dist:frontend/dist" \
             --add-data "backend/modules/interop/Resources:backend/modules/interop/Resources" \
             --add-data "backend/modules/hmis/templates:backend/modules/hmis/templates" \
@@ -157,6 +160,10 @@ jobs:
             --name "IMNID-Hub" `
             --onedir `
             --icon "icon.ico" `
+            --paths "." `
+            --paths "backend" `
+            --paths "backend/modules/interop" `
+            --collect-all "backend" `
             --add-data "frontend/dist;frontend/dist" `
             --add-data "backend/modules/interop/Resources;backend/modules/interop/Resources" `
             --add-data "backend/modules/hmis/templates;backend/modules/hmis/templates" `
@@ -190,20 +197,8 @@ jobs:
       - name: Upload Windows Setup Installer (.exe)
         uses: actions/upload-artifact@v4
         with:
-          name: IMNID-Hub-Setup.exe
+          name: IMNID-Hub-Setup
           path: installer_output/IMNID-Hub-Setup.exe
-          retention-days: 30
-
-      - name: Create Portable Windows ZIP Package
-        shell: pwsh
-        run: |
-          Compress-Archive -Path dist\IMNID-Hub\* -DestinationPath imnid-hub-windows-portable-x64.zip -Force
-
-      - name: Upload Portable Windows ZIP
-        uses: actions/upload-artifact@v4
-        with:
-          name: imnid-hub-windows-portable-x64.zip
-          path: imnid-hub-windows-portable-x64.zip
           retention-days: 30
 
   release:
@@ -225,12 +220,7 @@ jobs:
       - name: Download Windows Setup Installer
         uses: actions/download-artifact@v4
         with:
-          name: IMNID-Hub-Setup.exe
-
-      - name: Download Portable Windows ZIP
-        uses: actions/download-artifact@v4
-        with:
-          name: imnid-hub-windows-portable-x64.zip
+          name: IMNID-Hub-Setup
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -239,6 +229,5 @@ jobs:
             imnid-hub-linux-amd64.deb
             imnid-hub-linux-x64.tar.gz
             IMNID-Hub-Setup.exe
-            imnid-hub-windows-portable-x64.zip
           generate_release_notes: true
 

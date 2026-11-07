@@ -5,24 +5,53 @@ from decimal import Decimal, InvalidOperation
 from difflib import SequenceMatcher
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from config import BLANK_MARKERS, HEADER_SEPARATOR
-from export.extractors import clean_mrn_identifier
-from rules.tracker_mapping_rules import (
-    apply_field_alias,
-    get_external_field_transform,
-    get_field_transform,
-    resolve_configured_option_value,
-    resolve_external_value_mapping,
-    should_suppress_value,
-)
-from utils import (
-    blank_to_empty,
-    deduplicate,
-    normalize_label,
-    normalize_token,
-    normalized_tokens,
-    token_signature,
-)
+try:
+    from config import BLANK_MARKERS, HEADER_SEPARATOR
+except ImportError:
+    from backend.modules.interop.config import BLANK_MARKERS, HEADER_SEPARATOR
+
+try:
+    from export.extractors import clean_mrn_identifier
+except ImportError:
+    from backend.modules.interop.export.extractors import clean_mrn_identifier
+
+try:
+    from rules.tracker_mapping_rules import (
+        apply_field_alias,
+        get_external_field_transform,
+        get_field_transform,
+        resolve_configured_option_value,
+        resolve_external_value_mapping,
+        should_suppress_value,
+    )
+except ImportError:
+    from backend.modules.interop.rules.tracker_mapping_rules import (
+        apply_field_alias,
+        get_external_field_transform,
+        get_field_transform,
+        resolve_configured_option_value,
+        resolve_external_value_mapping,
+        should_suppress_value,
+    )
+
+try:
+    from utils import (
+        blank_to_empty,
+        deduplicate,
+        normalize_label,
+        normalize_token,
+        normalized_tokens,
+        token_signature,
+    )
+except ImportError:
+    from backend.modules.interop.utils import (
+        blank_to_empty,
+        deduplicate,
+        normalize_label,
+        normalize_token,
+        normalized_tokens,
+        token_signature,
+    )
 
 
 def split_export_values(raw_value: str) -> List[str]:

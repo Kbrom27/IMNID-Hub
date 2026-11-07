@@ -6,30 +6,65 @@ from itertools import chain
 from pathlib import Path
 from typing import Dict, List, Sequence
 
-from config import (
-    CONTEXT_COLUMNS,
-    MATERNAL_COMPUTED_DIAGNOSIS_HEADERS,
-    MATERNAL_DIAGNOSIS_SOURCE_HEADERS,
-    MATERNAL_PROGRAM,
-    NEONATAL_PROGRAM,
-    PROGRAM_SPECS,
-    SPECIAL_COLUMNS,
-    is_patient_eligible_for_program,
-)
-from models import MappingField
-from transform.investigations import (
-    NEONATAL_INVESTIGATION_HEADERS,
-    apply_neonatal_investigation_transform,
-)
-from transform.mapping import load_program_fields
-from transform.matcher import order_mapping_fields, resolve_program_sources, select_mapping_field
-from transform.normalizers import normalize_tracker_value
-from utils import (
-    blank_to_empty,
-    deduplicate,
-    normalize_label,
-    raise_csv_field_limit,
-)
+try:
+    from config import (
+        CONTEXT_COLUMNS,
+        MATERNAL_COMPUTED_DIAGNOSIS_HEADERS,
+        MATERNAL_DIAGNOSIS_SOURCE_HEADERS,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+        PROGRAM_SPECS,
+        SPECIAL_COLUMNS,
+        is_patient_eligible_for_program,
+    )
+except ImportError:
+    from backend.modules.interop.config import (
+        CONTEXT_COLUMNS,
+        MATERNAL_COMPUTED_DIAGNOSIS_HEADERS,
+        MATERNAL_DIAGNOSIS_SOURCE_HEADERS,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+        PROGRAM_SPECS,
+        SPECIAL_COLUMNS,
+        is_patient_eligible_for_program,
+    )
+
+try:
+    from models import MappingField
+except ImportError:
+    from backend.modules.interop.models import MappingField
+
+try:
+    from transform.investigations import (
+        NEONATAL_INVESTIGATION_HEADERS,
+        apply_neonatal_investigation_transform,
+    )
+    from transform.mapping import load_program_fields
+    from transform.matcher import order_mapping_fields, resolve_program_sources, select_mapping_field
+    from transform.normalizers import normalize_tracker_value
+except ImportError:
+    from backend.modules.interop.transform.investigations import (
+        NEONATAL_INVESTIGATION_HEADERS,
+        apply_neonatal_investigation_transform,
+    )
+    from backend.modules.interop.transform.mapping import load_program_fields
+    from backend.modules.interop.transform.matcher import order_mapping_fields, resolve_program_sources, select_mapping_field
+    from backend.modules.interop.transform.normalizers import normalize_tracker_value
+
+try:
+    from utils import (
+        blank_to_empty,
+        deduplicate,
+        normalize_label,
+        raise_csv_field_limit,
+    )
+except ImportError:
+    from backend.modules.interop.utils import (
+        blank_to_empty,
+        deduplicate,
+        normalize_label,
+        raise_csv_field_limit,
+    )
 
 
 DIAGNOSIS_METADATA_VALUES = {
@@ -136,7 +171,10 @@ def transform_rows(
     input_path: Path,
     output_path: Path,
 ) -> tuple[int, Dict[str, int], Dict[str, List[str]]]:
-    from config import normalize_program_value
+    try:
+        from config import normalize_program_value
+    except ImportError:
+        from backend.modules.interop.config import normalize_program_value
 
     raise_csv_field_limit()
 

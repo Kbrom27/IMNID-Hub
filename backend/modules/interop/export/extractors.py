@@ -8,9 +8,20 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from clients.openmrs_client import ApiClient
-from config import DETAIL_COLUMNS, MATERNAL_PROGRAM, NEONATAL_PROGRAM, is_patient_eligible_for_program
-from utils import clean_csv_cell
+try:
+    from clients.openmrs_client import ApiClient
+except ImportError:
+    from backend.modules.interop.clients.openmrs_client import ApiClient
+
+try:
+    from config import DETAIL_COLUMNS, MATERNAL_PROGRAM, NEONATAL_PROGRAM, is_patient_eligible_for_program
+except ImportError:
+    from backend.modules.interop.config import DETAIL_COLUMNS, MATERNAL_PROGRAM, NEONATAL_PROGRAM, is_patient_eligible_for_program
+
+try:
+    from utils import clean_csv_cell
+except ImportError:
+    from backend.modules.interop.utils import clean_csv_cell
 
 
 def safe_dict(value: object) -> Dict:

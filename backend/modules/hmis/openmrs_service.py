@@ -54,8 +54,14 @@ interop_dir = str(Path(__file__).resolve().parent.parent / "interop")
 if interop_dir not in sys.path:
     sys.path.insert(0, interop_dir)
 
-from o3app.sync import create_o3_api, run_o3_export
-from clients.openmrs_client import normalize_base_url
+try:
+    from o3app.sync import create_o3_api, run_o3_export
+except ImportError:
+    from backend.modules.interop.o3app.sync import create_o3_api, run_o3_export
+try:
+    from clients.openmrs_client import normalize_base_url
+except ImportError:
+    from backend.modules.interop.clients.openmrs_client import normalize_base_url
 
 
 def resolve_openmrs_creds(

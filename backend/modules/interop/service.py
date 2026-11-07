@@ -18,38 +18,89 @@ from backend.core.config import settings
 from backend.core.database import get_server_connection
 from backend.core.jobs.engine import JobContext
 
-from clients.openmrs_client import ApiClient, normalize_base_url
-from config import (
-    FACILITY_CODES,
-    FACILITIES,
-    MATERNAL_PROGRAM,
-    NEONATAL_PROGRAM,
-)
-from emr_dhis2_tracker_sync import (
-    run_bahmni_sync,
-    create_openmrs_api,
-    fetch_openmrs_export_rows,
-    write_temporary_export_csv,
-    pick_bahmni_mapping_files,
-)
-from export.extractors import (
-    sanitize_filename,
-    determine_program_from_visit_type,
-    normalize_date_filter,
-    validate_date_range,
-)
-from transform.mapping import set_mapping_files
-from transform.pipeline import transform_rows
-from o3app.sync import (
-    create_o3_api,
-    load_form_registry,
-    pick_o3_mapping_files,
-    run_o3_export,
-    run_o3_transform,
-    run_o3_import,
-    run_o3_sync,
-)
-from import_.importer import import_rows
+try:
+    from clients.openmrs_client import ApiClient, normalize_base_url
+except ImportError:
+    from backend.modules.interop.clients.openmrs_client import ApiClient, normalize_base_url
+
+try:
+    from config import (
+        FACILITY_CODES,
+        FACILITIES,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+    )
+except ImportError:
+    from backend.modules.interop.config import (
+        FACILITY_CODES,
+        FACILITIES,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+    )
+try:
+    from emr_dhis2_tracker_sync import (
+        run_bahmni_sync,
+        create_openmrs_api,
+        fetch_openmrs_export_rows,
+        write_temporary_export_csv,
+        pick_bahmni_mapping_files,
+    )
+except ImportError:
+    from backend.modules.interop.emr_dhis2_tracker_sync import (
+        run_bahmni_sync,
+        create_openmrs_api,
+        fetch_openmrs_export_rows,
+        write_temporary_export_csv,
+        pick_bahmni_mapping_files,
+    )
+
+try:
+    from export.extractors import (
+        sanitize_filename,
+        determine_program_from_visit_type,
+        normalize_date_filter,
+        validate_date_range,
+    )
+except ImportError:
+    from backend.modules.interop.export.extractors import (
+        sanitize_filename,
+        determine_program_from_visit_type,
+        normalize_date_filter,
+        validate_date_range,
+    )
+
+try:
+    from transform.mapping import set_mapping_files
+    from transform.pipeline import transform_rows
+except ImportError:
+    from backend.modules.interop.transform.mapping import set_mapping_files
+    from backend.modules.interop.transform.pipeline import transform_rows
+
+try:
+    from o3app.sync import (
+        create_o3_api,
+        load_form_registry,
+        pick_o3_mapping_files,
+        run_o3_export,
+        run_o3_transform,
+        run_o3_import,
+        run_o3_sync,
+    )
+except ImportError:
+    from backend.modules.interop.o3app.sync import (
+        create_o3_api,
+        load_form_registry,
+        pick_o3_mapping_files,
+        run_o3_export,
+        run_o3_transform,
+        run_o3_import,
+        run_o3_sync,
+    )
+
+try:
+    from import_.importer import import_rows
+except ImportError:
+    from backend.modules.interop.import_.importer import import_rows
 
 logger = logging.getLogger("imnid.interop")
 

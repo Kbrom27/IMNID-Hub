@@ -19,10 +19,24 @@ import threading
 import multiprocessing
 from pathlib import Path
 
-# Ensure application root directory is on Python search path
+# Ensure application root and internal directories are on Python search path
 APP_ROOT = Path(__file__).resolve().parent
-if str(APP_ROOT) not in sys.path:
-    sys.path.insert(0, str(APP_ROOT))
+if getattr(sys, "frozen", False):
+    base_dir = Path(getattr(sys, "_MEIPASS", APP_ROOT))
+else:
+    base_dir = APP_ROOT
+
+for p in [
+    base_dir,
+    base_dir / "backend",
+    base_dir / "backend" / "modules" / "interop",
+    APP_ROOT,
+    APP_ROOT / "backend",
+    APP_ROOT / "backend" / "modules" / "interop",
+]:
+    p_str = str(p.resolve())
+    if p_str not in sys.path:
+        sys.path.insert(0, p_str)
 
 def open_browser(url: str, delay: float = 1.2):
     """Open default web browser after server initializes."""
@@ -50,6 +64,8 @@ def main():
 
     # Import backend app and settings after configuring environment
     from backend.core.config import settings
+    from backend.core.database import init_db
+    init_db()
     from backend.app import app
     import uvicorn
 

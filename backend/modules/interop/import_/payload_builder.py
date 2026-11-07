@@ -5,26 +5,62 @@ import re
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence
 
-from clients.dhis2_client import (
-    EVENT_DATE_HINTS,
-    add_import_value_issue,
-    invalid_value_reason,
-    normalize_boolean_token,
-    normalize_datetime_value,
-    normalize_numeric_value,
-    normalize_time_value,
-    today_date,
-)
-from config import BLANK_MARKERS, HEADER_SEPARATOR, RESOURCES_DIR
-from export.extractors import clean_mrn_identifier
-from models import AttributeField, ImportValueIssue, ProgramConfig, StageField
-from rules.tracker_mapping_rules import (
-    apply_field_alias,
-    get_field_transform,
-    resolve_configured_option_value,
-    should_suppress_value,
-)
-from utils import blank_to_empty, normalize_date, normalize_label, read_xlsx_rows, row_to_dict
+try:
+    from clients.dhis2_client import (
+        EVENT_DATE_HINTS,
+        add_import_value_issue,
+        invalid_value_reason,
+        normalize_boolean_token,
+        normalize_datetime_value,
+        normalize_numeric_value,
+        normalize_time_value,
+        today_date,
+    )
+except ImportError:
+    from backend.modules.interop.clients.dhis2_client import (
+        EVENT_DATE_HINTS,
+        add_import_value_issue,
+        invalid_value_reason,
+        normalize_boolean_token,
+        normalize_datetime_value,
+        normalize_numeric_value,
+        normalize_time_value,
+        today_date,
+    )
+
+try:
+    from config import BLANK_MARKERS, HEADER_SEPARATOR, RESOURCES_DIR
+except ImportError:
+    from backend.modules.interop.config import BLANK_MARKERS, HEADER_SEPARATOR, RESOURCES_DIR
+try:
+    from export.extractors import clean_mrn_identifier
+except ImportError:
+    from backend.modules.interop.export.extractors import clean_mrn_identifier
+
+try:
+    from models import AttributeField, ImportValueIssue, ProgramConfig, StageField
+except ImportError:
+    from backend.modules.interop.models import AttributeField, ImportValueIssue, ProgramConfig, StageField
+
+try:
+    from rules.tracker_mapping_rules import (
+        apply_field_alias,
+        get_field_transform,
+        resolve_configured_option_value,
+        should_suppress_value,
+    )
+except ImportError:
+    from backend.modules.interop.rules.tracker_mapping_rules import (
+        apply_field_alias,
+        get_field_transform,
+        resolve_configured_option_value,
+        should_suppress_value,
+    )
+
+try:
+    from utils import blank_to_empty, normalize_date, normalize_label, read_xlsx_rows, row_to_dict
+except ImportError:
+    from backend.modules.interop.utils import blank_to_empty, normalize_date, normalize_label, read_xlsx_rows, row_to_dict
 
 
 METADATA_PATH = RESOURCES_DIR / "metadata.json"

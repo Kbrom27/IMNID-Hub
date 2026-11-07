@@ -3,8 +3,15 @@ from __future__ import annotations
 import re
 from typing import Dict, List, Optional
 
-from config import HEADER_SEPARATOR
-from utils import deduplicate, normalize_label
+try:
+    from config import HEADER_SEPARATOR
+except ImportError:
+    from backend.modules.interop.config import HEADER_SEPARATOR
+
+try:
+    from utils import deduplicate, normalize_label
+except ImportError:
+    from backend.modules.interop.utils import deduplicate, normalize_label
 
 INVESTIGATION_STAGE = "Investigation sheet"
 

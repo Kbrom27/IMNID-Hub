@@ -3,21 +3,47 @@ from __future__ import annotations
 from difflib import SequenceMatcher
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from config import HEADER_SEPARATOR
-from models import HeaderInfo, MappingField
-from rules.tracker_mapping_rules import (
-    get_preferred_source_headers,
-    uses_strict_preferred_sources,
-)
-from utils import (
-    build_header_info,
-    deduplicate,
-    extract_bracket_label,
-    find_exact_header,
-    normalize_label,
-    strip_bracket_suffix,
-    token_signature,
-)
+try:
+    from config import HEADER_SEPARATOR
+except ImportError:
+    from backend.modules.interop.config import HEADER_SEPARATOR
+
+try:
+    from models import HeaderInfo, MappingField
+except ImportError:
+    from backend.modules.interop.models import HeaderInfo, MappingField
+
+try:
+    from rules.tracker_mapping_rules import (
+        get_preferred_source_headers,
+        uses_strict_preferred_sources,
+    )
+except ImportError:
+    from backend.modules.interop.rules.tracker_mapping_rules import (
+        get_preferred_source_headers,
+        uses_strict_preferred_sources,
+    )
+
+try:
+    from utils import (
+        build_header_info,
+        deduplicate,
+        extract_bracket_label,
+        find_exact_header,
+        normalize_label,
+        strip_bracket_suffix,
+        token_signature,
+    )
+except ImportError:
+    from backend.modules.interop.utils import (
+        build_header_info,
+        deduplicate,
+        extract_bracket_label,
+        find_exact_header,
+        normalize_label,
+        strip_bracket_suffix,
+        token_signature,
+    )
 
 
 FIELD_SOURCE_ALIASES = {

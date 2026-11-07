@@ -3,26 +3,57 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-from config import (
-    HEADER_SEPARATOR,
-    MATERNAL_PROGRAM,
-    NEONATAL_PROGRAM,
-    PROGRAM_SPECS,
-    RESOURCES_DIR,
-    SPECIAL_COLUMNS,
-)
-from models import DictionaryField, MappingField
-from rules.tracker_mapping_rules import set_value_mapping_path
-from utils import (
-    blank_to_empty,
-    extract_bracket_label,
-    find_mapping_header,
-    is_mapping_source_column,
-    normalize_label,
-    normalized_tokens,
-    read_xlsx_rows,
-    row_to_dict,
-)
+try:
+    from config import (
+        HEADER_SEPARATOR,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+        PROGRAM_SPECS,
+        RESOURCES_DIR,
+        SPECIAL_COLUMNS,
+    )
+except ImportError:
+    from backend.modules.interop.config import (
+        HEADER_SEPARATOR,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+        PROGRAM_SPECS,
+        RESOURCES_DIR,
+        SPECIAL_COLUMNS,
+    )
+
+try:
+    from models import DictionaryField, MappingField
+except ImportError:
+    from backend.modules.interop.models import DictionaryField, MappingField
+
+try:
+    from rules.tracker_mapping_rules import set_value_mapping_path
+except ImportError:
+    from backend.modules.interop.rules.tracker_mapping_rules import set_value_mapping_path
+
+try:
+    from utils import (
+        blank_to_empty,
+        extract_bracket_label,
+        find_mapping_header,
+        is_mapping_source_column,
+        normalize_label,
+        normalized_tokens,
+        read_xlsx_rows,
+        row_to_dict,
+    )
+except ImportError:
+    from backend.modules.interop.utils import (
+        blank_to_empty,
+        extract_bracket_label,
+        find_mapping_header,
+        is_mapping_source_column,
+        normalize_label,
+        normalized_tokens,
+        read_xlsx_rows,
+        row_to_dict,
+    )
 
 
 TARGETED_DICTIONARY_STAGE_FALLBACKS = {
@@ -58,7 +89,10 @@ def set_mapping_files(mapping_excel_path: Path, dictionary_excel_path: Path, val
     _user_dictionary_excel_path = dictionary_excel_path
     _user_value_mapping_csv_path = value_mapping_csv_path
 
-    from config import PROGRAM_SPECS as _ps
+    try:
+        from config import PROGRAM_SPECS as _ps
+    except ImportError:
+        from backend.modules.interop.config import PROGRAM_SPECS as _ps
     _ps[MATERNAL_PROGRAM] = {
         "mapping_path": mapping_excel_path,
         "dictionary_path": dictionary_excel_path,

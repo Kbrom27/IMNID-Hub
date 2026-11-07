@@ -5,23 +5,53 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Sequence
 
-from clients.dhis2_client import (
-    Dhis2Client,
-    add_import_value_issue,
-    format_dhis2_error,
-    reference_id,
-    today_date,
-)
-from config import SPECIAL_COLUMNS, normalize_program_value
-from import_.payload_builder import (
-    build_attribute_payload,
-    build_program_configs,
-    build_stage_payloads,
-    extract_row_value,
-    infer_enrollment_date,
-)
-from models import ImportValueIssue
-from utils import raise_csv_field_limit
+try:
+    from clients.dhis2_client import (
+        Dhis2Client,
+        add_import_value_issue,
+        format_dhis2_error,
+        reference_id,
+        today_date,
+    )
+except ImportError:
+    from backend.modules.interop.clients.dhis2_client import (
+        Dhis2Client,
+        add_import_value_issue,
+        format_dhis2_error,
+        reference_id,
+        today_date,
+    )
+
+try:
+    from config import SPECIAL_COLUMNS, normalize_program_value
+except ImportError:
+    from backend.modules.interop.config import SPECIAL_COLUMNS, normalize_program_value
+try:
+    from import_.payload_builder import (
+        build_attribute_payload,
+        build_program_configs,
+        build_stage_payloads,
+        extract_row_value,
+        infer_enrollment_date,
+    )
+except ImportError:
+    from backend.modules.interop.import_.payload_builder import (
+        build_attribute_payload,
+        build_program_configs,
+        build_stage_payloads,
+        extract_row_value,
+        infer_enrollment_date,
+    )
+
+try:
+    from models import ImportValueIssue
+except ImportError:
+    from backend.modules.interop.models import ImportValueIssue
+
+try:
+    from utils import raise_csv_field_limit
+except ImportError:
+    from backend.modules.interop.utils import raise_csv_field_limit
 
 
 def default_import_log_path(input_path: Optional[Path] = None) -> Path:

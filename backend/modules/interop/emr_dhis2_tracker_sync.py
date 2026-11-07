@@ -8,28 +8,66 @@ import time
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
-from clients.openmrs_client import ApiClient, normalize_base_url
-from config import (
-    BLANK_MARKERS,
-    DETAIL_COLUMNS,
-    FACILITIES,
-    FACILITY_CODES,
-    MATERNAL_PROGRAM,
-    NEONATAL_PROGRAM,
-)
-from export.extractors import (
-    build_patient_row,
-    clean_csv_cell,
-    determine_program_from_visit_type,
-    get_patients_by_visit_type,
-    normalize_date_filter,
-    sanitize_filename,
-    validate_date_range,
-)
-from import_.importer import import_rows
-from transform.mapping import set_mapping_files
-from transform.pipeline import transform_rows
-from utils import require_value_mapping_csv, require_xlsx_file
+try:
+    from clients.openmrs_client import ApiClient, normalize_base_url
+except ImportError:
+    from backend.modules.interop.clients.openmrs_client import ApiClient, normalize_base_url
+
+try:
+    from config import (
+        BLANK_MARKERS,
+        DETAIL_COLUMNS,
+        FACILITIES,
+        FACILITY_CODES,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+    )
+except ImportError:
+    from backend.modules.interop.config import (
+        BLANK_MARKERS,
+        DETAIL_COLUMNS,
+        FACILITIES,
+        FACILITY_CODES,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+    )
+try:
+    from export.extractors import (
+        build_patient_row,
+        clean_csv_cell,
+        determine_program_from_visit_type,
+        get_patients_by_visit_type,
+        normalize_date_filter,
+        sanitize_filename,
+        validate_date_range,
+    )
+except ImportError:
+    from backend.modules.interop.export.extractors import (
+        build_patient_row,
+        clean_csv_cell,
+        determine_program_from_visit_type,
+        get_patients_by_visit_type,
+        normalize_date_filter,
+        sanitize_filename,
+        validate_date_range,
+    )
+
+try:
+    from import_.importer import import_rows
+except ImportError:
+    from backend.modules.interop.import_.importer import import_rows
+
+try:
+    from transform.mapping import set_mapping_files
+    from transform.pipeline import transform_rows
+except ImportError:
+    from backend.modules.interop.transform.mapping import set_mapping_files
+    from backend.modules.interop.transform.pipeline import transform_rows
+
+try:
+    from utils import require_value_mapping_csv, require_xlsx_file
+except ImportError:
+    from backend.modules.interop.utils import require_value_mapping_csv, require_xlsx_file
 
 
 def _save_chk(path: Path, data: Dict[str, Any]) -> None:

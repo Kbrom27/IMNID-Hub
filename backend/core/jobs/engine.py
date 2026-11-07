@@ -159,6 +159,8 @@ class JobEngine:
 
     def _cleanup_stale_jobs_on_startup(self):
         try:
+            from backend.core.database import init_db
+            init_db()
             conn = get_db_connection()
             now = datetime.now(timezone.utc).isoformat()
             cursor = conn.cursor()

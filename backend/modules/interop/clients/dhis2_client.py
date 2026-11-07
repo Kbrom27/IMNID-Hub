@@ -8,9 +8,20 @@ from typing import Dict, List, Optional, Sequence
 import requests
 import urllib3
 
-from config import BLANK_MARKERS
-from models import ImportValueIssue, ProgramConfig
-from utils import blank_to_empty, normalize_date
+try:
+    from config import BLANK_MARKERS
+except ImportError:
+    from backend.modules.interop.config import BLANK_MARKERS
+
+try:
+    from models import ImportValueIssue, ProgramConfig
+except ImportError:
+    from backend.modules.interop.models import ImportValueIssue, ProgramConfig
+
+try:
+    from utils import blank_to_empty, normalize_date
+except ImportError:
+    from backend.modules.interop.utils import blank_to_empty, normalize_date
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
