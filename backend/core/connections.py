@@ -1,3 +1,5 @@
+import os
+import sys
 import time
 import requests
 import urllib3
@@ -8,14 +10,48 @@ import socket
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+def is_running_in_docker() -> bool:
+    """
+    Check if the current process is running inside a Docker container.
+    """
+    if getattr(sys, 'frozen', False):
+        return False
+    if sys.platform == "win32":
+        return False
+    if os.environ.get("IMNID_RUNNING_IN_DOCKER", "").lower() in ("true", "1", "yes"):
+        return True
+    if os.environ.get("RUNNING_IN_DOCKER", "").lower() in ("true", "1", "yes"):
+        return True
+    if os.path.exists("/.dockerenv"):
+        return True
+    try:
+        with open("/proc/1/cgroup", "rt") as f:
+            c = f.read()
+            if "docker" in c or "containerd" in c or "kubepods" in c:
+                return True
+    except Exception:
+        pass
+    return False
+
+def can_resolve_host(hostname: str) -> bool:
+    """
+    Checks if a given hostname can be resolved via DNS.
+    """
+    try:
+        socket.gethostbyname(hostname)
+        return True
+    except Exception:
+        return False
+
 def normalize_container_url(url: str) -> str:
     """
-    Normalizes URLs for container execution:
+    Normalizes URLs for execution:
     - Fixes missing slashes (e.g. 'http:localhost' -> 'http://localhost')
     - Ensures scheme (e.g. 'localhost:8080' -> 'http://localhost:8080')
-    - When running in Docker, 'localhost' points to the container itself.
-      To reach host services (like DHIS2 on 8080 or OpenMRS on 80), map localhost
-      (and 127.0.0.1 on standard host service ports) to 'host.docker.internal'.
+    - When running natively (outside Docker), 'host.docker.internal' is rewritten
+      to 'localhost' so local services (DHIS2, OpenMRS) connect reliably.
+    - When running inside Docker, 'localhost' points to the container itself.
+      To reach host services, map localhost to 'host.docker.internal' (or gateway IP).
       Preserves 127.0.0.1 on backend container port (8085) and test mock ports (>10000).
     """
     if not url:
@@ -26,22 +62,30 @@ def normalize_container_url(url: str) -> str:
     elif not url.startswith("http://") and not url.startswith("https://"):
         url = f"http://{url}"
 
-    m = re.match(r"^(https?://)(localhost|127\.0\.0\.1)(:\d+)?(/.*)?$", url)
-    if m:
-        scheme, host, port_str, path = m.groups()
-        port = int(port_str[1:]) if port_str else (443 if scheme.startswith("https") else 80)
-        
-        # If it's the backend itself (port 8085), stay on container localhost
-        if port == 8085:
-            return url
+    # If running natively or host.docker.internal cannot be resolved, rewrite to localhost
+    if not is_running_in_docker() or not can_resolve_host("host.docker.internal"):
+        if "host.docker.internal" in url:
+            url = url.replace("host.docker.internal", "localhost")
 
-        # If it's a test mock server on dynamic ephemeral port (>10000) on 127.0.0.1, stay on 127.0.0.1
-        if host == "127.0.0.1" and port >= 10000:
-            return url
+    # Only rewrite localhost -> host.docker.internal IF we are inside a Docker container
+    if is_running_in_docker():
+        m = re.match(r"^(https?://)(localhost|127\.0\.0\.1)(:\d+)?(/.*)?$", url)
+        if m:
+            scheme, host, port_str, path = m.groups()
+            port = int(port_str[1:]) if port_str else (443 if scheme.startswith("https") else 80)
+            
+            # If it's the backend itself (port 8085), stay on container localhost
+            if port == 8085:
+                return url
 
-        p_str = port_str or ""
-        p_path = path or ""
-        return f"{scheme}host.docker.internal{p_str}{p_path}"
+            # If it's a test mock server on dynamic ephemeral port (>10000) on 127.0.0.1, stay on 127.0.0.1
+            if host == "127.0.0.1" and port >= 10000:
+                return url
+
+            p_str = port_str or ""
+            p_path = path or ""
+            target_host = "host.docker.internal" if can_resolve_host("host.docker.internal") else "172.17.0.1"
+            return f"{scheme}{target_host}{p_str}{p_path}"
 
     return url
 

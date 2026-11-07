@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 from backend.core.config import settings
 from backend.core.security import hash_password, encrypt_secret, decrypt_secret
-from backend.core.connections import normalize_container_url
+from backend.core.connections import normalize_container_url, is_running_in_docker
 import re
 
 def clean_base_url(url: str) -> str:
@@ -106,7 +106,7 @@ def init_db():
     online_user = settings.DHIS2_ONLINE_USERNAME or settings.DHIS2_USERNAME or "admin"
     online_pwd = settings.DHIS2_ONLINE_PASSWORD or settings.DHIS2_PASSWORD or "district"
 
-    offline_url = settings.DHIS2_OFFLINE_URL or "http://host.docker.internal:8080/dhis"
+    offline_url = settings.DHIS2_OFFLINE_URL or "http://localhost:8080/dhis"
     offline_user = settings.DHIS2_OFFLINE_USERNAME or "admin"
     offline_pwd = settings.DHIS2_OFFLINE_PASSWORD or "district"
 
@@ -172,6 +172,11 @@ def init_db():
                 """,
                 ("dhis2_moh", "DHIS2 MOH (National Aggregate Server)", moh_url, moh_user, encrypt_secret(moh_pwd), 1, now)
             )
+
+        # Clean up legacy host.docker.internal in existing installations running natively
+        if not is_running_in_docker():
+            cursor.execute("UPDATE server_connections SET base_url = REPLACE(base_url, 'host.docker.internal', 'localhost') WHERE base_url LIKE '%host.docker.internal%'")
+
         conn.commit()
 
     conn.close()

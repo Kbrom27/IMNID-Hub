@@ -50,7 +50,7 @@ class Settings(BaseSettings):
     DHIS2_ONLINE_PASSWORD: str = ""
 
     # DHIS2 Offline Server (Local / Facility / Source Server)
-    DHIS2_OFFLINE_URL: str = "http://host.docker.internal:8080/dhis"
+    DHIS2_OFFLINE_URL: str = "http://localhost:8080/dhis"
     DHIS2_OFFLINE_USERNAME: str = "admin"
     DHIS2_OFFLINE_PASSWORD: str = "district"
 
@@ -64,11 +64,11 @@ class Settings(BaseSettings):
     DHIS2_USERNAME: str = ""
     DHIS2_PASSWORD: str = ""
 
-    OPENMRS_URL: str = "http://host.docker.internal:8080/openmrs"
+    OPENMRS_URL: str = "http://localhost:8080/openmrs"
     OPENMRS_USERNAME: str = ""
     OPENMRS_PASSWORD: str = ""
 
-    BAHMNI_URL: str = "http://host.docker.internal:8080/openmrs"
+    BAHMNI_URL: str = "http://localhost:8080/openmrs"
     BAHMNI_USERNAME: str = ""
     BAHMNI_PASSWORD: str = ""
 

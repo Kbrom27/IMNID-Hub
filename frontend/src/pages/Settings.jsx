@@ -47,7 +47,7 @@ const Settings = () => {
 
   const handleChange = (system, field, value) => {
     setConnections(prev =>
-      prev.map(c => (c.system === system ? { ...c, [field]: value } : c))
+      prev.map(c => (c.system === system ? { ...c, [field]: value, ...(field === 'base_url' ? { configured_url: value } : {}) } : c))
     );
   };
 
@@ -63,7 +63,7 @@ const Settings = () => {
         },
         body: JSON.stringify({
           system: conn.system,
-          base_url: conn.configured_url || conn.base_url || '',
+          base_url: conn.base_url || conn.configured_url || '',
           username: conn.username || '',
           secret: conn.new_secret || ''
         })
@@ -182,7 +182,14 @@ const Settings = () => {
                       value={c.base_url || ''}
                       onChange={(e) => handleChange(c.system, 'base_url', e.target.value)}
                       className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-100 font-mono text-[14px] focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-1 focus:ring-teal-500"
-                      placeholder="https://server.example.org"
+                      placeholder={
+                        c.system === 'dhis2_offline' ? 'http://localhost:8080/dhis' :
+                        c.system === 'dhis2_online' ? 'https://imnid.aau.edu.et/dhis' :
+                        c.system === 'dhis2_moh' ? 'https://dhis.moh.gov.et' :
+                        c.system === 'openmrs' ? 'http://localhost:8080/openmrs' :
+                        c.system === 'bahmni' ? 'http://localhost:8080/openmrs' :
+                        'https://server.example.org'
+                      }
                     />
                     {/* Notice if env_url differs from vault */}
                     {c.env_url && (
