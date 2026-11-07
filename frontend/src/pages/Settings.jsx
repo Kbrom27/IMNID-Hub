@@ -186,7 +186,7 @@ const Settings = () => {
                         c.system === 'dhis2_offline' ? 'http://localhost:8080/dhis' :
                         c.system === 'dhis2_online' ? 'https://imnid.aau.edu.et/dhis' :
                         c.system === 'dhis2_moh' ? 'https://dhis.moh.gov.et' :
-                        c.system === 'openmrs' ? 'http://localhost:8080/openmrs' :
+                        c.system === 'openmrs' ? 'http://localhost/openmrs' :
                         c.system === 'bahmni' ? 'http://localhost:8080/openmrs' :
                         'https://server.example.org'
                       }

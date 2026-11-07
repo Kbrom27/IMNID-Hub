@@ -64,7 +64,7 @@ class Settings(BaseSettings):
     DHIS2_USERNAME: str = ""
     DHIS2_PASSWORD: str = ""
 
-    OPENMRS_URL: str = "http://localhost:8080/openmrs"
+    OPENMRS_URL: str = "http://localhost/openmrs"
     OPENMRS_USERNAME: str = ""
     OPENMRS_PASSWORD: str = ""
 

@@ -504,8 +504,8 @@ const SmartcarePage = () => {
                 <span className="font-semibold text-slate-800 dark:text-slate-200">OpenMRS 3.x</span>
                 <StatusBadge status={isTestingOpenmrs ? 'testing' : (openmrsSystem?.state || 'unknown')} size="xs" />
               </div>
-              <span className="text-[11px] font-mono text-slate-400 truncate max-w-[210px]" title={openmrsSystem?.effectiveUrl || 'http://localhost:8080/openmrs'}>
-                {openmrsSystem?.effectiveUrl || 'http://localhost:8080/openmrs'}
+              <span className="text-[11px] font-mono text-slate-400 truncate max-w-[210px]" title={openmrsSystem?.effectiveUrl || 'http://localhost/openmrs'}>
+                {openmrsSystem?.effectiveUrl || 'http://localhost/openmrs'}
               </span>
             </div>
             <button
@@ -758,8 +758,8 @@ const SmartcarePage = () => {
                       <Server className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
                       <span className="truncate">OpenMRS 3.x Vault</span>
                     </div>
-                    <div className="text-[11px] font-mono text-slate-400 truncate" title={openmrsSystem?.effectiveUrl || 'http://localhost:8080/openmrs'}>
-                      {openmrsSystem?.effectiveUrl || 'http://localhost:8080/openmrs'}
+                    <div className="text-[11px] font-mono text-slate-400 truncate" title={openmrsSystem?.effectiveUrl || 'http://localhost/openmrs'}>
+                      {openmrsSystem?.effectiveUrl || 'http://localhost/openmrs'}
                     </div>
                   </div>
                   {openmrsSystem?.latencyMs != null && (
@@ -1248,7 +1248,7 @@ const SmartcarePage = () => {
                         Audit Ready: {(dryRunResult.summary?.valid_records ?? 0).toLocaleString()} valid patient records ready for OpenMRS 3.x
                       </div>
                       <div className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5">
-                        Target: <span className="font-mono font-semibold">{openmrsSystem?.effectiveUrl || 'http://localhost:8080/openmrs'}</span> • Proceed to Step 3 to review scope and execute live migration.
+                        Target: <span className="font-mono font-semibold">{openmrsSystem?.effectiveUrl || 'http://localhost/openmrs'}</span> • Proceed to Step 3 to review scope and execute live migration.
                       </div>
                     </div>
                   </div>
@@ -1460,7 +1460,7 @@ const SmartcarePage = () => {
                 Step 3: Target System Confirmation & Scope
               </div>
               <div className="text-xs text-slate-500 dark:text-slate-400">
-                Target: OpenMRS 3.x ({openmrsSystem?.effectiveUrl || 'http://localhost:8080/openmrs'}) • {Number(dryRunResult?.summary?.valid_records ?? (rowLimit || uploadedInfo?.total_rows || 0)).toLocaleString()} records
+                Target: OpenMRS 3.x ({openmrsSystem?.effectiveUrl || 'http://localhost/openmrs'}) • {Number(dryRunResult?.summary?.valid_records ?? (rowLimit || uploadedInfo?.total_rows || 0)).toLocaleString()} records
               </div>
             </div>
           </div>
@@ -1510,7 +1510,7 @@ const SmartcarePage = () => {
                     <StatusBadge status={isTestingOpenmrs ? 'testing' : (openmrsSystem?.state || 'unknown')} size="xs" />
                   </div>
                   <div className="text-[11px] font-mono text-slate-500 mt-0.5">
-                    {openmrsSystem?.effectiveUrl || 'http://localhost:8080/openmrs'}
+                    {openmrsSystem?.effectiveUrl || 'http://localhost/openmrs'}
                   </div>
                 </div>
               </div>
@@ -1703,7 +1703,7 @@ const SmartcarePage = () => {
         open={showConfirmModal}
         targetSystem="openmrs"
         title="Confirm Live Patient Migration"
-        message={`You are about to migrate ${Number(dryRunResult?.summary?.valid_records ?? (rowLimit || uploadedInfo?.total_rows || 0)).toLocaleString()} patient records from ${uploadedInfo?.filename || 'file'} into OpenMRS 3.x (${openmrsSystem?.effectiveUrl || 'http://localhost:8080/openmrs'}). This creates live patient entities with MRNs (\\d{6}-\\d Luhn check digits).`}
+        message={`You are about to migrate ${Number(dryRunResult?.summary?.valid_records ?? (rowLimit || uploadedInfo?.total_rows || 0)).toLocaleString()} patient records from ${uploadedInfo?.filename || 'file'} into OpenMRS 3.x (${openmrsSystem?.effectiveUrl || 'http://localhost/openmrs'}). This creates live patient entities with MRNs (\\d{6}-\\d Luhn check digits).`}
         confirmLabel="Confirm & Start Migration"
         variant="primary"
         onConfirm={handleStartImport}
