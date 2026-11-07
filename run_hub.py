@@ -16,6 +16,7 @@ import time
 import argparse
 import webbrowser
 import threading
+import multiprocessing
 from pathlib import Path
 
 # Ensure application root directory is on Python search path
@@ -69,5 +70,28 @@ def main():
     uvicorn.run(app, host=bind_host, port=bind_port, log_level="info")
 
 if __name__ == "__main__":
-    main()
-
+    multiprocessing.freeze_support()
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        print("\n" + "=" * 68, file=sys.stderr)
+        print("  FATAL ERROR: IMNID Hub failed to start!", file=sys.stderr)
+        print("=" * 68, file=sys.stderr)
+        traceback.print_exc()
+        try:
+            from backend.core.config import settings
+            err_log = Path(settings.logs_dir) / "fatal_startup_error.log"
+            with open(err_log, "a", encoding="utf-8") as f:
+                f.write(f"\n[{time.strftime('%Y-%m-%d %H:%M:%S')}] Fatal Startup Error:\n")
+                traceback.print_exc(file=f)
+            print(f"\nCrash details written to: {err_log}", file=sys.stderr)
+        except Exception:
+            pass
+        print("\n" + "=" * 68, file=sys.stderr)
+        if sys.stdin and sys.stdin.isatty():
+            try:
+                input("Press [Enter] to exit...")
+            except Exception:
+                pass
+        sys.exit(1)

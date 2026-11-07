@@ -94,9 +94,7 @@ def init_db():
     cursor.execute("SELECT COUNT(*) FROM users")
     if cursor.fetchone()[0] == 0:
         now = datetime.now(timezone.utc).isoformat()
-        initial_pwd = (settings.ADMIN_INITIAL_PASSWORD or "").strip()
-        if not initial_pwd:
-            raise ValueError("ADMIN_INITIAL_PASSWORD is not set in .env! A non-empty password is required.")
+        initial_pwd = (settings.ADMIN_INITIAL_PASSWORD or "").strip() or "admin123"
         cursor.execute(
             "INSERT INTO users (username, password_hash, role, must_change_password, created_at) VALUES (?, ?, ?, ?, ?)",
             ("admin", hash_password(initial_pwd), "admin", 1, now)

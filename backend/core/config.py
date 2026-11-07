@@ -9,7 +9,21 @@ def _default_data_dir() -> str:
     import sys
     if getattr(sys, "frozen", False):
         exe_dir = Path(sys.executable).resolve().parent
-        return str(exe_dir / "data")
+        candidate = exe_dir / "data"
+        try:
+            candidate.mkdir(parents=True, exist_ok=True)
+            test_file = candidate / ".write_test"
+            test_file.touch()
+            test_file.unlink()
+            return str(candidate)
+        except Exception:
+            if sys.platform == "win32":
+                local_app_data = os.getenv("LOCALAPPDATA") or os.getenv("APPDATA") or str(Path.home())
+                fallback = Path(local_app_data) / "IMNID-Hub" / "data"
+            else:
+                fallback = Path.home() / ".imnid-hub" / "data"
+            fallback.mkdir(parents=True, exist_ok=True)
+            return str(fallback)
     return str(Path(__file__).resolve().parent.parent.parent / "data")
 
 class Settings(BaseSettings):

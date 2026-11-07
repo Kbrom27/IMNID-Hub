@@ -2,7 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 
 from backend.core.config import settings
 from backend.core.database import init_db
@@ -87,6 +87,9 @@ def setup_frontend_serving(application: FastAPI):
         base_dir = Path(getattr(sys, "_MEIPASS", ""))
         candidates.append(base_dir / "frontend" / "dist")
         candidates.append(base_dir / "dist")
+        exe_dir = Path(sys.executable).resolve().parent
+        candidates.append(exe_dir / "frontend" / "dist")
+        candidates.append(exe_dir / "dist")
     candidates.extend([
         Path(__file__).resolve().parent.parent / "frontend" / "dist",
         Path.cwd() / "frontend" / "dist",
