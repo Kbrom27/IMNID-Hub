@@ -3,21 +3,38 @@ from __future__ import annotations
 from difflib import SequenceMatcher
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from o3app.config import HEADER_SEPARATOR, normalize_stage_name
-from o3app.models import HeaderInfo, MappingField
-from o3app.rules.tracker_mapping_rules import (
-    get_preferred_source_headers,
-    uses_strict_preferred_sources,
-)
-from o3app.utils import (
-    build_header_info,
-    deduplicate,
-    extract_bracket_label,
-    find_exact_header,
-    normalize_label,
-    strip_bracket_suffix,
-    token_signature,
-)
+try:
+    from o3app.config import HEADER_SEPARATOR, normalize_stage_name
+    from o3app.models import HeaderInfo, MappingField
+    from o3app.rules.tracker_mapping_rules import (
+        get_preferred_source_headers,
+        uses_strict_preferred_sources,
+    )
+    from o3app.utils import (
+        build_header_info,
+        deduplicate,
+        extract_bracket_label,
+        find_exact_header,
+        normalize_label,
+        strip_bracket_suffix,
+        token_signature,
+    )
+except ImportError:
+    from backend.modules.interop.o3app.config import HEADER_SEPARATOR, normalize_stage_name
+    from backend.modules.interop.o3app.models import HeaderInfo, MappingField
+    from backend.modules.interop.o3app.rules.tracker_mapping_rules import (
+        get_preferred_source_headers,
+        uses_strict_preferred_sources,
+    )
+    from backend.modules.interop.o3app.utils import (
+        build_header_info,
+        deduplicate,
+        extract_bracket_label,
+        find_exact_header,
+        normalize_label,
+        strip_bracket_suffix,
+        token_signature,
+    )
 
 
 FIELD_SOURCE_ALIASES = {

@@ -5,23 +5,45 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
-from o3app.clients.dhis2_client import (
-    Dhis2Client,
-    add_import_value_issue,
-    format_dhis2_error,
-    reference_id,
-    today_date,
-)
-from o3app.config import SPECIAL_COLUMNS, normalize_program_value
-from o3app.import_.payload_builder import (
-    build_attribute_payload,
-    build_program_configs,
-    build_stage_payloads,
-    extract_row_value,
-    infer_enrollment_date,
-)
-from o3app.models import ImportValueIssue
-from o3app.utils import raise_csv_field_limit
+try:
+    from o3app.clients.dhis2_client import (
+        Dhis2Client,
+        add_import_value_issue,
+        format_dhis2_error,
+        reference_id,
+        today_date,
+    )
+except ImportError:
+    from backend.modules.interop.o3app.clients.dhis2_client import (
+        Dhis2Client,
+        add_import_value_issue,
+        format_dhis2_error,
+        reference_id,
+        today_date,
+    )
+
+try:
+    from o3app.config import SPECIAL_COLUMNS, normalize_program_value
+    from o3app.import_.payload_builder import (
+        build_attribute_payload,
+        build_program_configs,
+        build_stage_payloads,
+        extract_row_value,
+        infer_enrollment_date,
+    )
+    from o3app.models import ImportValueIssue
+    from o3app.utils import raise_csv_field_limit
+except ImportError:
+    from backend.modules.interop.o3app.config import SPECIAL_COLUMNS, normalize_program_value
+    from backend.modules.interop.o3app.import_.payload_builder import (
+        build_attribute_payload,
+        build_program_configs,
+        build_stage_payloads,
+        extract_row_value,
+        infer_enrollment_date,
+    )
+    from backend.modules.interop.o3app.models import ImportValueIssue
+    from backend.modules.interop.o3app.utils import raise_csv_field_limit
 
 
 def default_import_log_path(input_path: Optional[Path] = None) -> Path:

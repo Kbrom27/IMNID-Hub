@@ -3,7 +3,10 @@ import re
 from pathlib import Path
 from typing import Dict, FrozenSet, List, Optional, Sequence, Tuple
 
-from o3app.config import RESOURCES_DIR
+try:
+    from o3app.config import RESOURCES_DIR
+except ImportError:
+    from backend.modules.interop.o3app.config import RESOURCES_DIR
 
 
 FIELD_RULES: Dict[str, Dict[str, object]] = {

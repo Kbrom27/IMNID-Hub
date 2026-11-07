@@ -8,8 +8,15 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from o3app.clients.openmrs_client import ApiClient
-from o3app.config import DETAIL_COLUMNS, MATERNAL_PROGRAM, NEONATAL_PROGRAM, is_patient_eligible_for_program
+try:
+    from o3app.clients.openmrs_client import ApiClient
+except ImportError:
+    from backend.modules.interop.o3app.clients.openmrs_client import ApiClient
+
+try:
+    from o3app.config import DETAIL_COLUMNS, MATERNAL_PROGRAM, NEONATAL_PROGRAM, is_patient_eligible_for_program
+except ImportError:
+    from backend.modules.interop.o3app.config import DETAIL_COLUMNS, MATERNAL_PROGRAM, NEONATAL_PROGRAM, is_patient_eligible_for_program
 from o3app.export.extractors import (
     append_unique_value,
     attr_value,

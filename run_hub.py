@@ -30,13 +30,22 @@ for p in [
     base_dir,
     base_dir / "backend",
     base_dir / "backend" / "modules" / "interop",
+    base_dir / "backend" / "modules" / "interop" / "o3app",
     APP_ROOT,
     APP_ROOT / "backend",
     APP_ROOT / "backend" / "modules" / "interop",
+    APP_ROOT / "backend" / "modules" / "interop" / "o3app",
 ]:
     p_str = str(p.resolve())
     if p_str not in sys.path:
         sys.path.insert(0, p_str)
+
+# Ensure all interop and o3app submodules are registered early in sys.modules
+try:
+    from backend.modules.interop import register_interop_aliases
+    register_interop_aliases()
+except Exception:
+    pass
 
 def open_browser(url: str, delay: float = 1.2):
     """Open default web browser after server initializes."""

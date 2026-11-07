@@ -3,27 +3,50 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-from o3app.config import (
-    HEADER_SEPARATOR,
-    MATERNAL_PROGRAM,
-    NEONATAL_PROGRAM,
-    PROGRAM_SPECS,
-    RESOURCES_DIR,
-    SPECIAL_COLUMNS,
-    normalize_stage_name,
-)
-from o3app.models import DictionaryField, MappingField
-from o3app.rules.tracker_mapping_rules import set_value_mapping_path
-from o3app.utils import (
-    blank_to_empty,
-    extract_bracket_label,
-    find_mapping_header,
-    is_mapping_source_column,
-    normalize_label,
-    normalized_tokens,
-    read_xlsx_rows,
-    row_to_dict,
-)
+try:
+    from o3app.config import (
+        HEADER_SEPARATOR,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+        PROGRAM_SPECS,
+        RESOURCES_DIR,
+        SPECIAL_COLUMNS,
+        normalize_stage_name,
+    )
+    from o3app.models import DictionaryField, MappingField
+    from o3app.rules.tracker_mapping_rules import set_value_mapping_path
+    from o3app.utils import (
+        blank_to_empty,
+        extract_bracket_label,
+        find_mapping_header,
+        is_mapping_source_column,
+        normalize_label,
+        normalized_tokens,
+        read_xlsx_rows,
+        row_to_dict,
+    )
+except ImportError:
+    from backend.modules.interop.o3app.config import (
+        HEADER_SEPARATOR,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+        PROGRAM_SPECS,
+        RESOURCES_DIR,
+        SPECIAL_COLUMNS,
+        normalize_stage_name,
+    )
+    from backend.modules.interop.o3app.models import DictionaryField, MappingField
+    from backend.modules.interop.o3app.rules.tracker_mapping_rules import set_value_mapping_path
+    from backend.modules.interop.o3app.utils import (
+        blank_to_empty,
+        extract_bracket_label,
+        find_mapping_header,
+        is_mapping_source_column,
+        normalize_label,
+        normalized_tokens,
+        read_xlsx_rows,
+        row_to_dict,
+    )
 
 
 TARGETED_DICTIONARY_STAGE_FALLBACKS = {

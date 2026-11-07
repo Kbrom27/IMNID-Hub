@@ -82,6 +82,7 @@ jobs:
             --paths "." \
             --paths "backend" \
             --paths "backend/modules/interop" \
+            --paths "backend/modules/interop/o3app" \
             --collect-all "backend" \
             --add-data "frontend/dist:frontend/dist" \
             --add-data "backend/modules/interop/Resources:backend/modules/interop/Resources" \
@@ -163,6 +164,7 @@ jobs:
             --paths "." `
             --paths "backend" `
             --paths "backend/modules/interop" `
+            --paths "backend/modules/interop/o3app" `
             --collect-all "backend" `
             --exclude-module tkinter `
             --exclude-module matplotlib `

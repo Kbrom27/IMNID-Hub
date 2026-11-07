@@ -5,24 +5,44 @@ from decimal import Decimal, InvalidOperation
 from difflib import SequenceMatcher
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from o3app.config import BLANK_MARKERS, HEADER_SEPARATOR
-from o3app.rules.tracker_mapping_rules import (
-    apply_field_alias,
-    get_external_field_transform,
-    get_field_transform,
-    resolve_configured_option_value,
-    resolve_external_value_mapping,
-    should_suppress_value,
-)
-from o3app.export.extractors import clean_mrn_identifier
-from o3app.utils import (
-    blank_to_empty,
-    deduplicate,
-    normalize_label,
-    normalize_token,
-    normalized_tokens,
-    token_signature,
-)
+try:
+    from o3app.config import BLANK_MARKERS, HEADER_SEPARATOR
+    from o3app.rules.tracker_mapping_rules import (
+        apply_field_alias,
+        get_external_field_transform,
+        get_field_transform,
+        resolve_configured_option_value,
+        resolve_external_value_mapping,
+        should_suppress_value,
+    )
+    from o3app.export.extractors import clean_mrn_identifier
+    from o3app.utils import (
+        blank_to_empty,
+        deduplicate,
+        normalize_label,
+        normalize_token,
+        normalized_tokens,
+        token_signature,
+    )
+except ImportError:
+    from backend.modules.interop.o3app.config import BLANK_MARKERS, HEADER_SEPARATOR
+    from backend.modules.interop.o3app.rules.tracker_mapping_rules import (
+        apply_field_alias,
+        get_external_field_transform,
+        get_field_transform,
+        resolve_configured_option_value,
+        resolve_external_value_mapping,
+        should_suppress_value,
+    )
+    from backend.modules.interop.o3app.export.extractors import clean_mrn_identifier
+    from backend.modules.interop.o3app.utils import (
+        blank_to_empty,
+        deduplicate,
+        normalize_label,
+        normalize_token,
+        normalized_tokens,
+        token_signature,
+    )
 
 
 def split_export_values(raw_value: str) -> List[str]:

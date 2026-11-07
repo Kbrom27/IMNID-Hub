@@ -9,7 +9,10 @@ from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 from xml.etree import ElementTree as ET
 
-from o3app.config import BLANK_MARKERS
+try:
+    from o3app.config import BLANK_MARKERS
+except ImportError:
+    from backend.modules.interop.o3app.config import BLANK_MARKERS
 
 
 def raise_csv_field_limit() -> None:
@@ -87,7 +90,10 @@ def normalize_label(value: str) -> str:
 
 
 def normalized_tokens(value: str) -> Tuple[str, ...]:
-    from o3app.config import STOPWORDS
+    try:
+        from o3app.config import STOPWORDS
+    except ImportError:
+        from backend.modules.interop.o3app.config import STOPWORDS
 
     raw_parts = re.split(r"[^A-Za-z0-9]+", str(value or ""))
     tokens: List[str] = []

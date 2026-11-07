@@ -4,37 +4,48 @@ Provides tracker and aggregate data synchronization between EMRs (Bahmni, OpenMR
 and DHIS2 platforms.
 """
 
-import os
 import sys
+import importlib
 from pathlib import Path
 
-# Add interop directory to sys.path so submodule imports resolve
+# Add interop and o3app directories to sys.path so submodule imports resolve
 _interop_dir = Path(__file__).resolve().parent
-_interop_dir_str = str(_interop_dir)
-if _interop_dir_str not in sys.path:
-    sys.path.insert(0, _interop_dir_str)
+_o3app_dir = _interop_dir / "o3app"
 
-# Ensure aliases are registered in sys.modules so imports like `from clients...`
-# work reliably in all environments (source, container, and PyInstaller frozen).
-try:
-    from backend.modules.interop import (
-        config,
-        clients,
-        export,
-        rules,
-        transform,
-        utils,
-        emr_dhis2_tracker_sync,
-    )
-    for mod_name, mod_obj in [
-        ("config", config),
-        ("clients", clients),
-        ("export", export),
-        ("rules", rules),
-        ("transform", transform),
-        ("utils", utils),
-        ("emr_dhis2_tracker_sync", emr_dhis2_tracker_sync),
-    ]:
-        sys.modules.setdefault(mod_name, mod_obj)
-except Exception:
-    pass
+for _p in [str(_interop_dir), str(_o3app_dir)]:
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
+def register_interop_aliases():
+    """Register top-level aliases for interop and o3app submodules so they resolve in frozen/packaged environments."""
+    top_level = [
+        'clients', 'config', 'export', 'import_', 'rules', 'transform',
+        'utils', 'emr_dhis2_tracker_sync', 'models', 'o3app', 'o3'
+    ]
+    for name in top_level:
+        full = f'backend.modules.interop.{name}'
+        try:
+            mod = importlib.import_module(full)
+            sys.modules.setdefault(name, mod)
+        except Exception:
+            pass
+
+    o3_submodules = [
+        'clients', 'clients.openmrs_client', 'clients.dhis2_client',
+        'config', 'extract', 'mappings', 'models', 'schemas', 'sync', 'utils',
+        'export', 'export.extractors',
+        'import_', 'import_.importer', 'import_.payload_builder',
+        'rules', 'rules.tracker_mapping_rules',
+        'transform', 'transform.investigations', 'transform.mapping',
+        'transform.matcher', 'transform.normalizers', 'transform.pipeline',
+        'export_unmapped_report'
+    ]
+    for sub in o3_submodules:
+        full = f'backend.modules.interop.o3app.{sub}'
+        try:
+            mod = importlib.import_module(full)
+            sys.modules.setdefault(f'o3app.{sub}', mod)
+        except Exception:
+            pass
+
+register_interop_aliases()

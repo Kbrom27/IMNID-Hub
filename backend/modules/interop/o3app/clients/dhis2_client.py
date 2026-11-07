@@ -11,9 +11,14 @@ import urllib3
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from o3app.config import BLANK_MARKERS
-from o3app.models import ImportValueIssue, ProgramConfig
-from o3app.utils import blank_to_empty, normalize_date
+try:
+    from o3app.config import BLANK_MARKERS
+    from o3app.models import ImportValueIssue, ProgramConfig
+    from o3app.utils import blank_to_empty, normalize_date
+except ImportError:
+    from backend.modules.interop.o3app.config import BLANK_MARKERS
+    from backend.modules.interop.o3app.models import ImportValueIssue, ProgramConfig
+    from backend.modules.interop.o3app.utils import blank_to_empty, normalize_date
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 

@@ -4,19 +4,34 @@ import json
 from pathlib import Path
 from typing import Dict, List, Sequence, Tuple
 
-from o3app.config import MATERNAL_PROGRAM, NEONATAL_PROGRAM
-from o3app.mappings import (
-    DEFAULT_NEONATAL_DICTIONARY,
-    MATERNAL_SCHEMA_DIR,
-    NEONATAL_SCHEMA_DIR,
-    load_dictionary_fields,
-    match_data_element,
-    match_stage_name,
-    strip_data_element_disambiguators,
-    write_xlsx_sheets,
-)
-from o3app.schemas import Form, load_forms_from_directories
-from o3app.utils import normalize_label, read_xlsx_rows, row_to_dict
+try:
+    from o3app.config import MATERNAL_PROGRAM, NEONATAL_PROGRAM
+    from o3app.mappings import (
+        DEFAULT_NEONATAL_DICTIONARY,
+        MATERNAL_SCHEMA_DIR,
+        NEONATAL_SCHEMA_DIR,
+        load_dictionary_fields,
+        match_data_element,
+        match_stage_name,
+        strip_data_element_disambiguators,
+        write_xlsx_sheets,
+    )
+    from o3app.schemas import Form, load_forms_from_directories
+    from o3app.utils import normalize_label, read_xlsx_rows, row_to_dict
+except ImportError:
+    from backend.modules.interop.o3app.config import MATERNAL_PROGRAM, NEONATAL_PROGRAM
+    from backend.modules.interop.o3app.mappings import (
+        DEFAULT_NEONATAL_DICTIONARY,
+        MATERNAL_SCHEMA_DIR,
+        NEONATAL_SCHEMA_DIR,
+        load_dictionary_fields,
+        match_data_element,
+        match_stage_name,
+        strip_data_element_disambiguators,
+        write_xlsx_sheets,
+    )
+    from backend.modules.interop.o3app.schemas import Form, load_forms_from_directories
+    from backend.modules.interop.o3app.utils import normalize_label, read_xlsx_rows, row_to_dict
 
 PROGRAM_DETAILS = {
     NEONATAL_PROGRAM: {

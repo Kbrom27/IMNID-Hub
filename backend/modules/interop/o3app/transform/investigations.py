@@ -3,8 +3,12 @@ from __future__ import annotations
 import re
 from typing import Dict, List, Optional, Tuple
 
-from o3app.config import HEADER_SEPARATOR
-from o3app.utils import deduplicate, normalize_label
+try:
+    from o3app.config import HEADER_SEPARATOR
+    from o3app.utils import deduplicate, normalize_label
+except ImportError:
+    from backend.modules.interop.o3app.config import HEADER_SEPARATOR
+    from backend.modules.interop.o3app.utils import deduplicate, normalize_label
 
 INVESTIGATION_STAGE = "Investigation sheet"
 

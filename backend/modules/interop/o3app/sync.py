@@ -13,31 +13,64 @@ _interop_dir = str(Path(__file__).resolve().parent.parent)
 if _interop_dir not in sys.path:
     sys.path.insert(0, _interop_dir)
 
-from o3app.clients.openmrs_client import ApiClient, normalize_base_url
-from o3app.config import (
-    FACILITIES,
-    FACILITY_CODES,
-    MATERNAL_PROGRAM,
-    NEONATAL_PROGRAM,
-    O3_METADATA_PATH,
-    O3_SCHEMA_ROOT,
-    RESOURCES_DIR,
-    normalize_program_value,
-)
-from o3app.import_.importer import import_rows
-from o3app.export.extractors import sanitize_filename
-from o3app.extract import (
-    determine_program_from_visit_type,
-    get_patients_by_visit_type,
-    normalize_date_filter,
-    validate_date_range,
-    write_o3_patients_csv,
-)
-from o3app.mappings import DEFAULT_MATERNAL_DICTIONARY, DEFAULT_NEONATAL_DICTIONARY
-from o3app.schemas import FormRegistry, load_default_forms
-from o3app.transform.mapping import set_mapping_files
-from o3app.transform.pipeline import transform_rows
-from o3app.utils import read_xlsx_rows
+try:
+    from o3app.clients.openmrs_client import ApiClient, normalize_base_url
+except ImportError:
+    from backend.modules.interop.o3app.clients.openmrs_client import ApiClient, normalize_base_url
+
+try:
+    from o3app.config import (
+        FACILITIES,
+        FACILITY_CODES,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+        O3_METADATA_PATH,
+        O3_SCHEMA_ROOT,
+        RESOURCES_DIR,
+        normalize_program_value,
+    )
+except ImportError:
+    from backend.modules.interop.o3app.config import (
+        FACILITIES,
+        FACILITY_CODES,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+        O3_METADATA_PATH,
+        O3_SCHEMA_ROOT,
+        RESOURCES_DIR,
+        normalize_program_value,
+    )
+
+try:
+    from o3app.import_.importer import import_rows
+    from o3app.export.extractors import sanitize_filename
+    from o3app.extract import (
+        determine_program_from_visit_type,
+        get_patients_by_visit_type,
+        normalize_date_filter,
+        validate_date_range,
+        write_o3_patients_csv,
+    )
+    from o3app.mappings import DEFAULT_MATERNAL_DICTIONARY, DEFAULT_NEONATAL_DICTIONARY
+    from o3app.schemas import FormRegistry, load_default_forms
+    from o3app.transform.mapping import set_mapping_files
+    from o3app.transform.pipeline import transform_rows
+    from o3app.utils import read_xlsx_rows
+except ImportError:
+    from backend.modules.interop.o3app.import_.importer import import_rows
+    from backend.modules.interop.o3app.export.extractors import sanitize_filename
+    from backend.modules.interop.o3app.extract import (
+        determine_program_from_visit_type,
+        get_patients_by_visit_type,
+        normalize_date_filter,
+        validate_date_range,
+        write_o3_patients_csv,
+    )
+    from backend.modules.interop.o3app.mappings import DEFAULT_MATERNAL_DICTIONARY, DEFAULT_NEONATAL_DICTIONARY
+    from backend.modules.interop.o3app.schemas import FormRegistry, load_default_forms
+    from backend.modules.interop.o3app.transform.mapping import set_mapping_files
+    from backend.modules.interop.o3app.transform.pipeline import transform_rows
+    from backend.modules.interop.o3app.utils import read_xlsx_rows
 
 
 def _save_chk(path: Path, data: Dict[str, Any]) -> None:

@@ -6,30 +6,56 @@ from itertools import chain
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence
 
-from o3app.config import (
-    CONTEXT_COLUMNS,
-    MATERNAL_COMPUTED_DIAGNOSIS_HEADERS,
-    MATERNAL_DIAGNOSIS_SOURCE_HEADERS,
-    MATERNAL_PROGRAM,
-    NEONATAL_PROGRAM,
-    PROGRAM_SPECS,
-    SPECIAL_COLUMNS,
-    is_patient_eligible_for_program,
-)
-from o3app.models import MappingField
-from o3app.transform.mapping import load_program_fields
-from o3app.transform.investigations import (
-    NEONATAL_INVESTIGATION_HEADERS,
-    apply_neonatal_investigation_transform,
-)
-from o3app.transform.matcher import order_mapping_fields, resolve_program_sources
-from o3app.transform.normalizers import normalize_tracker_value
-from o3app.utils import (
-    blank_to_empty,
-    deduplicate,
-    normalize_label,
-    raise_csv_field_limit,
-)
+try:
+    from o3app.config import (
+        CONTEXT_COLUMNS,
+        MATERNAL_COMPUTED_DIAGNOSIS_HEADERS,
+        MATERNAL_DIAGNOSIS_SOURCE_HEADERS,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+        PROGRAM_SPECS,
+        SPECIAL_COLUMNS,
+        is_patient_eligible_for_program,
+    )
+    from o3app.models import MappingField
+    from o3app.transform.mapping import load_program_fields
+    from o3app.transform.investigations import (
+        NEONATAL_INVESTIGATION_HEADERS,
+        apply_neonatal_investigation_transform,
+    )
+    from o3app.transform.matcher import order_mapping_fields, resolve_program_sources
+    from o3app.transform.normalizers import normalize_tracker_value
+    from o3app.utils import (
+        blank_to_empty,
+        deduplicate,
+        normalize_label,
+        raise_csv_field_limit,
+    )
+except ImportError:
+    from backend.modules.interop.o3app.config import (
+        CONTEXT_COLUMNS,
+        MATERNAL_COMPUTED_DIAGNOSIS_HEADERS,
+        MATERNAL_DIAGNOSIS_SOURCE_HEADERS,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+        PROGRAM_SPECS,
+        SPECIAL_COLUMNS,
+        is_patient_eligible_for_program,
+    )
+    from backend.modules.interop.o3app.models import MappingField
+    from backend.modules.interop.o3app.transform.mapping import load_program_fields
+    from backend.modules.interop.o3app.transform.investigations import (
+        NEONATAL_INVESTIGATION_HEADERS,
+        apply_neonatal_investigation_transform,
+    )
+    from backend.modules.interop.o3app.transform.matcher import order_mapping_fields, resolve_program_sources
+    from backend.modules.interop.o3app.transform.normalizers import normalize_tracker_value
+    from backend.modules.interop.o3app.utils import (
+        blank_to_empty,
+        deduplicate,
+        normalize_label,
+        raise_csv_field_limit,
+    )
 
 
 DIAGNOSIS_METADATA_VALUES = {

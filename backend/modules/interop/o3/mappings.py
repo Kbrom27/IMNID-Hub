@@ -7,21 +7,38 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from o3app.config import (
-    HEADER_SEPARATOR,
-    MATERNAL_PROGRAM,
-    NEONATAL_PROGRAM,
-    RESOURCES_DIR,
-    normalize_stage_name,
-)
-from o3app.schemas import Form, FormRegistry, load_forms_from_directories
-from o3app.utils import (
-    find_mapping_header,
-    is_mapping_source_column,
-    normalize_label,
-    read_xlsx_rows,
-    row_to_dict,
-)
+try:
+    from o3app.config import (
+        HEADER_SEPARATOR,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+        RESOURCES_DIR,
+        normalize_stage_name,
+    )
+    from o3app.schemas import Form, FormRegistry, load_forms_from_directories
+    from o3app.utils import (
+        find_mapping_header,
+        is_mapping_source_column,
+        normalize_label,
+        read_xlsx_rows,
+        row_to_dict,
+    )
+except ImportError:
+    from backend.modules.interop.o3app.config import (
+        HEADER_SEPARATOR,
+        MATERNAL_PROGRAM,
+        NEONATAL_PROGRAM,
+        RESOURCES_DIR,
+        normalize_stage_name,
+    )
+    from backend.modules.interop.o3app.schemas import Form, FormRegistry, load_forms_from_directories
+    from backend.modules.interop.o3app.utils import (
+        find_mapping_header,
+        is_mapping_source_column,
+        normalize_label,
+        read_xlsx_rows,
+        row_to_dict,
+    )
 
 DEFAULT_O3_OUTPUT_DIR = RESOURCES_DIR / "O3"
 

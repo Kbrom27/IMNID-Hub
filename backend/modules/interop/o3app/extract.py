@@ -8,29 +8,60 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from o3app.clients.openmrs_client import ApiClient
-from o3app.config import DETAIL_COLUMNS, MATERNAL_PROGRAM, NEONATAL_PROGRAM, is_patient_eligible_for_program
-from o3app.export.extractors import (
-    append_unique_value,
-    attr_value,
-    build_record_id,
-    clean_csv_cell,
-    clean_mrn_identifier,
-    collect_orders_and_medications,
-    extract_diagnoses,
-    extract_entity_name,
-    extract_maternal_mrn_identifier,
-    extract_mrn_identifier,
-    extract_obs_concept,
-    extract_obs_value,
-    get_root_obs,
-    is_on_or_after_visit,
-    normalize_date_filter,
-    safe_dict,
-    sanitize_filename,
-    validate_date_range,
-)
-from o3app.schemas import FormRegistry, load_default_forms
+try:
+    from o3app.clients.openmrs_client import ApiClient
+except ImportError:
+    from backend.modules.interop.o3app.clients.openmrs_client import ApiClient
+
+try:
+    from o3app.config import DETAIL_COLUMNS, MATERNAL_PROGRAM, NEONATAL_PROGRAM, is_patient_eligible_for_program
+except ImportError:
+    from backend.modules.interop.o3app.config import DETAIL_COLUMNS, MATERNAL_PROGRAM, NEONATAL_PROGRAM, is_patient_eligible_for_program
+
+try:
+    from o3app.export.extractors import (
+        append_unique_value,
+        attr_value,
+        build_record_id,
+        clean_csv_cell,
+        clean_mrn_identifier,
+        collect_orders_and_medications,
+        extract_diagnoses,
+        extract_entity_name,
+        extract_maternal_mrn_identifier,
+        extract_mrn_identifier,
+        extract_obs_concept,
+        extract_obs_value,
+        get_root_obs,
+        is_on_or_after_visit,
+        normalize_date_filter,
+        safe_dict,
+        sanitize_filename,
+        validate_date_range,
+    )
+    from o3app.schemas import FormRegistry, load_default_forms
+except ImportError:
+    from backend.modules.interop.o3app.export.extractors import (
+        append_unique_value,
+        attr_value,
+        build_record_id,
+        clean_csv_cell,
+        clean_mrn_identifier,
+        collect_orders_and_medications,
+        extract_diagnoses,
+        extract_entity_name,
+        extract_maternal_mrn_identifier,
+        extract_mrn_identifier,
+        extract_obs_concept,
+        extract_obs_value,
+        get_root_obs,
+        is_on_or_after_visit,
+        normalize_date_filter,
+        safe_dict,
+        sanitize_filename,
+        validate_date_range,
+    )
+    from backend.modules.interop.o3app.schemas import FormRegistry, load_default_forms
 
 
 def determine_program_from_visit_type(visit_type_name: str) -> str:

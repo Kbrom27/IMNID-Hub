@@ -5,26 +5,51 @@ import re
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence
 
-from o3app.clients.dhis2_client import (
-    EVENT_DATE_HINTS,
-    add_import_value_issue,
-    invalid_value_reason,
-    normalize_boolean_token,
-    normalize_datetime_value,
-    normalize_numeric_value,
-    normalize_time_value,
-    today_date,
-)
-from o3app.config import BLANK_MARKERS, HEADER_SEPARATOR, RESOURCES_DIR, normalize_stage_name
-from o3app.models import AttributeField, ImportValueIssue, ProgramConfig, StageField
-from o3app.export.extractors import clean_mrn_identifier
-from o3app.rules.tracker_mapping_rules import (
-    apply_field_alias,
-    get_field_transform,
-    resolve_configured_option_value,
-    should_suppress_value,
-)
-from o3app.utils import blank_to_empty, normalize_date, normalize_label, read_xlsx_rows, row_to_dict
+try:
+    from o3app.clients.dhis2_client import (
+        EVENT_DATE_HINTS,
+        add_import_value_issue,
+        invalid_value_reason,
+        normalize_boolean_token,
+        normalize_datetime_value,
+        normalize_numeric_value,
+        normalize_time_value,
+        today_date,
+    )
+except ImportError:
+    from backend.modules.interop.o3app.clients.dhis2_client import (
+        EVENT_DATE_HINTS,
+        add_import_value_issue,
+        invalid_value_reason,
+        normalize_boolean_token,
+        normalize_datetime_value,
+        normalize_numeric_value,
+        normalize_time_value,
+        today_date,
+    )
+
+try:
+    from o3app.config import BLANK_MARKERS, HEADER_SEPARATOR, RESOURCES_DIR, normalize_stage_name
+    from o3app.models import AttributeField, ImportValueIssue, ProgramConfig, StageField
+    from o3app.export.extractors import clean_mrn_identifier
+    from o3app.rules.tracker_mapping_rules import (
+        apply_field_alias,
+        get_field_transform,
+        resolve_configured_option_value,
+        should_suppress_value,
+    )
+    from o3app.utils import blank_to_empty, normalize_date, normalize_label, read_xlsx_rows, row_to_dict
+except ImportError:
+    from backend.modules.interop.o3app.config import BLANK_MARKERS, HEADER_SEPARATOR, RESOURCES_DIR, normalize_stage_name
+    from backend.modules.interop.o3app.models import AttributeField, ImportValueIssue, ProgramConfig, StageField
+    from backend.modules.interop.o3app.export.extractors import clean_mrn_identifier
+    from backend.modules.interop.o3app.rules.tracker_mapping_rules import (
+        apply_field_alias,
+        get_field_transform,
+        resolve_configured_option_value,
+        should_suppress_value,
+    )
+    from backend.modules.interop.o3app.utils import blank_to_empty, normalize_date, normalize_label, read_xlsx_rows, row_to_dict
 
 
 WORKSPACE_METADATA_PATH = Path(__file__).resolve().parents[2] / "Metadata" / "metadata.json"
