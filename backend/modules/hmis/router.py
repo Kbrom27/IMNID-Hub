@@ -274,10 +274,25 @@ async def get_hmis_openmrs_locations(current_user: dict = Depends(get_current_us
         return {"status": "error", "message": str(exc), "locations": []}
 
 
+def _get_hmis_tmpl_dir() -> Path:
+    candidates = [
+        Path(__file__).resolve().parent / "templates",
+        Path.cwd() / "backend" / "modules" / "hmis" / "templates",
+    ]
+    if getattr(sys, "frozen", False):
+        base_dir = Path(getattr(sys, "_MEIPASS", sys.executable)).resolve()
+        if base_dir.is_file():
+            base_dir = base_dir.parent
+        candidates.insert(0, Path(getattr(sys, "_MEIPASS", "")).resolve() / "backend" / "modules" / "hmis" / "templates")
+        candidates.insert(1, base_dir / "backend" / "modules" / "hmis" / "templates")
+        candidates.insert(2, base_dir / "_internal" / "backend" / "modules" / "hmis" / "templates")
+    return next((c for c in candidates if c.is_dir()), candidates[0])
+
+
 @router.get("/mapping-files")
 async def get_hmis_mapping_files(current_user: dict = Depends(get_current_user)):
     """List available Excel/CSV mapping files from templates and uploads."""
-    tmpl_dir = Path(__file__).resolve().parent / "templates"
+    tmpl_dir = _get_hmis_tmpl_dir()
     files = []
     seen = set()
 
@@ -904,7 +919,7 @@ async def run_moh_aggregate_report(
 async def list_hmis_templates(
     current_user: dict = Depends(get_current_user),
 ):
-    tmpl_dir = Path(__file__).resolve().parent / "templates"
+    tmpl_dir = _get_hmis_tmpl_dir()
     templates = []
     if tmpl_dir.exists():
         for f in sorted(tmpl_dir.iterdir()):
@@ -923,7 +938,7 @@ async def download_hmis_template(
     current_user: dict = Depends(get_current_user),
 ):
     from backend.core.storage import build_file_response
-    tmpl_dir = Path(__file__).resolve().parent / "templates"
+    tmpl_dir = _get_hmis_tmpl_dir()
     file_path = tmpl_dir / filename
     if not file_path.is_file():
         raise HTTPException(status_code=404, detail="Template file not found")

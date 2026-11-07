@@ -953,20 +953,7 @@ def write_preview_excel(values: dict[str, Any],
         ws.cell(2, 3).value = str(period)
 
         # Load rep metadata rows
-        rep_candidates = [
-            Path("/home/kbrom/Work/IMNID/IMNID Developments/HMIS Report/rep") / _REP_JSON_NH,
-            Path("/home/kbrom/Work/IMNID/IMNID Developments/rep") / _REP_JSON_NH,
-            Path(__file__).parent / "rep" / _REP_JSON_NH,
-        ]
-        rep_rows = []
-        for c in rep_candidates:
-            if c.is_file():
-                try:
-                    with open(c, encoding="utf-8") as f:
-                        rep_rows = json.load(f).get("rows", [])
-                    break
-                except Exception:
-                    pass
+        rep_rows = _load_nh_rep_rows()
 
         norm = lambda s: str(s).replace(" ", "").rstrip(".") if s else ""
         norm_vals = {norm(k): v for k, v in values.items()}
@@ -1357,20 +1344,33 @@ def main():
 _REP_JSON_NH = "04_2_-_Neonatal_and_Child_Health_Health_center_Hospital_and_clinic_Monthly_DHIS2_mapped.json"
 
 
-def _load_nh_rep_rows() -> list[dict]:
-    """Load indicator specification rows from rep mapped JSON."""
+def _get_nh_rep_file() -> Optional[Path]:
     candidates = [
-        Path("/home/kbrom/Work/IMNID/IMNID Developments/HMIS Report/rep") / _REP_JSON_NH,
-        Path("/home/kbrom/Work/IMNID/IMNID Developments/rep") / _REP_JSON_NH,
         Path(__file__).parent / "rep" / _REP_JSON_NH,
+        Path.cwd() / "backend" / "modules" / "hmis" / "rep" / _REP_JSON_NH,
     ]
+    if getattr(sys, "frozen", False):
+        base_dir = Path(getattr(sys, "_MEIPASS", sys.executable)).resolve()
+        if base_dir.is_file():
+            base_dir = base_dir.parent
+        candidates.insert(0, Path(getattr(sys, "_MEIPASS", "")).resolve() / "backend" / "modules" / "hmis" / "rep" / _REP_JSON_NH)
+        candidates.insert(1, base_dir / "backend" / "modules" / "hmis" / "rep" / _REP_JSON_NH)
+        candidates.insert(2, base_dir / "_internal" / "backend" / "modules" / "hmis" / "rep" / _REP_JSON_NH)
     for c in candidates:
         if c.is_file():
-            try:
-                with open(c, encoding="utf-8") as f:
-                    return json.load(f).get("rows", [])
-            except Exception:
-                pass
+            return c
+    return None
+
+
+def _load_nh_rep_rows() -> list[dict]:
+    """Load indicator specification rows from rep mapped JSON."""
+    rep_file = _get_nh_rep_file()
+    if rep_file and rep_file.is_file():
+        try:
+            with open(rep_file, encoding="utf-8") as f:
+                return json.load(f).get("rows", [])
+        except Exception:
+            pass
     return []
 
 

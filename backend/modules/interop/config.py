@@ -5,9 +5,16 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 if getattr(sys, "frozen", False):
-    base_dir = Path(getattr(sys, "_MEIPASS", ""))
-    cand_res = base_dir / "backend" / "modules" / "interop" / "Resources"
-    RESOURCES_DIR = cand_res if cand_res.exists() else Path(__file__).resolve().with_name("Resources")
+    base_dir = Path(getattr(sys, "_MEIPASS", sys.executable)).resolve()
+    if base_dir.is_file():
+        base_dir = base_dir.parent
+    candidates = [
+        base_dir / "backend" / "modules" / "interop" / "Resources",
+        base_dir / "_internal" / "backend" / "modules" / "interop" / "Resources",
+        Path(getattr(sys, "_MEIPASS", "")).resolve() / "backend" / "modules" / "interop" / "Resources",
+        Path(__file__).resolve().with_name("Resources"),
+    ]
+    RESOURCES_DIR = next((c for c in candidates if c.is_dir()), candidates[-1])
 else:
     RESOURCES_DIR = Path(__file__).resolve().with_name("Resources")
 

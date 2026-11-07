@@ -87,6 +87,7 @@ jobs:
             --add-data "frontend/dist:frontend/dist" \
             --add-data "backend/modules/interop/Resources:backend/modules/interop/Resources" \
             --add-data "backend/modules/hmis/templates:backend/modules/hmis/templates" \
+            --add-data "backend/modules/hmis/rep:backend/modules/hmis/rep" \
             --add-data "frontend/public/icon.jpeg:frontend/public" \
             --add-data "frontend/public/IMNID_Hub_logo.png:frontend/public" \
             run_hub.py
@@ -173,6 +174,7 @@ jobs:
             --add-data "frontend/dist;frontend/dist" `
             --add-data "backend/modules/interop/Resources;backend/modules/interop/Resources" `
             --add-data "backend/modules/hmis/templates;backend/modules/hmis/templates" `
+            --add-data "backend/modules/hmis/rep;backend/modules/hmis/rep" `
             --add-data "frontend/public/icon.jpeg;frontend/public" `
             --add-data "frontend/public/IMNID_Hub_logo.png;frontend/public" `
             run_hub.py
