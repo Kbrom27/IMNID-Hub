@@ -41,6 +41,16 @@ const Legacy21ToolsPage = () => {
     cm12_input_file: '',
     cm12_parent_folder: 'MID',
     cm12_output_dir: '/data/exports',
+    cm13_export_file: '',
+    cm13_folder: '',
+    cm13_mode: 'api',
+    cm13_apply: false,
+    cm13_server_type: 'bahmni',
+    cm13_output_dir: '/data/exports/legacy-import',
+    cm13_strict_set_check: false,
+    cm13_check_only: false,
+    cm13_delay_ms: 200,
+    cm13_batch_size: 100,
   });
 
   const handleInputChange = (field, value) => {
@@ -285,6 +295,23 @@ const Legacy21ToolsPage = () => {
         parent_folder: inputs.cm12_parent_folder || 'MID',
         output_dir: inputs.cm12_output_dir || null,
       });
+    } else if (selectedToolId === 'cm13_legacy_import') {
+      if (!inputs.cm13_folder && !inputs.cm13_check_only) {
+        showToast('Please select or upload an import folder or zip archive first.', 'warning');
+        return;
+      }
+      submitJob('/api/concepts/legacy-bulk-import', {
+        export_file: inputs.cm13_export_file || null,
+        folder: inputs.cm13_folder,
+        mode: inputs.cm13_mode || 'api',
+        apply: Boolean(inputs.cm13_apply),
+        server_type: inputs.cm13_server_type || 'bahmni',
+        output_dir: inputs.cm13_output_dir || null,
+        strict_set_check: Boolean(inputs.cm13_strict_set_check),
+        check_only: Boolean(inputs.cm13_check_only),
+        delay_ms: Number(inputs.cm13_delay_ms) || 200,
+        batch_size: Number(inputs.cm13_batch_size) || 100,
+      });
     }
   };
 
@@ -301,7 +328,7 @@ const Legacy21ToolsPage = () => {
 
       {/* Top Tool Selector */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {TOOLS_21.map((tool) => {
             const isSelected = selectedToolId === tool.id;
             return (
@@ -402,6 +429,153 @@ const Legacy21ToolsPage = () => {
               </div>
             )}
 
+            {/* CM-13 */}
+            {selectedToolId === 'cm13_legacy_import' && (
+              <div className="space-y-5">
+                {/* Execution Mode & Safety Controls */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 space-y-2">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                      Import Delivery Mode
+                    </label>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleInputChange('cm13_mode', 'api')}
+                        className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                          inputs.cm13_mode === 'api'
+                            ? 'bg-teal-600 text-white border-teal-600 shadow-xs'
+                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+                        }`}
+                      >
+                        REST API Mode (Direct)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleInputChange('cm13_mode', 'csv')}
+                        className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+                          inputs.cm13_mode === 'csv'
+                            ? 'bg-teal-600 text-white border-teal-600 shadow-xs'
+                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+                        }`}
+                      >
+                        Bahmni Admin CSV Mode
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      {inputs.cm13_mode === 'api'
+                        ? 'Creates concepts directly via REST API with polite pacing, adaptive back-off, and state persistence.'
+                        : 'Generates chunked CSV upload files and upload_order.txt for Bahmni Admin CSV management.'}
+                    </p>
+                  </div>
+
+                  <div className={`p-4 rounded-xl border transition-all ${
+                    inputs.cm13_apply
+                      ? 'border-amber-300 dark:border-amber-700 bg-amber-50/70 dark:bg-amber-950/30'
+                      : 'border-teal-300 dark:border-teal-800 bg-teal-50/70 dark:bg-teal-950/30'
+                  }`}>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+                      Execution Safety Control
+                    </label>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className={`text-xs font-bold ${inputs.cm13_apply ? 'text-amber-800 dark:text-amber-300' : 'text-teal-800 dark:text-teal-300'}`}>
+                          {inputs.cm13_apply ? '⚠️ Live Apply Mode (Modifications Enabled)' : '🛡️ Safe Dry-Run Plan Only'}
+                        </span>
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
+                          {inputs.cm13_apply
+                            ? 'Will create concepts on the server or write chunked files.'
+                            : 'Analyzes files & produces plan reports without touching existing data.'}
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={inputs.cm13_apply}
+                          onChange={(e) => handleInputChange('cm13_apply', e.target.checked)}
+                        />
+                        <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-amber-600"></div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Server selection for API mode */}
+                {inputs.cm13_mode === 'api' && (
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-teal-50/50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 text-sm text-teal-900 dark:text-teal-200">
+                    <div className="flex items-center gap-2.5">
+                      <Server className="w-5 h-5 text-teal-600 dark:text-teal-400 shrink-0" />
+                      <span>
+                        Target Server: <strong>{inputs.cm13_server_type === 'bahmni' ? 'Bahmni 0.93 / OpenMRS 2.x (CentOS: 172.16.75.128)' : 'OpenMRS 3.x (Localhost)'}</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold">Server Connection:</span>
+                      <select
+                        value={inputs.cm13_server_type}
+                        onChange={(e) => handleInputChange('cm13_server_type', e.target.value)}
+                        className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-3 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      >
+                        <option value="bahmni">Bahmni 0.93 (CentOS: 172.16.75.128)</option>
+                        <option value="openmrs">OpenMRS 3.x (Localhost)</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {/* File Dropzones */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <FileDropzone
+                      label="Server Concepts Snapshot (CSV)"
+                      accept=".csv"
+                      selectedPath={inputs.cm13_export_file}
+                      onFileSelected={(file) => handleFileUpload(file, 'cm13_export_file')}
+                      onPathSelected={(val) => handleInputChange('cm13_export_file', val)}
+                    />
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Export CSV from CM-11 or server. If left blank, the most recent export is used.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <FileDropzone
+                      label="Import Concept Folder or Zip Archive"
+                      accept=".zip,.csv"
+                      selectedPath={inputs.cm13_folder}
+                      onFileSelected={(file) => handleFileUpload(file, 'cm13_folder')}
+                      onPathSelected={(val) => handleInputChange('cm13_folder', val)}
+                    />
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Folder tree or zip archive with concepts.csv / concept_sets.csv (e.g. from CM-12).
+                    </p>
+                  </div>
+                </div>
+
+                {/* Output Dir and Options */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DirectoryPicker
+                    label="Output Destination Directory"
+                    value={inputs.cm13_output_dir}
+                    onChange={(val) => handleInputChange('cm13_output_dir', val)}
+                  />
+
+                  <div className="flex items-center gap-4 pt-6">
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700 dark:text-slate-300">
+                      <input
+                        type="checkbox"
+                        checked={inputs.cm13_strict_set_check}
+                        onChange={(e) => handleInputChange('cm13_strict_set_check', e.target.checked)}
+                        className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500 border-slate-300"
+                      />
+                      <span>Strict Set Check (treat existing N/A concepts as non-sets)</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="flex flex-wrap items-center justify-center gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               {isRunning && (
                 <Button
@@ -409,18 +583,24 @@ const Legacy21ToolsPage = () => {
                   icon={<XCircle className="w-4 h-4 mr-1.5" />}
                   onClick={cancelJob}
                 >
-                  Cancel Export
+                  Cancel Operation
                 </Button>
               )}
 
               <Button
-                variant="primary"
+                variant={inputs.cm13_apply && selectedToolId === 'cm13_legacy_import' ? 'warning' : 'primary'}
                 icon={<Play className="w-4 h-4 mr-1.5" />}
                 loading={isRunning}
                 disabled={isViewer || isRunning}
                 onClick={handleRun}
               >
-                {isRunning ? 'Exporting in Progress...' : `Execute ${currentTool.name}`}
+                {isRunning
+                  ? 'Operation in Progress...'
+                  : selectedToolId === 'cm13_legacy_import'
+                  ? inputs.cm13_apply
+                    ? 'Execute Live Bulk Import'
+                    : 'Run Safe Dry-Run Plan'
+                  : `Execute ${currentTool.name}`}
               </Button>
             </div>
           </CardContent>

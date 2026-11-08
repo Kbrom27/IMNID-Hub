@@ -996,3 +996,187 @@ def run_legacy21_convert_worker(
         ctx.status = "failed"
 
 
+# ==============================================================================
+# Worker: OpenMRS 2.1 / Bahmni Bulk Concept Importer (CM-13)
+# ==============================================================================
+def run_legacy21_bulk_import_worker(
+    ctx: JobContext,
+    export_file: str,
+    folder: str,
+    mode: str = "api",
+    apply: bool = False,
+    server_type: Optional[str] = "bahmni",
+    base_url: Optional[str] = None,
+    username: Optional[str] = None,
+    password: Optional[str] = None,
+    output_dir: Optional[str] = None,
+    strict_set_check: bool = False,
+    check_only: bool = False,
+    delay_ms: int = 200,
+    batch_size: int = 100,
+):
+    from backend.modules.concepts import bahmni_concept_importer as bci
+
+    action_label = "Apply Execution" if apply else "Dry-Run Plan"
+    ctx.log(f"Starting Legacy 2.1 Bulk Concept Importer ({mode.upper()} mode, {action_label})...")
+
+    # Resolve output directory
+    job_dest_dir = settings.exports_dir / f"legacy21_import_{ctx.job_id}"
+    job_dest_dir.mkdir(parents=True, exist_ok=True)
+
+    user_out_path = None
+    if output_dir and not str(output_dir).strip().startswith("[Local"):
+        try:
+            p = Path(output_dir)
+            p.mkdir(parents=True, exist_ok=True)
+            user_out_path = p
+        except Exception:
+            pass
+
+    # Resolve export_file
+    export_candidate = Path(export_file)
+    if not export_candidate.exists():
+        for cand in [
+            settings.uploads_dir / export_file,
+            settings.exports_dir / export_file,
+            Path(export_file).resolve(),
+        ]:
+            if cand.exists() and cand.is_file():
+                export_candidate = cand
+                break
+
+    if not export_candidate.exists() or not export_candidate.is_file():
+        recent_exports = sorted(
+            settings.exports_dir.glob("**/concepts*.csv"),
+            key=os.path.getmtime,
+            reverse=True,
+        )
+        if recent_exports:
+            export_candidate = recent_exports[0]
+            ctx.log(f"Auto-selected recent server export: {export_candidate.name}")
+        else:
+            raise ValueError(f"Server export CSV file not found: {export_file}")
+
+    # Resolve folder (supports directory or zipped directory)
+    folder_candidate = Path(folder)
+    if not folder_candidate.exists():
+        for cand in [
+            settings.uploads_dir / folder,
+            settings.exports_dir / folder,
+            Path(folder).resolve(),
+        ]:
+            if cand.exists():
+                folder_candidate = cand
+                break
+
+    if not folder_candidate.exists():
+        raise ValueError(f"Import folder or archive not found: {folder}")
+
+    if folder_candidate.is_file() and folder_candidate.suffix.lower() == ".zip":
+        extract_dir = job_dest_dir / "unpacked_folder"
+        extract_dir.mkdir(parents=True, exist_ok=True)
+        ctx.log(f"Unpacking concept folder zip archive: {folder_candidate.name}...")
+        with zipfile.ZipFile(folder_candidate, "r") as zf:
+            zf.extractall(extract_dir)
+        folder_candidate = extract_dir
+
+    ctx.log(f"Target folder for import: {folder_candidate}")
+    ctx.log(f"Server snapshot export: {export_candidate}")
+
+    # Resolve server credentials if in API mode or if base_url is supplied
+    if mode == "api" or base_url:
+        target_sys = server_type or "bahmni"
+        conn = (
+            get_server_connection(target_sys)
+            or get_server_connection("bahmni")
+            or get_server_connection("openmrs")
+        )
+        if conn:
+            base_url = base_url or conn.get("base_url")
+            username = username or conn.get("username")
+            password = password or conn.get("secret")
+
+        base_url = normalize_container_url(base_url or "http://172.16.75.128/openmrs")
+        username = username or settings.BAHMNI_USERNAME or "superman"
+        password = password or settings.BAHMNI_PASSWORD or "Admin123"
+
+    # Build command arguments for importer
+    argv = [
+        "--export", str(export_candidate),
+        "--folder", str(folder_candidate),
+        "--mode", mode,
+        "--out-dir", str(job_dest_dir),
+        "--delay-ms", str(delay_ms),
+        "--batch-size", str(batch_size),
+    ]
+
+    if apply:
+        argv.append("--apply")
+    if strict_set_check:
+        argv.append("--strict-set-check")
+    if check_only:
+        argv.append("--check-only")
+
+    if base_url:
+        argv.extend(["--url", base_url])
+    if username:
+        argv.extend(["--user", username])
+    if password:
+        argv.extend(["--password", password])
+    argv.append("--insecure")
+
+    # Attach live hooks
+    bci.SAY_HOOK = lambda msg: ctx.log(msg)
+    bci.CANCEL_HOOK = lambda: ctx.is_canceled()
+
+    try:
+        ctx.update_progress(progress=10, message="Executing legacy importer logic...")
+        exit_code = bci.main(argv)
+
+        # Artifacts discovery
+        produced_files = list(job_dest_dir.glob("*.csv")) + list(job_dest_dir.glob("*.txt"))
+        ctx.artifacts["files"] = [f.name for f in produced_files]
+
+        if user_out_path:
+            for f in produced_files:
+                shutil.copy2(f, user_out_path / f.name)
+            ctx.log(f"Saved {len(produced_files)} artifact(s) to destination directory: {user_out_path}")
+
+        # Package artifacts into a zip file for simple download
+        zip_path = settings.exports_dir / f"legacy21_import_result_{ctx.job_id}.zip"
+        zip_directory(job_dest_dir, zip_path)
+
+        ctx.set_result_file(str(zip_path))
+
+        summary_path = job_dest_dir / "summary.txt"
+        if summary_path.exists():
+            try:
+                ctx.artifacts["summary"] = summary_path.read_text(encoding="utf-8")
+            except Exception:
+                pass
+
+        if exit_code == 2:
+            ctx.status = "failed"
+            ctx.message = "Bulk import stopped due to error or cancellation."
+        elif exit_code == 1:
+            ctx.update_progress(
+                progress=100,
+                message="Import process finished with plan warnings or skipped items (see conflicts_and_errors.csv).",
+            )
+            ctx.status = "completed"
+        else:
+            ctx.update_progress(
+                progress=100,
+                message="Bulk import process completed successfully.",
+            )
+            ctx.status = "completed"
+    except Exception as e:
+        err_msg = f"Legacy 2.1 bulk importer failed: {str(e)}"
+        ctx.add_error(err_msg)
+        ctx.message = err_msg
+        ctx.status = "failed"
+    finally:
+        bci.SAY_HOOK = None
+        bci.CANCEL_HOOK = None
+
+

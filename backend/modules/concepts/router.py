@@ -35,6 +35,7 @@ from backend.modules.concepts.service import (
     run_generate_enhanced_schemas_worker,
     run_generate_schemas_worker,
     run_import_form_schemas_worker,
+    run_legacy21_bulk_import_worker,
     run_legacy21_convert_worker,
     run_legacy21_export_worker,
     run_merge_schemas_worker,
@@ -827,6 +828,60 @@ async def legacy21_convert(
             input_file=req.input_file,
             parent_folder=req.parent_folder,
             output_dir=req.output_dir,
+        ),
+    )
+    return {"status": "submitted", "job_id": job_id}
+
+
+# ==============================================================================
+# CM-13: OpenMRS 2.1 / Bahmni Bulk Concept Importer (Legacy)
+# ==============================================================================
+class Legacy21BulkImportRequest(BaseModel):
+    export_file: Optional[str] = None
+    folder: Optional[str] = None
+    mode: str = "api"
+    apply: bool = False
+    server_type: Optional[str] = "bahmni"
+    base_url: Optional[str] = None
+    username: Optional[str] = None
+    password: Optional[str] = None
+    output_dir: Optional[str] = None
+    strict_set_check: bool = False
+    check_only: bool = False
+    delay_ms: int = 200
+    batch_size: int = 100
+
+
+@router.post("/legacy-21/bulk-import")
+@router.post("/legacy-bulk-import")
+async def legacy21_bulk_import(
+    req: Legacy21BulkImportRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    if not req.folder and not req.check_only:
+        raise HTTPException(
+            status_code=400,
+            detail="Concept folder path or zip archive is required.",
+        )
+
+    job_id = job_engine.start_job(
+        module="concepts",
+        action="legacy21_bulk_import",
+        target=lambda ctx: run_legacy21_bulk_import_worker(
+            ctx,
+            export_file=req.export_file or "",
+            folder=req.folder or "",
+            mode=req.mode or "api",
+            apply=req.apply,
+            server_type=req.server_type or "bahmni",
+            base_url=req.base_url,
+            username=req.username,
+            password=req.password,
+            output_dir=req.output_dir,
+            strict_set_check=req.strict_set_check,
+            check_only=req.check_only,
+            delay_ms=req.delay_ms or 200,
+            batch_size=req.batch_size or 100,
         ),
     )
     return {"status": "submitted", "job_id": job_id}

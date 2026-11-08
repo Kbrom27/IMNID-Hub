@@ -113,6 +113,14 @@ export const TOOLS_21 = [
     icon: FileSpreadsheet,
     endpoint: '/api/concepts/legacy-convert',
   },
+  {
+    id: 'cm13_legacy_import',
+    code: 'CM-13',
+    name: 'Legacy 2.1 Bulk Concept Importer',
+    desc: 'Deterministic, non-destructive concept & set importer for Bahmni 0.93 / OpenMRS 2.1 with dry-run planning, API ingestion, and CSV upload generation.',
+    icon: Upload,
+    endpoint: '/api/concepts/legacy-bulk-import',
+  },
 ];
 
 export const DEFAULT_BLANK_SCHEMA = {
