@@ -387,16 +387,16 @@ const Legacy21ToolsPage = () => {
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DirectoryPicker
+                    label="Export Destination Directory"
+                    value={inputs.cm11_output_dir}
+                    onChange={(val) => handleInputChange('cm11_output_dir', val)}
+                  />
                   <TextInput
                     label="Output CSV Filename"
                     value={inputs.cm11_filename}
                     onChange={(e) => handleInputChange('cm11_filename', e.target.value)}
                     placeholder="concepts.csv"
-                  />
-                  <DirectoryPicker
-                    label="Export Destination Directory"
-                    value={inputs.cm11_output_dir}
-                    onChange={(val) => handleInputChange('cm11_output_dir', val)}
                   />
                 </div>
               </div>
