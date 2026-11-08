@@ -31,6 +31,8 @@ const Legacy21ToolsPage = () => {
   const [jobState, setJobState] = useState(null);
   const [liveLogs, setLiveLogs] = useState([]);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [uploadingField, setUploadingField] = useState(null);
+  const [cm13FolderSource, setCm13FolderSource] = useState('folder');
 
   const eventSourceRef = useRef(null);
 
@@ -210,6 +212,7 @@ const Legacy21ToolsPage = () => {
 
   const handleFileUpload = async (file, targetField) => {
     if (!file) return;
+    setUploadingField(targetField);
     const formData = new FormData();
     formData.append('file', file);
 
@@ -228,6 +231,8 @@ const Legacy21ToolsPage = () => {
       }
     } catch (err) {
       showToast('Upload error: ' + err.message, 'error');
+    } finally {
+      setUploadingField(null);
     }
   };
 
@@ -408,9 +413,11 @@ const Legacy21ToolsPage = () => {
                 <FileDropzone
                   label="DHIS2 to OpenMRS Mapping Spreadsheet"
                   accept=".xlsx,.xls,.csv"
-                  selectedPath={inputs.cm12_input_file}
-                  onFileSelected={(file) => handleFileUpload(file, 'cm12_input_file')}
-                  onPathSelected={(val) => handleInputChange('cm12_input_file', val)}
+                  filePath={inputs.cm12_input_file}
+                  uploading={uploadingField === 'cm12_input_file'}
+                  onFileSelect={(file) => handleFileUpload(file, 'cm12_input_file')}
+                  onRemove={() => handleInputChange('cm12_input_file', '')}
+                  helperText="Click to browse or drop DHIS2 mapping spreadsheet (.xlsx, .xls, .csv)"
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -524,15 +531,17 @@ const Legacy21ToolsPage = () => {
                   </div>
                 )}
 
-                {/* File Dropzones */}
+                {/* File / Folder Inputs */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <FileDropzone
                       label="Server Concepts Snapshot (CSV)"
                       accept=".csv"
-                      selectedPath={inputs.cm13_export_file}
-                      onFileSelected={(file) => handleFileUpload(file, 'cm13_export_file')}
-                      onPathSelected={(val) => handleInputChange('cm13_export_file', val)}
+                      filePath={inputs.cm13_export_file}
+                      uploading={uploadingField === 'cm13_export_file'}
+                      onFileSelect={(file) => handleFileUpload(file, 'cm13_export_file')}
+                      onRemove={() => handleInputChange('cm13_export_file', '')}
+                      helperText="Click to browse or drop server export CSV"
                     />
                     <p className="text-[11px] text-slate-500 dark:text-slate-400">
                       Export CSV from CM-11 or server. If left blank, the most recent export is used.
@@ -540,15 +549,63 @@ const Legacy21ToolsPage = () => {
                   </div>
 
                   <div className="space-y-1.5">
-                    <FileDropzone
-                      label="Import Concept Folder or Zip Archive"
-                      accept=".zip,.csv"
-                      selectedPath={inputs.cm13_folder}
-                      onFileSelected={(file) => handleFileUpload(file, 'cm13_folder')}
-                      onPathSelected={(val) => handleInputChange('cm13_folder', val)}
-                    />
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
+                        Import Source ({cm13FolderSource === 'folder' ? 'Folder Tree' : 'Zip Archive'})
+                      </label>
+                      <div className="flex rounded-md bg-slate-100 dark:bg-slate-800 p-0.5 border border-slate-200 dark:border-slate-700">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCm13FolderSource('folder');
+                            if (inputs.cm13_folder?.endsWith('.zip')) {
+                              handleInputChange('cm13_folder', '');
+                            }
+                          }}
+                          className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
+                            cm13FolderSource === 'folder'
+                              ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-300 shadow-2xs'
+                              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                          }`}
+                        >
+                          📁 Folder Tree
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCm13FolderSource('zip')}
+                          className={`px-2 py-0.5 text-[11px] font-semibold rounded transition-colors cursor-pointer ${
+                            cm13FolderSource === 'zip'
+                              ? 'bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-300 shadow-2xs'
+                              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                          }`}
+                        >
+                          📦 Zip Archive
+                        </button>
+                      </div>
+                    </div>
+
+                    {cm13FolderSource === 'folder' ? (
+                      <DirectoryPicker
+                        label=""
+                        value={inputs.cm13_folder?.endsWith('.zip') ? '' : inputs.cm13_folder}
+                        onChange={(val) => handleInputChange('cm13_folder', val)}
+                        helperText="Browse your computer or select a server folder tree containing concepts.csv / concept_sets.csv"
+                      />
+                    ) : (
+                      <FileDropzone
+                        id="cm13_zip_upload"
+                        accept=".zip"
+                        filePath={inputs.cm13_folder?.endsWith('.zip') ? inputs.cm13_folder : ''}
+                        uploading={uploadingField === 'cm13_folder'}
+                        onFileSelect={(file) => handleFileUpload(file, 'cm13_folder')}
+                        onRemove={() => handleInputChange('cm13_folder', '')}
+                        helperText="Click to browse or drop .zip archive (e.g. from CM-12)"
+                      />
+                    )}
                     <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                      Folder tree or zip archive with concepts.csv / concept_sets.csv (e.g. from CM-12).
+                      {cm13FolderSource === 'folder'
+                        ? 'Select a folder containing concepts.csv and concept_sets.csv (recursively scanned).'
+                        : 'Upload a .zip package of concepts exported from CM-12 (auto-extracted on server).'}
                     </p>
                   </div>
                 </div>

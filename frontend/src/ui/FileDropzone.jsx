@@ -13,7 +13,10 @@ const FileDropzone = ({
   file = null,
   value = null,
   filePath = '',
+  selectedPath = '',
   onFileSelect,
+  onFileSelected,
+  onPathSelected,
   onChange,
   onRemove,
   uploading = false,
@@ -29,11 +32,13 @@ const FileDropzone = ({
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef(null);
 
-  const activeFile = file || value || null;
+  const activeFilePath = filePath || selectedPath || (typeof value === 'string' ? value : '');
+  const activeFile = (file && typeof file === 'object') ? file : (value && typeof value === 'object') ? value : null;
   const activeHint = hint || helperText || '';
 
   const notifyFileSelected = (selected) => {
     if (onFileSelect) onFileSelect(selected);
+    if (onFileSelected) onFileSelected(selected);
     if (onChange) onChange(selected);
   };
 
@@ -41,6 +46,8 @@ const FileDropzone = ({
     if (onRemove) onRemove();
     if (onChange) onChange(null);
     if (onFileSelect) onFileSelect(null);
+    if (onFileSelected) onFileSelected(null);
+    if (onPathSelected) onPathSelected('');
   };
 
   const handleDragOver = (e) => {
@@ -77,8 +84,8 @@ const FileDropzone = ({
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const hasFile = Boolean(activeFile || filePath);
-  const displayName = activeFile ? activeFile.name : filePath ? filePath.split('/').pop() : '';
+  const hasFile = Boolean(activeFile || activeFilePath);
+  const displayName = activeFile ? activeFile.name : activeFilePath ? activeFilePath.split(/[/\\]/).pop() : '';
   const displaySize = activeFile ? formatFileSize(activeFile.size) : '';
 
   if (compact) {
