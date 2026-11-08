@@ -891,7 +891,7 @@ def run_legacy21_export_worker(
             username = username or conn.get("username")
             password = password or conn.get("secret")
 
-    base_url = normalize_container_url(base_url or "http://172.16.75.128/openmrs")
+    base_url = normalize_container_url(base_url or "https://172.16.75.128/openmrs")
     username = username or settings.BAHMNI_USERNAME or "superman"
     password = password or settings.BAHMNI_PASSWORD or "Admin123"
 
@@ -1102,7 +1102,7 @@ def run_legacy21_bulk_import_worker(
             username = username or conn.get("username")
             password = password or conn.get("secret")
 
-        base_url = normalize_container_url(base_url or "http://172.16.75.128/openmrs")
+        base_url = normalize_container_url(base_url or "https://172.16.75.128/openmrs")
         username = username or settings.BAHMNI_USERNAME or "superman"
         password = password or settings.BAHMNI_PASSWORD or "Admin123"
 

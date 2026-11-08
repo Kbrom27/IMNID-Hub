@@ -1336,6 +1336,17 @@ class ApiClient:
             self._note(method, r.status_code, lat, False, ra)
             if r.status_code in (401, 403):
                 raise StopRun("Server refused the credentials / permission (HTTP %d)." % r.status_code)
+            if method == "POST" and r.history and getattr(r, "request", None) and r.request.method == "GET":
+                # POST was converted to GET due to HTTP 301/302 redirect (e.g. http -> https)
+                if self.base.startswith("http://") and r.url.startswith("https://"):
+                    self.base = "https://" + self.base[len("http://"):]
+                url = self.base + path
+                r = self.s.request("POST", url, json=body, timeout=(5, 60))
+                lat = time.monotonic() - t0
+                try:
+                    data = r.json()
+                except ValueError:
+                    data = None
             if method == "GET" and r.status_code in (429, 502, 503, 504) and attempt < retries:
                 attempt += 1
                 continue
@@ -1349,6 +1360,15 @@ class ApiClient:
 
     # -- pre-flight -------------------------------------------------------------
     def preflight(self) -> Dict[str, Dict[str, str]]:
+        if self.base.startswith("http://"):
+            try:
+                chk = self.s.get(self.base + "/session", allow_redirects=False, timeout=10)
+                if chk.status_code in (301, 302, 307, 308):
+                    loc = chk.headers.get("Location", "")
+                    if loc.startswith("https://"):
+                        self.base = "https://" + self.base[len("http://"):]
+            except Exception:
+                pass
         r = self.get("/session")
         if r.status != 200:
             raise StopRun("Pre-flight failed: GET /session returned HTTP %s" % r.status)
@@ -1543,7 +1563,10 @@ def execute_api(plan: Plan, api: ApiClient, state: State, maps: Dict[str, Dict[s
                               "Check the server before rerunning." % (r.final_name, chk.status))
         if resp.status in (200, 201):
             got = (resp.data or {}).get("uuid", "") if isinstance(resp.data, dict) else ""
-            if got and got.lower() != r.final_uuid.lower():
+            if not got:
+                raise StopRun("Server returned HTTP %s on POST /concept, but response did not contain a concept UUID. Response: %s"
+                              % (resp.status, (resp.text or "")[:150]))
+            if got.lower() != r.final_uuid.lower():
                 state.add({"record": r.rid, "kind": r.kind, "orig_uuid": r.row.uuid,
                            "orig_name": r.row.name, "final_uuid": got, "final_name": r.final_name,
                            "note": "server ignored the requested UUID %s" % r.final_uuid})
