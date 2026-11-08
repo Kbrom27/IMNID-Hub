@@ -17,6 +17,7 @@ from backend.modules.concepts.openmrs_importer import (
     OpenMRSClient,
     error_detail,
     CODED_DATATYPES,
+    extract_concept_name,
 )
 from backend.core.config import settings
 
@@ -308,11 +309,12 @@ def run_bulk_folder_import(
             if is_canceled():
                 break
             processed += 1
-            name = c["fully_specified_name"]
+            name = extract_concept_name(c)
+            if not name:
+                continue
             prog(processed, total_items, f"[{rel_name}] {name}")
-            resolved_cls = class_map.get(
-                c.get("concept_class", ""), c.get("concept_class", "")
-            )
+            raw_cls = c.get("concept_class") or c.get("conceptClass") or ""
+            resolved_cls = class_map.get(raw_cls, raw_cls)
 
             existing = resolve_name(name)
             if existing == "AMBIGUOUS":
@@ -393,7 +395,9 @@ def run_bulk_folder_import(
                     c.get("datatype", "").strip().lower() in CODED_DATATYPES
                     and c.get("answers")
                 ):
-                    c_name = c["fully_specified_name"]
+                    c_name = extract_concept_name(c)
+                    if not c_name:
+                        continue
                     c_uuid = name_cache.get(c_name.strip().lower())
                     if (
                         c_uuid
@@ -419,12 +423,12 @@ def run_bulk_folder_import(
             if is_canceled():
                 break
             processed += 1
-            s_name = s["fully_specified_name"]
+            s_name = extract_concept_name(s)
+            if not s_name:
+                continue
             prog(processed, total_items, f"[{rel_name} SET] {s_name}")
-            resolved_cls = class_map.get(
-                s.get("concept_class", "ConvSet"),
-                s.get("concept_class", "ConvSet"),
-            )
+            raw_cls = s.get("concept_class") or s.get("conceptClass") or "ConvSet"
+            resolved_cls = class_map.get(raw_cls, raw_cls)
 
             set_uuid = resolve_name(s_name)
             if not set_uuid or set_uuid == "DRY-RUN-PLACEHOLDER":

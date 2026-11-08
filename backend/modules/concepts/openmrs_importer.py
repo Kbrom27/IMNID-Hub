@@ -35,6 +35,32 @@ def error_detail(exc: Exception) -> str:
     return str(exc)
 
 
+def extract_concept_name(entry: dict) -> str:
+    """Extract concept name supporting both IMNID schema and raw OpenMRS REST payloads."""
+    if not isinstance(entry, dict):
+        return ""
+    if "fully_specified_name" in entry and entry["fully_specified_name"]:
+        return str(entry["fully_specified_name"]).strip()
+    if "name" in entry and entry["name"]:
+        if isinstance(entry["name"], str):
+            return entry["name"].strip()
+        if isinstance(entry["name"], dict) and "name" in entry["name"]:
+            return str(entry["name"]["name"]).strip()
+    if "display" in entry and entry["display"]:
+        return str(entry["display"]).strip()
+    if "names" in entry and isinstance(entry["names"], list):
+        for n in entry["names"]:
+            if isinstance(n, dict):
+                if n.get("conceptNameType") == "FULLY_SPECIFIED" and n.get("name"):
+                    return str(n["name"]).strip()
+        for n in entry["names"]:
+            if isinstance(n, dict) and n.get("name"):
+                return str(n["name"]).strip()
+            if isinstance(n, str) and n.strip():
+                return n.strip()
+    return ""
+
+
 class OpenMRSClient:
     """Thin wrapper around the OpenMRS REST API for concept import/export operations."""
 
@@ -130,29 +156,37 @@ class OpenMRSClient:
 
     def create_concept(self, entry: dict, resolved_class_name: str) -> dict:
         locale = entry.get("locale") or "en"
-        names = [
-            {
-                "name": entry["fully_specified_name"],
-                "locale": locale,
-                "conceptNameType": "FULLY_SPECIFIED",
-            }
-        ]
-        if entry.get("short_name"):
-            names.append(
+        if entry.get("names") and isinstance(entry["names"], list):
+            names = entry["names"]
+        else:
+            concept_name = extract_concept_name(entry)
+            names = [
                 {
-                    "name": entry["short_name"],
+                    "name": concept_name,
                     "locale": locale,
-                    "conceptNameType": "SHORT",
+                    "conceptNameType": "FULLY_SPECIFIED",
                 }
-            )
-        for syn in entry.get("synonyms", []):
-            names.append({"name": syn, "locale": locale})
+            ]
+            if entry.get("short_name"):
+                names.append(
+                    {
+                        "name": entry["short_name"],
+                        "locale": locale,
+                        "conceptNameType": "SHORT",
+                    }
+                )
+            for syn in entry.get("synonyms", []):
+                names.append({"name": syn, "locale": locale})
 
+        cls_name = resolved_class_name or entry.get("conceptClass") or entry.get("concept_class") or "Misc"
         body = {
             "names": names,
-            "datatype": entry["datatype"],
-            "conceptClass": resolved_class_name,
+            "datatype": entry.get("datatype"),
+            "conceptClass": cls_name,
         }
+        for k in ("units", "allowDecimal", "lowAbsolute", "hiAbsolute", "lowNormal", "hiNormal", "lowCritical", "hiCritical"):
+            if k in entry and entry[k] is not None:
+                body[k] = entry[k]
         if entry.get("description"):
             body["descriptions"] = [
                 {"description": entry["description"], "locale": locale}
@@ -202,11 +236,13 @@ def check_concept_classes(
     existing = client.get_concept_classes()
     required = set()
     for c in concepts:
-        if c.get("concept_class"):
-            required.add(c["concept_class"])
+        cls = c.get("concept_class") or c.get("conceptClass")
+        if cls:
+            required.add(cls)
     for c in concept_sets or []:
-        if c.get("concept_class"):
-            required.add(c["concept_class"])
+        cls = c.get("concept_class") or c.get("conceptClass")
+        if cls:
+            required.add(cls)
 
     missing = sorted([c for c in required if c.strip().lower() not in existing])
     class_map = {c: c for c in required if c.strip().lower() in existing}
@@ -242,7 +278,7 @@ def run_concept_import(
         existing_classes = client.get_concept_classes()
         required_classes = set()
         for c in concepts + concept_sets:
-            cls = c.get("concept_class")
+            cls = c.get("concept_class") or c.get("conceptClass")
             if cls:
                 required_classes.add(cls)
 
@@ -290,11 +326,12 @@ def run_concept_import(
             log("Stopped by user cancellation.")
             break
         step += 1
-        name = c["fully_specified_name"]
+        name = extract_concept_name(c)
+        if not name:
+            continue
         prog(step, total, f"Importing concept: {name}")
-        resolved_class = effective_class_map.get(
-            c.get("concept_class", ""), c.get("concept_class", "")
-        )
+        raw_class = c.get("concept_class") or c.get("conceptClass") or ""
+        resolved_class = effective_class_map.get(raw_class, raw_class)
 
         existing = resolve_name(name)
         if existing == "AMBIGUOUS":
@@ -375,7 +412,9 @@ def run_concept_import(
                 continue
             if not c.get("answers"):
                 continue
-            name = c["fully_specified_name"]
+            name = extract_concept_name(c)
+            if not name:
+                continue
             concept_uuid = name_cache.get(name.strip().lower())
             if not concept_uuid or concept_uuid in (
                 "AMBIGUOUS",
@@ -412,12 +451,12 @@ def run_concept_import(
             if is_canceled():
                 break
             step += 1
-            name = s["fully_specified_name"]
+            name = extract_concept_name(s)
+            if not name:
+                continue
             prog(step, total, f"Importing concept set: {name}")
-            resolved_class = effective_class_map.get(
-                s.get("concept_class", "ConvSet"),
-                s.get("concept_class", "ConvSet"),
-            )
+            raw_class = s.get("concept_class") or s.get("conceptClass") or "ConvSet"
+            resolved_class = effective_class_map.get(raw_class, raw_class)
 
             set_uuid = resolve_name(name)
             if not set_uuid or set_uuid == "DRY-RUN-PLACEHOLDER":
