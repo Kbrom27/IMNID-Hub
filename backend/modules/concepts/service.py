@@ -1161,9 +1161,20 @@ def run_legacy21_bulk_import_worker(
             except Exception:
                 pass
 
+        last_error = ""
+        log_file = settings.logs_dir / f"{ctx.job_id}.log"
+        if log_file.exists():
+            try:
+                for line in reversed(log_file.read_text(encoding="utf-8").splitlines()):
+                    if "ERROR:" in line or "STOPPED:" in line:
+                        last_error = line
+                        break
+            except Exception:
+                pass
+
         if exit_code == 2:
             ctx.status = "failed"
-            ctx.message = "Bulk import stopped due to error or cancellation."
+            ctx.message = last_error or "Bulk import stopped due to error or cancellation."
         elif exit_code == 1:
             ctx.update_progress(
                 progress=100,

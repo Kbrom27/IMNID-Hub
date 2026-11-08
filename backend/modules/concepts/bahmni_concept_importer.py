@@ -1356,7 +1356,9 @@ class ApiClient:
             raise StopRun("Pre-flight failed: the server did not accept the credentials.")
         maps: Dict[str, Dict[str, str]] = {}
         for key, res in (("datatypes", "conceptdatatype"), ("classes", "conceptclass")):
-            rr = self.get("/%s?v=custom:(uuid,name)&limit=500" % res)
+            rr = self.get("/%s?v=custom:(uuid,name)&limit=100" % res)
+            if rr.status != 200 or not isinstance(rr.data, dict):
+                rr = self.get("/%s?v=custom:(uuid,name)" % res)
             if rr.status != 200 or not isinstance(rr.data, dict):
                 raise StopRun("Pre-flight failed: GET /%s returned HTTP %s" % (res, rr.status))
             maps[key] = {x["name"].lower(): x["uuid"] for x in rr.data.get("results", [])}
