@@ -88,8 +88,8 @@ const Openmrs3xToolsPage = () => {
     cm04_source_type: 'json',
     cm04_file_path: '',
     cm04_selected_programs: [],
-    cm04_output_dir: '/data/output_concepts',
-    cm05_folder_path: '/data/output_concepts',
+    cm04_output_dir: '/data/exports/dhis2-concepts',
+    cm05_folder_path: '',
     cm05_output_dir: '/data/exports/bulk-import-reports',
     cm06_program_name: '',
     cm06_metadata_file: '',
@@ -456,7 +456,7 @@ const Openmrs3xToolsPage = () => {
     }));
   };
 
-  const handleScanBulkFolder = async (folderPath) => {
+  const handleScanBulkFolder = async (folderPath, isManual = false) => {
     const path = folderPath || inputs.cm05_folder_path;
     if (!path?.trim()) return;
     setCm05Scanning(true);
@@ -477,19 +477,23 @@ const Openmrs3xToolsPage = () => {
         }
       } else {
         setCm05ScanResult(null);
-        showToast(data.detail || 'Folder scan failed', 'warning');
+        if (isManual) {
+          showToast(data.detail || 'Folder scan failed', 'warning');
+        }
       }
     } catch (err) {
       setCm05ScanResult(null);
-      showToast('Scan error: ' + err.message, 'error');
+      if (isManual) {
+        showToast('Scan error: ' + err.message, 'error');
+      }
     } finally {
       setCm05Scanning(false);
     }
   };
 
   useEffect(() => {
-    if (selectedToolId === 'cm05_bulk_import' && inputs.cm05_folder_path) {
-      handleScanBulkFolder(inputs.cm05_folder_path);
+    if (selectedToolId === 'cm05_bulk_import' && inputs.cm05_folder_path?.trim()) {
+      handleScanBulkFolder(inputs.cm05_folder_path, false);
     }
   }, [selectedToolId]);
 
@@ -1337,8 +1341,18 @@ const Openmrs3xToolsPage = () => {
                       value={inputs.cm05_folder_path}
                       onChange={(val) => {
                         handleInputChange('cm05_folder_path', val);
-                        handleScanBulkFolder(val);
+                        if (val && !val.startsWith('[Local')) {
+                          handleScanBulkFolder(val, false);
+                        }
                       }}
+                      allowFileUpload={true}
+                      presetDirs={[
+                        '/data/exports/dhis2-concepts',
+                        '/data/exports/dhis2-concepts/Maternal Inpatient Data',
+                        '/data/exports/dhis2-concepts/Neonatal Care Form',
+                        '/data/exports/Tests',
+                        '/data/exports',
+                      ]}
                       helperText="Select or enter any folder (e.g. a parent folder, a program folder, or a stage folder). The importer will recursively navigate all folder levels inside it and import concepts and sets in order."
                     />
                   </div>
@@ -1348,7 +1362,7 @@ const Openmrs3xToolsPage = () => {
                       size="sm"
                       className="w-full h-10 flex items-center justify-center gap-1.5"
                       disabled={cm05Scanning || !inputs.cm05_folder_path}
-                      onClick={() => handleScanBulkFolder(inputs.cm05_folder_path)}
+                      onClick={() => handleScanBulkFolder(inputs.cm05_folder_path, true)}
                     >
                       <RotateCcw className={`w-3.5 h-3.5 ${cm05Scanning ? 'animate-spin' : ''}`} />
                       {cm05Scanning ? 'Scanning...' : 'Scan Folder'}
