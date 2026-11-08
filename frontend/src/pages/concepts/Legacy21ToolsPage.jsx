@@ -589,6 +589,7 @@ const Legacy21ToolsPage = () => {
                         label=""
                         value={inputs.cm13_folder?.endsWith('.zip') ? '' : inputs.cm13_folder}
                         onChange={(val) => handleInputChange('cm13_folder', val)}
+                        allowFileUpload={true}
                         helperText="Browse your computer or select a server folder tree containing concepts.csv / concept_sets.csv"
                       />
                     ) : (

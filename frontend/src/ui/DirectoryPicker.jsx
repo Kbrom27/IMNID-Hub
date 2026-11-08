@@ -104,8 +104,10 @@ const DirectoryPicker = ({
       const formData = new FormData();
       formData.append('folder_name', folderName);
       let count = 0;
-      for (const file of fileList) {
-        formData.append('files', file);
+      for (const item of fileList) {
+        const fileObj = item.file || item;
+        const rel = item.relPath || fileObj.webkitRelativePath || fileObj.name;
+        formData.append('files', fileObj, rel);
         count++;
       }
       const token =
@@ -142,19 +144,20 @@ const DirectoryPicker = ({
     return false;
   };
 
-  const collectFilesFromHandle = async (handle) => {
+  const collectFilesFromHandle = async (handle, path = '') => {
     const collected = [];
     for await (const entry of handle.values()) {
+      const relPath = path ? `${path}/${entry.name}` : entry.name;
       if (entry.kind === 'file') {
         try {
           const file = await entry.getFile();
-          collected.push(file);
+          collected.push({ file, relPath });
         } catch (e) {
           console.warn('Cannot read file:', entry.name, e);
         }
       } else if (entry.kind === 'directory') {
         try {
-          const subFiles = await collectFilesFromHandle(entry);
+          const subFiles = await collectFilesFromHandle(entry, relPath);
           collected.push(...subFiles);
         } catch (e) {
           console.warn('Cannot read directory:', entry.name, e);
@@ -186,7 +189,7 @@ const DirectoryPicker = ({
             return;
           }
         } else {
-          // Upload / Import source folder mode (e.g. schemas)
+          // Upload / Import source folder mode (e.g. schemas, concept trees)
           const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
           if (dirHandle && dirHandle.name) {
             setStoredDirectoryHandle(dirHandle, dirHandle.name);
@@ -195,7 +198,7 @@ const DirectoryPicker = ({
               const ok = await uploadFolderFiles(dirHandle.name, files);
               if (ok) return;
             } else {
-              alert(`No files were found in "${dirHandle.name}". Please pick a folder containing form schema .json or .zip files.`);
+              alert(`No files were found in "${dirHandle.name}". Please pick a folder containing CSV or concept files.`);
               return;
             }
           }

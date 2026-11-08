@@ -93,8 +93,15 @@ async def upload_concept_folder(
 
     saved_files = []
     for f in files:
-        fname = Path(f.filename).name
-        dest = target_dir / fname
+        raw_name = f.filename or "file"
+        parts = [p for p in Path(raw_name).parts if p not in ("..", "/", "\\")]
+        if parts:
+            if parts[0].lower() == safe_folder.lower() and len(parts) > 1:
+                parts = parts[1:]
+            dest = target_dir.joinpath(*parts)
+        else:
+            dest = target_dir / Path(raw_name).name
+        dest.parent.mkdir(parents=True, exist_ok=True)
         with open(dest, "wb") as buffer:
             shutil.copyfileobj(f.file, buffer)
         saved_files.append(str(dest))

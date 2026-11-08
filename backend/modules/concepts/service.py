@@ -1058,12 +1058,18 @@ def run_legacy21_bulk_import_worker(
             raise ValueError(f"Server export CSV file not found: {export_file}")
 
     # Resolve folder (supports directory or zipped directory)
-    folder_candidate = Path(folder)
+    raw_folder = str(folder or "").strip()
+    if raw_folder.startswith("[Local Folder]"):
+        clean_name = raw_folder[len("[Local Folder]"):].strip()
+    else:
+        clean_name = raw_folder
+
+    folder_candidate = Path(clean_name)
     if not folder_candidate.exists():
         for cand in [
-            settings.uploads_dir / folder,
-            settings.exports_dir / folder,
-            Path(folder).resolve(),
+            settings.uploads_dir / clean_name,
+            settings.exports_dir / clean_name,
+            Path(clean_name).resolve(),
         ]:
             if cand.exists():
                 folder_candidate = cand
