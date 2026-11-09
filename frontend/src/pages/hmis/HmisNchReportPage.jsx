@@ -27,7 +27,6 @@ import { useHmisJob } from './useHmisJob';
 import {
   HmisConnectionCard,
   Dhis2OrgUnitSelect,
-  OpenmrsLocationSelect,
 } from './HmisServerSelectors';
 
 const ETH_MONTHS = [
@@ -83,7 +82,6 @@ const HmisNchReportPage = () => {
 
   const [openmrsMode, setOpenmrsMode] = useState('live');
   const openmrsVisitType = 'NICU';
-  const [openmrsFacility, setOpenmrsFacility] = useState('');
   const [openmrsCsvFile, setOpenmrsCsvFile] = useState(null);
   const [openmrsCsvPath, setOpenmrsCsvPath] = useState('');
   const [indicatorSearch, setIndicatorSearch] = useState('');
@@ -143,7 +141,6 @@ const HmisNchReportPage = () => {
     handleSubmitJob('/api/hmis/nh/aggregate-report-openmrs', {
       input_file: openmrsMode === 'csv' ? openmrsCsvPath || (openmrsCsvFile?.name || '') : undefined,
       visit_type: 'NICU',
-      facility_name: openmrsFacility || undefined,
       period: effectivePeriod,
       start: effectiveStart,
       end: effectiveEnd,
@@ -383,11 +380,6 @@ const HmisNchReportPage = () => {
               <div className="space-y-3">
                 <HmisConnectionCard type="openmrs" />
                 {renderPeriodSelector()}
-                <OpenmrsLocationSelect
-                  value={openmrsFacility}
-                  onChange={setOpenmrsFacility}
-                  label="Location / Ward (Optional)"
-                />
               </div>
             ) : (
               <div className="space-y-2">
