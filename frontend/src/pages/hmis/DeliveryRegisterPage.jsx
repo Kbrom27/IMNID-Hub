@@ -30,7 +30,6 @@ import { useHmisJob } from './useHmisJob';
 import {
   HmisConnectionCard,
   Dhis2OrgUnitSelect,
-  OpenmrsLocationSelect,
 } from './HmisServerSelectors';
 
 const ETH_MONTHS = [
@@ -86,7 +85,6 @@ const DeliveryRegisterPage = () => {
   const [dhis2System, setDhis2System] = useState('dhis2_online');
   const [programUid, setProgramUid] = useState('Maternal Inpatient Data');
   const [openmrsMode, setOpenmrsMode] = useState('live');
-  const [openmrsFacility, setOpenmrsFacility] = useState('');
   const [openmrsCsvFile, setOpenmrsCsvFile] = useState(null);
   const [openmrsCsvPath, setOpenmrsCsvPath] = useState('');
   const [trackerCsvFile, setTrackerCsvFile] = useState(null);
@@ -142,7 +140,6 @@ const DeliveryRegisterPage = () => {
     handleSubmitJob('/api/hmis/rmh/delivery-register-openmrs', {
       input_file: openmrsMode === 'csv' ? openmrsCsvPath || (openmrsCsvFile?.name || '') : undefined,
       visit_type: 'Delivery',
-      facility_name: openmrsFacility || facility || undefined,
       start: effectiveStart,
       end: effectiveEnd,
       sheet_per_facility: sheetPerFacility,
@@ -390,7 +387,6 @@ const DeliveryRegisterPage = () => {
               <div className="space-y-3">
                 <HmisConnectionCard type="openmrs" />
                 {renderPeriodSelector()}
-                <OpenmrsLocationSelect value={openmrsFacility} onChange={setOpenmrsFacility} label="Location (Optional)" />
               </div>
             ) : (
               <div className="space-y-3">
