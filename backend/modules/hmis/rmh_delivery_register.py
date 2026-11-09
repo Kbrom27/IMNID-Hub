@@ -787,17 +787,33 @@ def load(path: str) -> pd.DataFrame:
 
 
 def filter_df(df, start=None, end=None, region=None, facility=None):
+    if df is None or df.empty:
+        return pd.DataFrame(columns=df.columns if df is not None else [])
+    df = df.copy()
     dc = RAW["enroll_date"]
-    if start:
-        df = df[df[dc] >= pd.Timestamp(start)]
-    if end:
-        df = df[df[dc] <= pd.Timestamp(end)]
-    if region:
-        df = df[df[RAW["region"]].str.strip().str.lower() == region.strip().lower()]
-    if facility:
-        df = df[df[RAW["facility"]].str.strip().str.lower() == facility.strip().lower()]
+    if dc in df.columns:
+        dt_col = pd.to_datetime(df[dc], errors="coerce")
+        if start:
+            df = df[dt_col >= pd.Timestamp(start)]
+            dt_col = pd.to_datetime(df[dc], errors="coerce")
+        if end:
+            df = df[dt_col <= pd.Timestamp(end)]
+    if region and RAW["region"] in df.columns:
+        reg_series = df[RAW["region"]].fillna("").astype(str).str.strip().str.lower()
+        df = df[reg_series == region.strip().lower()]
+    if facility and RAW["facility"] in df.columns:
+        fac_series = df[RAW["facility"]].fillna("").astype(str).str.strip().str.lower()
+        df = df[fac_series == facility.strip().lower()]
     # Only keep rows that have a delivery record
-    df = df[df[RAW["del_mode"]].notna() | df[RAW["outcome"]].notna()].copy()
+    if len(df) > 0:
+        has_del = RAW["del_mode"] in df.columns
+        has_out = RAW["outcome"] in df.columns
+        if has_del and has_out:
+            df = df[df[RAW["del_mode"]].notna() | df[RAW["outcome"]].notna()].copy()
+        elif has_del:
+            df = df[df[RAW["del_mode"]].notna()].copy()
+        elif has_out:
+            df = df[df[RAW["outcome"]].notna()].copy()
     return df.reset_index(drop=True)
 
 

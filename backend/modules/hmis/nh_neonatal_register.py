@@ -880,28 +880,36 @@ def load(path: str) -> pd.DataFrame:
 
 
 def filter_df(df, start=None, end=None, region=None, facility=None):
+    if df is None or df.empty:
+        return pd.DataFrame(columns=df.columns if df is not None else [])
+    df = df.copy()
     dc = RAW["enroll_date"]
     if dc in df.columns:
+        dt_col = pd.to_datetime(df[dc], errors="coerce")
         if start:
-            df = df[df[dc] >= pd.Timestamp(start)]
+            df = df[dt_col >= pd.Timestamp(start)]
+            dt_col = pd.to_datetime(df[dc], errors="coerce")
         if end:
-            df = df[df[dc] <= pd.Timestamp(end)]
+            df = df[dt_col <= pd.Timestamp(end)]
     if region:
         rcol = RAW["region"]
         if rcol in df.columns:
-            df = df[df[rcol].str.strip().str.lower() == region.strip().lower()]
+            reg_series = df[rcol].fillna("").astype(str).str.strip().str.lower()
+            df = df[reg_series == region.strip().lower()]
     if facility:
         fcol = RAW["facility"]
         if fcol in df.columns:
-            df = df[df[fcol].str.strip().str.lower() == facility.strip().lower()]
+            fac_series = df[fcol].fillna("").astype(str).str.strip().str.lower()
+            df = df[fac_series == facility.strip().lower()]
     # Only keep rows that look like NICU admissions
-    keys = [RAW["admit_date"], RAW["dob"], RAW["birth_weight"]]
-    mask = pd.Series(False, index=df.index)
-    for k in keys:
-        if k in df.columns:
-            mask |= df[k].notna()
-    df = df[mask].reset_index(drop=True)
-    return df
+    if len(df) > 0:
+        keys = [RAW["admit_date"], RAW["dob"], RAW["birth_weight"]]
+        mask = pd.Series(False, index=df.index)
+        for k in keys:
+            if k in df.columns:
+                mask |= df[k].notna()
+        df = df[mask].reset_index(drop=True)
+    return df.reset_index(drop=True)
 
 
 # ── Main ───────────────────────────────────────────────────────────────────────

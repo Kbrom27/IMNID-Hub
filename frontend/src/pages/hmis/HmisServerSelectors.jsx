@@ -459,7 +459,7 @@ export const OpenmrsVisitTypeSelect = ({
 export const OpenmrsLocationSelect = ({
   value,
   onChange,
-  label = 'Location / Ward',
+  label = 'Location / Ward (Optional)',
 }) => {
   const { authHeader } = useAuth();
   const [locations, setLocations] = useState([]);
@@ -503,7 +503,7 @@ export const OpenmrsLocationSelect = ({
         disabled={loading}
         className="w-full py-2.5 px-3.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors"
       >
-        <option value="">All Locations ({locations.length} available)</option>
+        <option value="">All Locations / Entire Facility ({locations.length} available)</option>
         {locations.map((loc) => (
           <option key={loc.uuid} value={loc.name}>
             {loc.display || loc.name}

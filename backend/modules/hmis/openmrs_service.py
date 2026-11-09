@@ -329,6 +329,9 @@ def normalize_openmrs_maternal_df(df: pd.DataFrame) -> pd.DataFrame:
         else:
             df["enrollment_date"] = pd.Timestamp.now()
 
+    if RMH_RAW["enroll_date"] in df.columns:
+        df[RMH_RAW["enroll_date"]] = pd.to_datetime(df[RMH_RAW["enroll_date"]], errors="coerce")
+
     # If both del_mode and outcome are completely empty/NA on an OpenMRS Delivery visit record,
     # fill del_mode with "Spontaneous" so filter_df does not drop valid delivery encounters
     del_mode_col = RMH_RAW["del_mode"]
@@ -487,6 +490,9 @@ def normalize_openmrs_neonatal_df(df: pd.DataFrame) -> pd.DataFrame:
         else:
             df["enrollment_date"] = pd.Timestamp.now()
 
+    if NH_RAW["enroll_date"] in df.columns:
+        df[NH_RAW["enroll_date"]] = pd.to_datetime(df[NH_RAW["enroll_date"]], errors="coerce")
+
     # Also align columns that nh_aggregate_report specifically looks for
     if "NICU Admission Careform_Date of Admission n" not in df.columns or df["NICU Admission Careform_Date of Admission n"].isna().all():
         df["NICU Admission Careform_Date of Admission n"] = df[NH_RAW["admit_date"]]
@@ -597,7 +603,12 @@ def run_rmh_delivery_register_openmrs_worker(
     ctx.log(f"Raw OpenMRS records: {len(df):,}")
     ctx.update_progress(40, 100, "Mapping OpenMRS 3 fields to MoH Delivery Register...")
     df = normalize_openmrs_maternal_df(df)
-    df = filter_rmh_df(df, start=start, end=end, facility=facility_name)
+    effective_facility = None
+    if facility_name and not df.empty and RMH_RAW["facility"] in df.columns:
+        fac_norm = facility_name.strip().lower()
+        if (df[RMH_RAW["facility"]].fillna("").astype(str).str.strip().str.lower() == fac_norm).any():
+            effective_facility = facility_name
+    df = filter_rmh_df(df, start=start, end=end, facility=effective_facility)
     ctx.log(f"Records after date/facility filtering: {len(df):,}")
 
     wb = Workbook()
@@ -714,7 +725,12 @@ def run_rmh_aggregate_report_openmrs_worker(
 
     ctx.log(f"Loaded {len(df):,} maternal records from OpenMRS 3.")
     df = normalize_openmrs_maternal_df(df)
-    df = filter_rmh_df(df, start=start, end=end, facility=facility_name)
+    effective_facility = None
+    if facility_name and not df.empty and RMH_RAW["facility"] in df.columns:
+        fac_norm = facility_name.strip().lower()
+        if (df[RMH_RAW["facility"]].fillna("").astype(str).str.strip().str.lower() == fac_norm).any():
+            effective_facility = facility_name
+    df = filter_rmh_df(df, start=start, end=end, facility=effective_facility)
     ctx.log(f"Deliveries within reporting period: {len(df):,}")
 
     ctx.log("Computing MoH 01.2 indicators from OpenMRS data...")
@@ -810,7 +826,12 @@ def run_nh_neonatal_register_openmrs_worker(
     ctx.log(f"Raw OpenMRS neonatal records: {len(df):,}")
     ctx.update_progress(40, 100, "Mapping OpenMRS 3 fields to MoH NICU Register...")
     df = normalize_openmrs_neonatal_df(df)
-    df = filter_nh_df(df, start=start, end=end, facility=facility_name)
+    effective_facility = None
+    if facility_name and not df.empty and NH_RAW["facility"] in df.columns:
+        fac_norm = facility_name.strip().lower()
+        if (df[NH_RAW["facility"]].fillna("").astype(str).str.strip().str.lower() == fac_norm).any():
+            effective_facility = facility_name
+    df = filter_nh_df(df, start=start, end=end, facility=effective_facility)
     ctx.log(f"Admissions after date/facility filtering: {len(df):,}")
 
     wb = Workbook()
@@ -927,7 +948,12 @@ def run_nh_aggregate_report_openmrs_worker(
 
     ctx.log(f"Loaded {len(df):,} neonatal records from OpenMRS 3.")
     df = normalize_openmrs_neonatal_df(df)
-    df = filter_nh_df(df, start=start, end=end, facility=facility_name)
+    effective_facility = None
+    if facility_name and not df.empty and NH_RAW["facility"] in df.columns:
+        fac_norm = facility_name.strip().lower()
+        if (df[NH_RAW["facility"]].fillna("").astype(str).str.strip().str.lower() == fac_norm).any():
+            effective_facility = facility_name
+    df = filter_nh_df(df, start=start, end=end, facility=effective_facility)
     ctx.log(f"Admissions within reporting period: {len(df):,}")
 
     ctx.log("Computing MoH 04.2 indicators from OpenMRS data...")

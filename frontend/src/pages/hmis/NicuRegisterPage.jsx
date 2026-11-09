@@ -390,7 +390,7 @@ const NicuRegisterPage = () => {
               <div className="space-y-3">
                 <HmisConnectionCard type="openmrs" />
                 {renderPeriodSelector()}
-                <OpenmrsLocationSelect value={openmrsFacility} onChange={setOpenmrsFacility} label="Location" />
+                <OpenmrsLocationSelect value={openmrsFacility} onChange={setOpenmrsFacility} label="Location (Optional)" />
               </div>
             ) : (
               <div className="space-y-3">

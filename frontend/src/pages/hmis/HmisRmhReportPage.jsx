@@ -386,7 +386,7 @@ const HmisRmhReportPage = () => {
                 <OpenmrsLocationSelect
                   value={openmrsFacility}
                   onChange={setOpenmrsFacility}
-                  label="Location / Ward"
+                  label="Location / Ward (Optional)"
                 />
               </div>
             ) : (
