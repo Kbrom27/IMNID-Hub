@@ -54,6 +54,11 @@ from backend.modules.concepts.enhanced_form_generator import (
 from backend.modules.concepts.merge_form_schemas import run_merge_forms
 from backend.modules.concepts.export_form_concepts import export_form_concepts
 from backend.modules.concepts.import_form_schemas import import_form_schemas
+from backend.modules.concepts.concept_drug_importer import (
+    run_concept_drug_import,
+    scan_drug_files,
+    resolve_drug_input_files,
+)
 from backend.modules.concepts.legacy21_exporter import export_legacy21_concepts
 from backend.modules.concepts.legacy21_converter import convert_dhis2_to_legacy21
 
@@ -865,6 +870,60 @@ def run_import_form_schemas_worker(
         ctx.add_error(f"Import form schemas failed: {str(e)}")
         ctx.status = "failed"
         ctx.log(f"Import form schemas failed: {str(e)}", level="ERROR")
+
+
+# ==============================================================================
+# Worker: Import Concept Drug Formulations to OpenMRS 3.x
+# ==============================================================================
+def run_concept_drug_import_worker(
+    ctx: JobContext,
+    path: str,
+    file_format: str = "auto",
+    dry_run: bool = True,
+    output_dir: Optional[str] = None,
+    base_url: Optional[str] = None,
+    username: Optional[str] = None,
+    password: Optional[str] = None,
+):
+    ctx.log(f"Starting OpenMRS Drug Formulation Importer (format={file_format}, dry_run={dry_run})...")
+    client = get_openmrs_client(base_url, username, password)
+
+    target_out_dir = Path(output_dir) if output_dir else settings.exports_dir
+    target_out_dir.mkdir(parents=True, exist_ok=True)
+    report_path = target_out_dir / f"drug_import_report_{ctx.job_id}.csv"
+
+    def progress_callback(cur, tot, msg):
+        pct = int((cur / max(1, tot)) * 100)
+        ctx.update_progress(progress=pct, total=tot, message=msg)
+
+    try:
+        res = run_concept_drug_import(
+            client=client,
+            path=path,
+            file_format=file_format,
+            dry_run=dry_run,
+            log_fn=lambda msg: ctx.log(msg),
+            progress_fn=progress_callback,
+            is_canceled_fn=lambda: ctx.is_canceled(),
+            out_report_path=report_path,
+        )
+        ctx.set_result_file(str(report_path))
+        ctx.artifacts["created"] = res["created"]
+        ctx.artifacts["dry_run_ok"] = res["dry_run_ok"]
+        ctx.artifacts["skipped"] = res["skipped"]
+        ctx.artifacts["failed"] = res["failed"]
+        ctx.artifacts["output_report"] = str(report_path)
+        ctx.update_progress(
+            progress=100,
+            message=(
+                f"Completed: {res['created']} created, {res['dry_run_ok']} dry-run ok, "
+                f"{res['skipped']} skipped, {res['failed']} failed."
+            ),
+        )
+    except Exception as e:
+        ctx.add_error(f"Drug import failed: {str(e)}")
+        ctx.status = "failed"
+        ctx.log(f"Drug import failed: {str(e)}", level="ERROR")
 
 
 # ==============================================================================

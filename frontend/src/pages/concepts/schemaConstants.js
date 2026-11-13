@@ -10,6 +10,7 @@ import {
   FileSpreadsheet,
   FileText,
   Code,
+  Pill,
 } from 'lucide-react';
 
 export const TOOLS_3X = [
@@ -93,6 +94,14 @@ export const TOOLS_3X = [
     desc: 'Validate and import all JSON form schemas in a directory into OpenMRS 3.x form engine.',
     icon: Upload,
     endpoint: '/api/concepts/import-schemas',
+  },
+  {
+    id: 'cm14_import_drugs',
+    code: 'CM-14',
+    name: 'Import Concept Drug Formulations to OpenMRS 3.x',
+    desc: 'Import drug formulations (OpenMRS drug table linked to concepts) from Initializer CSV files or folders via REST API.',
+    icon: Pill,
+    endpoint: '/api/concepts/import-drugs',
   },
 ];
 

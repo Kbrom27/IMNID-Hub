@@ -16,6 +16,7 @@ import {
   RotateCcw,
   Search,
   RefreshCw,
+  Pill,
 } from 'lucide-react';
 import {
   PageHeader,
@@ -111,6 +112,9 @@ const Openmrs3xToolsPage = () => {
     cm09_forms_dir: '/data/schemas/Maternal Inpatient Data',
     cm09_output_dir: '/data/exports/form-concepts',
     cm10_forms_dir: '/data/schemas/Maternal Inpatient Data',
+    cm14_format: 'csv',
+    cm14_path: '',
+    cm14_output_dir: '/data/exports/drug-reports',
   });
 
   const handleInputChange = (field, value) => {
@@ -629,7 +633,7 @@ const Openmrs3xToolsPage = () => {
   const currentTool = TOOLS_3X.find((t) => t.id === selectedToolId) || TOOLS_3X[0];
 
   const handleRunTool = (isDryRun = false) => {
-    const isWrite = ['cm02_import', 'cm05_bulk_import', 'cm10_import_schemas'].includes(selectedToolId);
+    const isWrite = ['cm02_import', 'cm05_bulk_import', 'cm10_import_schemas', 'cm14_import_drugs'].includes(selectedToolId);
     if (!isDryRun && isWrite) {
       setShowConfirm(true);
     } else {
@@ -787,6 +791,20 @@ const Openmrs3xToolsPage = () => {
         forms_dir: inputs.cm10_forms_dir.trim(),
         dry_run: isDryRun,
       });
+    } else if (selectedToolId === 'cm14_import_drugs') {
+      if (!inputs.cm14_path?.trim()) {
+        showToast(
+          `Please select or upload a ${inputs.cm14_format === 'json' ? 'JSON' : 'CSV'} file containing drug formulations.`,
+          'warning'
+        );
+        return;
+      }
+      submitJob('/api/concepts/import-drugs', {
+        path: inputs.cm14_path.trim(),
+        file_format: inputs.cm14_format || 'csv',
+        output_dir: inputs.cm14_output_dir?.trim() || null,
+        dry_run: isDryRun,
+      });
     }
   };
 
@@ -803,7 +821,7 @@ const Openmrs3xToolsPage = () => {
 
       {/* Top Tool Selector */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
           {TOOLS_3X.map((tool) => {
             const isSelected = selectedToolId === tool.id;
             return (
@@ -2211,6 +2229,167 @@ const Openmrs3xToolsPage = () => {
                   <Server className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span>Using saved <strong>OpenMRS 3.x</strong> connection credentials from Settings & Connections.</span>
                 </div>
+              </div>
+            )}
+
+            {/* CM-14: Import Concept Drug Formulations */}
+            {selectedToolId === 'cm14_import_drugs' && (
+              <div className="space-y-4">
+                {/* 1. Format selector */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
+                    File Format <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
+                    <button
+                      type="button"
+                      onClick={() => handleInputChange('cm14_format', 'csv')}
+                      className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
+                        inputs.cm14_format === 'csv'
+                          ? 'bg-teal-50 dark:bg-teal-950/40 border-teal-500 text-teal-800 dark:text-teal-200 shadow-2xs ring-1 ring-teal-500/30'
+                          : 'bg-white dark:bg-slate-850 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <div className={`p-2 rounded-lg ${inputs.cm14_format === 'csv' ? 'bg-teal-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
+                        <FileSpreadsheet className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-slate-800 dark:text-slate-200">CSV Formulations</div>
+                        <div className="text-[11px] text-slate-500">OpenMRS Initializer drug_formulations.csv</div>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleInputChange('cm14_format', 'json')}
+                      className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
+                        inputs.cm14_format === 'json'
+                          ? 'bg-teal-50 dark:bg-teal-950/40 border-teal-500 text-teal-800 dark:text-teal-200 shadow-2xs ring-1 ring-teal-500/30'
+                          : 'bg-white dark:bg-slate-850 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <div className={`p-2 rounded-lg ${inputs.cm14_format === 'json' ? 'bg-teal-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
+                        <Code className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-slate-800 dark:text-slate-200">JSON Formulations</div>
+                        <div className="text-[11px] text-slate-500">Array of drug formulation definitions</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2. Unified File Upload / Dropzone */}
+                <div className="space-y-1.5">
+                  <label htmlFor="cm14_file_input" className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
+                    {inputs.cm14_format === 'json' ? 'Upload or Select Drug Formulations JSON' : 'Upload or Select Drug Formulations CSV'}{' '}
+                    <span className="text-rose-500">*</span>
+                  </label>
+                  <FileDropzone
+                    id="cm14_file_input"
+                    accept={inputs.cm14_format === 'json' ? '.json,.zip' : '.csv,.zip'}
+                    filePath={inputs.cm14_path}
+                    uploading={uploadingField === 'cm14_path'}
+                    onFileSelect={(selectedFile) => handleFileUpload(selectedFile, 'cm14_path')}
+                    onRemove={() => handleInputChange('cm14_path', '')}
+                    helperText={
+                      inputs.cm14_format === 'json'
+                        ? 'Drag & drop JSON file with drug formulations or click to upload'
+                        : 'Drag & drop CSV file with Initializer drug formulations or click to upload'
+                    }
+                  />
+
+                  {/* Server quick-pick shortcuts */}
+                  <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500 pt-0.5">
+                    <span className="font-medium">Quick Pick:</span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleInputChange(
+                          'cm14_path',
+                          inputs.cm14_format === 'json'
+                            ? '/data/uploads/drug_formulations.json'
+                            : '/data/uploads/drugs/drug_formulations.csv'
+                        )
+                      }
+                      className="font-mono text-teal-600 dark:text-teal-400 hover:underline"
+                    >
+                      {inputs.cm14_format === 'json'
+                        ? '/data/uploads/drug_formulations.json'
+                        : '/data/uploads/drugs/drug_formulations.csv'}
+                    </button>
+                  </div>
+
+                  {/* Custom server path manual input */}
+                  <div className="pt-1.5">
+                    <TextInput
+                      label="Or specify custom server file / directory path"
+                      value={inputs.cm14_path}
+                      onChange={(val) => handleInputChange('cm14_path', val)}
+                      placeholder={
+                        inputs.cm14_format === 'json'
+                          ? '/data/uploads/drug_formulations.json'
+                          : '/data/uploads/drugs/drug_formulations.csv'
+                      }
+                      size="sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400">
+                  <Server className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Using saved <strong>OpenMRS 3.x</strong> connection credentials from Settings & Connections.</span>
+                </div>
+
+                {/* 3. Expected Schema Guide */}
+                {inputs.cm14_format === 'json' ? (
+                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-1.5">
+                    <div className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                      <Code className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                      <span>Expected JSON Structure (Array of Formulations)</span>
+                    </div>
+                    <pre className="font-mono text-[11px] text-teal-600 dark:text-teal-400 bg-slate-100 dark:bg-slate-800/80 p-2.5 rounded-lg overflow-x-auto">
+{`[
+  {
+    "name": "Oxytocin 10 IU/mL injection",
+    "concept": "Oxytocin",                  // Concept name or UUID or "@Drug|Oxytocin"
+    "dosageForm": "Solution for injection", // Dosage form name or UUID or "@Drug form|..."
+    "strength": "10 IU/mL",
+    "combination": false                    // optional
+  }
+]`}
+                    </pre>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Supports direct property names (<code className="font-mono">name, concept, dosageForm, strength, description, combination</code>) or Initializer CSV column names (<code className="font-mono">Uuid, Name, Concept Drug, Concept Dosage Form, Strength</code>). Missing dosage form concepts are automatically resolved or created.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-1.5">
+                    <div className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                      <Pill className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                      <span>Expected CSV Columns (OpenMRS Initializer Format)</span>
+                    </div>
+                    <p>
+                      <code className="text-teal-600 dark:text-teal-400 font-mono">Uuid, Name, Concept Drug, Concept Dosage Form, Strength</code>
+                    </p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Optional: <code className="font-mono">Description, Void/Retire, Maximum daily dose, Minimum daily dose</code>.
+                      <br />
+                      <span className="text-slate-700 dark:text-slate-300 font-medium">Concept Drug</span> and <span className="text-slate-700 dark:text-slate-300 font-medium">Concept Dosage Form</span> accept concept UUIDs, exact concept names (e.g. <code>Oxytocin</code>, <code>Solution for injection</code>), or <code>@Class|Name</code> references. Missing dosage forms are automatically created.
+                    </p>
+                  </div>
+                )}
+
+                {/* 4. Destination Directory for audit report */}
+                <DirectoryPicker
+                  label="Import Report Destination Directory"
+                  value={inputs.cm14_output_dir}
+                  onChange={(val) => handleInputChange('cm14_output_dir', val)}
+                  helperText="Directory where the execution audit report (CSV) will be saved"
+                  presetDirs={[
+                    '/data/exports/drug-reports',
+                    '/data/exports',
+                  ]}
+                />
               </div>
             )}
 

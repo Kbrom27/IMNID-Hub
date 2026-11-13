@@ -27,6 +27,7 @@ from backend.modules.concepts.service import (
     get_openmrs_client,
     run_bahmni_convert_worker,
     run_bulk_folder_import_worker,
+    run_concept_drug_import_worker,
     run_concept_import_worker,
     run_dhis2_metadata_convert_worker,
     run_export_all_worker,
@@ -43,6 +44,10 @@ from backend.modules.concepts.service import (
 from backend.modules.concepts.openmrs_importer import check_concept_classes
 from backend.modules.concepts.openmrs_set_exporter import search_concept_sets
 from backend.modules.concepts.dhis2_metadata_converter import extract_programs_from_file
+from backend.modules.concepts.concept_drug_importer import (
+    scan_drug_files,
+    resolve_drug_input_files,
+)
 
 router = APIRouter(prefix="/api/concepts", tags=["Concepts & Form Tools"])
 
@@ -776,6 +781,75 @@ async def import_form_schemas_endpoint(
     )
     return {"status": "submitted", "job_id": job_id}
 
+
+# ==============================================================================
+# CM-14: Import Concept Drug Formulations to OpenMRS 3.x
+# ==============================================================================
+class ConceptDrugImportRequest(BaseModel):
+    path: str
+    file_format: Optional[str] = "auto"
+    dry_run: bool = True
+    output_dir: Optional[str] = None
+    base_url: Optional[str] = None
+    username: Optional[str] = None
+    password: Optional[str] = None
+
+
+@router.post("/scan-drugs")
+async def scan_concept_drugs_endpoint(
+    req: ConceptDrugImportRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    target_path = (req.path or "").strip()
+    if not target_path:
+        raise HTTPException(status_code=400, detail="Please select or provide a CSV or JSON file or directory path.")
+
+    try:
+        files = resolve_drug_input_files(target_path, file_format=req.file_format or "auto")
+        scan = scan_drug_files(files, file_format=req.file_format or "auto")
+        return {
+            "status": "success",
+            "path": target_path,
+            "format": req.file_format or "auto",
+            "total_files": len(files),
+            **scan,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/import-drugs")
+async def import_concept_drugs_endpoint(
+    req: ConceptDrugImportRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    target_path = (req.path or "").strip()
+    if not target_path:
+        raise HTTPException(
+            status_code=400,
+            detail="Drug formulation file or directory path is required. Please select or upload a CSV or JSON file."
+        )
+
+    try:
+        resolve_drug_input_files(target_path, file_format=req.file_format or "auto")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    job_id = job_engine.start_job(
+        module="concepts",
+        action="concept_drug_import",
+        target=lambda ctx: run_concept_drug_import_worker(
+            ctx,
+            path=target_path,
+            file_format=req.file_format or "auto",
+            dry_run=req.dry_run,
+            output_dir=req.output_dir,
+            base_url=req.base_url,
+            username=req.username,
+            password=req.password,
+        ),
+    )
+    return {"status": "submitted", "job_id": job_id}
 
 
 # ==============================================================================
