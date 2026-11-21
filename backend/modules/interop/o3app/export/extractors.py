@@ -54,7 +54,7 @@ def determine_program_from_visit_type(visit_type_name: str) -> str:
         return NEONATAL_PROGRAM
     if any(marker in normalized for marker in ("delivery", "labour", "labor", "obs", "obstetric")):
         return MATERNAL_PROGRAM
-    return ""
+    return "Unknown"
 
 
 def clean_mrn_identifier(raw_mrn: str) -> str:

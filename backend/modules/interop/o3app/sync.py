@@ -170,12 +170,7 @@ def run_o3_export(
     if not selected_visit:
         raise RuntimeError(f"Visit type '{visit_type_name}' was not found on the server.")
 
-    program_value = determine_program_from_visit_type(visit_type_name)
-    if not program_value:
-        raise RuntimeError(
-            "Could not determine the DHIS2 program from the visit type. Use a visit type "
-            "containing 'Delivery'/'Labour' for maternal or 'NICU' for neonatal data."
-        )
+    program_value = determine_program_from_visit_type(visit_type_name) or "Unknown"
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     registry = load_form_registry(schema_root=schema_root, log_callback=log_callback)
@@ -193,6 +188,15 @@ def run_o3_export(
         visit_type_name=visit_type_name,
     )
     if not patients:
+        write_o3_patients_csv(
+            api=api,
+            registry=registry,
+            patients=[],
+            output_filename=output_path,
+            org_unit_code=resolved_code,
+            program_value=program_value,
+            fetch_concurrency=1,
+        )
         return output_path, program_value, 0
 
     if log_callback:
