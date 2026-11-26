@@ -681,7 +681,8 @@ class Plan:
                              "same name as %s but different %s; renamed '%s'"
                              % (keeper.row.where,
                                 "datatype" if r.dtype != keeper.dtype else "answers", r.p2name))
-            # (c) sets with the same name: identical members merge, later ones get '?'
+            # (c) sets with the same name: identical members merge; if multiple
+            #     differing sets are not on the server, name them "<name> set 1", "<name> set 2", ...
             dsets: List[Rec] = []
             sseen: Dict[frozenset, Rec] = {}
             for r in sets:
@@ -693,19 +694,24 @@ class Plan:
                 else:
                     sseen[r.refset] = r
                     dsets.append(r)
-            for r in dsets[1:]:
-                r.p2name = r.name + "?"
-                r.causes.append("IN_IMPORT_SET_CONFLICT")
-                self.log("WARNING", "SET_CONFLICT_IN_IMPORT", r,
-                         "same name as set %s with different members; renamed '%s'"
-                         % (dsets[0].row.where, r.p2name))
+            if (len(dsets) > 1
+                    and dsets[0].nname not in self.export.by_name
+                    and dsets[0].nname not in self.extra_taken):
+                for idx, r in enumerate(dsets, start=1):
+                    r.p2name = "%s set %d" % (r.name, idx)
+                    r.causes.append("IN_IMPORT_SET_CONFLICT")
+                    self.log("WARNING", "SET_CONFLICT_IN_IMPORT", r,
+                             "multiple sets named '%s' with different members (not on server); renamed '%s'"
+                             % (r.name, r.p2name))
             # (d) concept row and set row with the same name: the (first) set is renamed
             if concepts and dsets:
                 s0 = dsets[0]
-                s0.p2name = s0.name + " set"
+                if not s0.p2name:
+                    s0.p2name = s0.name + " set"
                 s0.causes.append("SET_CONCEPT_CLASH")
-                if any(c.uuid.lower() == s0.uuid.lower() for c in concepts):
-                    s0.force_new_uuid = True
+                for s in dsets:
+                    if any(c.uuid.lower() == s.uuid.lower() for c in concepts):
+                        s.force_new_uuid = True
                 self.log("WARNING", "SET_CONCEPT_NAME_CLASH", s0,
                          "a concept row has the same name; set renamed '%s'%s"
                          % (s0.p2name, " and gets a new UUID" if s0.force_new_uuid else ""))
@@ -922,6 +928,14 @@ class Plan:
         r.final_refs = self.collect_refs(r)
         suffix = "." if r.is_na_answer else "?"
         name = r.p2name or r.name
+        set_seq = 0
+        if r.kind == "set" and r.p2name:
+            if r.p2name == r.name + " set":
+                set_seq = 1
+            elif r.p2name.startswith(r.name + " set "):
+                tail = r.p2name[len(r.name) + 5:]
+                if tail.isdigit():
+                    set_seq = int(tail)
         server_clash = False
         first_why = ""
         for _ in range(60):
@@ -948,7 +962,11 @@ class Plan:
             if not first_why:
                 first_why = why
             server_clash = True
-            name = name + suffix
+            if r.kind == "set":
+                set_seq += 1
+                name = (r.name + " set") if set_seq == 1 else ("%s set %d" % (r.name, set_seq))
+            else:
+                name = name + suffix
         else:
             self.fail(r, "NAME_UNRESOLVABLE", "no free name found after 60 suffix attempts")
             return

@@ -222,10 +222,10 @@ class ConceptRules(unittest.TestCase):
         self.assertEqual(by_name(plan, "S").action, "REUSE")
         self.assertEqual(lv.count, 1)
         plan, lv = plan_for(tree, ex, live, cap=0)
-        self.assertEqual(by_name(plan, "S").final_name, "S?")
+        self.assertEqual(by_name(plan, "S").final_name, "S set")
         self.assertEqual(lv.capped, 1)
         plan, lv = plan_for(tree, ex, None)
-        self.assertEqual(by_name(plan, "S").final_name, "S?")
+        self.assertEqual(by_name(plan, "S").final_name, "S set")
         self.assertEqual(lv.unavailable, 1)
 
     def test_strict_set_check_reads_plain_na_concepts(self):
@@ -270,8 +270,49 @@ class SetRules(unittest.TestCase):
         tree = {"f/concepts.csv": ("concept", [C(1, "a")]),
                 "f/concept_sets.csv": ("set", [S(3, "G", ["a"])])}
         plan, lv = plan_for(tree, [("G", "Text", "", uid(900))])
-        self.assertEqual(by_name(plan, "G").final_name, "G?")
+        self.assertEqual(by_name(plan, "G").final_name, "G set")
         self.assertEqual(lv.count, 0)
+
+    def test_set_server_clash_numbers_subsequent_attempts_and_reuses_match(self):
+        tree = {"f/concepts.csv": ("concept", [C(1, "a", "N/A")]),
+                "f/concept_sets.csv": ("set", [S(3, "G", ["a"])])}
+        # G and G set are both taken on server -> G set 2
+        ex = [("a", "N/A", "", uid(901)),
+              ("G", "Text", "", uid(900)),
+              ("G set", "Text", "", uid(902))]
+        plan, _ = plan_for(tree, ex)
+        self.assertEqual(by_name(plan, "G").final_name, "G set 2")
+        self.assertEqual(by_name(plan, "G").action, "CREATE_RENAMED")
+        # If G set 2 also exists on server as an identical set -> REUSE G set 2
+        ex_with_match = ex + [("G set 2", "N/A", "", uid(903))]
+        live = Live({uid(903): {"set": True, "setMembers": [{"uuid": uid(901)}]}})
+        plan, _ = plan_for(tree, ex_with_match, live)
+        r = by_name(plan, "G")
+        self.assertEqual((r.action, r.final_name, r.final_uuid), ("REUSE", "G set 2", uid(903)))
+
+    def test_set_and_concept_clash_in_import_plus_server_clash_becomes_set_2(self):
+        tree = {"f/concepts.csv": ("concept", [C(1, "Pain", "Text")]),
+                "f/concept_sets.csv": ("set", [S(2, "Pain", ["Pain"])])}
+        ex = [("Pain set", "Text", "", uid(900))]
+        plan, _ = plan_for(tree, ex)
+        s = next(r for r in plan.recs if r.kind == "set")
+        self.assertEqual(s.final_name, "Pain set 2")
+
+    def test_two_sets_same_name_when_on_server_reuses_match_and_renames_other(self):
+        tree = {"f/concepts.csv": ("concept", [C(1, "a", "N/A"), C(2, "b", "N/A")]),
+                "f/concept_sets.csv": ("set", [S(3, "G", ["a"]), S(4, "G", ["b"])])}
+        # Server has set G with member a -> S(3) reuses G, S(4) becomes G set
+        ex = [("a", "N/A", "", uid(901)), ("b", "N/A", "", uid(902)), ("G", "N/A", "", uid(900))]
+        live = Live({uid(900): {"set": True, "setMembers": [{"uuid": uid(901)}]}})
+        plan, _ = plan_for(tree, ex, live)
+        sets = [r for r in plan.primaries() if r.kind == "set"]
+        self.assertEqual([(r.action, r.final_name) for r in sets],
+                         [("REUSE", "G"), ("CREATE_RENAMED", "G set")])
+        # Server has non-set concept G -> S(3) gets G set, S(4) gets G set 2
+        ex_concept = [("a", "N/A", "", uid(901)), ("b", "N/A", "", uid(902)), ("G", "Text", "", uid(900))]
+        plan2, _ = plan_for(tree, ex_concept)
+        sets2 = [r for r in plan2.primaries() if r.kind == "set"]
+        self.assertEqual([r.final_name for r in sets2], ["G set", "G set 2"])
 
 
 class InImportAnalysis(unittest.TestCase):
@@ -311,13 +352,13 @@ class InImportAnalysis(unittest.TestCase):
         plan, _ = plan_for(tree, [])
         self.assertEqual([r.final_name for r in plan.recs], ["Z", "Z?"])
 
-    def test_sets_same_name_identical_members_merge_else_question_mark(self):
+    def test_sets_same_name_identical_members_merge_else_set_numbered(self):
         tree = {"f/concepts.csv": ("concept", [C(1, "a"), C(2, "b")]),
                 "f/concept_sets.csv": ("set", [S(3, "G", ["a"]), S(4, "G", ["a"]),
                                                S(5, "G", ["b"])])}
         plan, _ = plan_for(tree, [])
         names = sorted(r.final_name for r in plan.primaries() if r.kind == "set")
-        self.assertEqual(names, ["G", "G?"])
+        self.assertEqual(names, ["G set 1", "G set 2"])
 
     def test_unresolved_reference_skipped_parent_continues(self):
         tree = {"f/concepts.csv": ("concept", [C(1, "a"), C(2, "P", "Coded", ["a", "ghost"])])}
