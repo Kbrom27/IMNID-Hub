@@ -130,6 +130,14 @@ export const TOOLS_21 = [
     icon: Upload,
     endpoint: '/api/concepts/legacy-bulk-import',
   },
+  {
+    id: 'cm15_legacy_dd_diff_conv',
+    code: 'CM-15',
+    name: 'Legacy 2.1 DD Differences Converter',
+    desc: 'Convert NCF DD Differences ("Added (New Only)") Excel and existing server concepts CSV into Bahmni/OpenMRS 2.1 stage and section CSV files.',
+    icon: FileSpreadsheet,
+    endpoint: '/api/concepts/legacy-dd-diff-convert',
+  },
 ];
 
 export const DEFAULT_BLANK_SCHEMA = {

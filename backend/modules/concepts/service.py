@@ -61,6 +61,9 @@ from backend.modules.concepts.concept_drug_importer import (
 )
 from backend.modules.concepts.legacy21_exporter import export_legacy21_concepts
 from backend.modules.concepts.legacy21_converter import convert_dhis2_to_legacy21
+from backend.modules.concepts.legacy21_dd_diff_converter import (
+    convert_dd_differences_to_legacy21,
+)
 
 logger = logging.getLogger("imnid.concepts")
 
@@ -1254,5 +1257,94 @@ def run_legacy21_bulk_import_worker(
     finally:
         bci.SAY_HOOK = None
         bci.CANCEL_HOOK = None
+
+
+# ==============================================================================
+# Worker: OpenMRS 2.1 / Bahmni DD Differences Concept Converter (CM-15)
+# ==============================================================================
+def _resolve_uploaded_file(raw_path: str, label: str) -> Path:
+    raw = str(raw_path or "").strip()
+    if not raw:
+        raise ValueError(f"{label} is required.")
+    candidate = Path(raw)
+    if candidate.exists() and candidate.is_file():
+        return candidate
+    for cand in [
+        settings.uploads_dir / raw,
+        settings.exports_dir / raw,
+        Path(raw).resolve(),
+    ]:
+        if cand.exists() and cand.is_file():
+            return cand
+    raise ValueError(f"{label} not found: {raw}")
+
+
+def run_legacy21_dd_diff_convert_worker(
+    ctx: JobContext,
+    dd_file: str,
+    existing_concepts_file: str,
+    parent_folder: str = "NCF_Added",
+    output_dir: Optional[str] = None,
+):
+    ctx.log("Starting Legacy 2.1 DD Differences Concept Converter (CM-15)...")
+
+    job_export_dir = settings.exports_dir / f"legacy21_dd_diff_{ctx.job_id}"
+    job_export_dir.mkdir(parents=True, exist_ok=True)
+
+    user_out_path = None
+    if output_dir and not str(output_dir).strip().startswith("[Local"):
+        try:
+            p = Path(output_dir)
+            p.mkdir(parents=True, exist_ok=True)
+            user_out_path = p
+        except Exception:
+            pass
+
+    try:
+        resolved_dd = _resolve_uploaded_file(dd_file, "DD Differences Excel file")
+        resolved_existing = _resolve_uploaded_file(
+            existing_concepts_file, "Existing Server Concepts CSV file"
+        )
+
+        ctx.log(f"DD Differences Excel: {resolved_dd.name}")
+        ctx.log(f"Existing Server Concepts CSV: {resolved_existing.name}")
+        ctx.update_progress(progress=15, message="Converting DD Differences to Legacy 2.1 CSVs...")
+
+        res = convert_dd_differences_to_legacy21(
+            dd_path=resolved_dd,
+            existing_concepts_path=resolved_existing,
+            output_root=job_export_dir,
+            parent_folder_name=parent_folder or "NCF_Added",
+            log_fn=lambda msg: ctx.log(msg),
+            is_canceled_fn=lambda: ctx.is_canceled(),
+        )
+
+        parent_name = res.get("parent_folder", parent_folder or "NCF_Added")
+        generated_dir = job_export_dir / parent_name
+
+        if user_out_path and generated_dir.exists():
+            target_parent = user_out_path / parent_name
+            if target_parent.exists():
+                shutil.rmtree(target_parent)
+            shutil.copytree(generated_dir, target_parent)
+            ctx.log(f"Saved copy to target directory: {target_parent}")
+
+        zip_path = settings.exports_dir / f"{parent_name}_legacy21_dd_diff_{ctx.job_id}.zip"
+        zip_directory(generated_dir, zip_path)
+        ctx.set_result_file(str(zip_path))
+        ctx.artifacts.update(res)
+        ctx.update_progress(
+            progress=100,
+            message=(
+                f"Converted {res['stages_count']} stages and {res['sections_count']} sections "
+                f"into {res['concepts_count']} concept rows and {res['sets_count']} concept sets."
+            ),
+        )
+    except Exception as e:
+        err_msg = f"Legacy 2.1 DD Differences conversion failed: {str(e)}"
+        ctx.add_error(err_msg)
+        ctx.message = err_msg
+        ctx.status = "failed"
+
 
 

@@ -38,6 +38,7 @@ from backend.modules.concepts.service import (
     run_import_form_schemas_worker,
     run_legacy21_bulk_import_worker,
     run_legacy21_convert_worker,
+    run_legacy21_dd_diff_convert_worker,
     run_legacy21_export_worker,
     run_merge_schemas_worker,
 )
@@ -963,6 +964,47 @@ async def legacy21_bulk_import(
             check_only=req.check_only,
             delay_ms=req.delay_ms or 200,
             batch_size=req.batch_size or 100,
+        ),
+    )
+    return {"status": "submitted", "job_id": job_id}
+
+
+# ==============================================================================
+# CM-15: OpenMRS 2.1 / Bahmni DD Differences Concept Converter (Legacy)
+# ==============================================================================
+class Legacy21DdDiffConvertRequest(BaseModel):
+    dd_file: str
+    existing_concepts_file: str
+    parent_folder: str = "NCF_Added"
+    output_dir: Optional[str] = None
+
+
+@router.post("/legacy-21/dd-diff-convert")
+@router.post("/legacy-dd-diff-convert")
+async def legacy21_dd_diff_convert(
+    req: Legacy21DdDiffConvertRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    if not (req.dd_file or "").strip():
+        raise HTTPException(
+            status_code=400,
+            detail="DD Differences Excel (.xlsx) file is required.",
+        )
+    if not (req.existing_concepts_file or "").strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Existing Server Concepts CSV file is required.",
+        )
+
+    job_id = job_engine.start_job(
+        module="concepts",
+        action="legacy21_dd_diff_convert",
+        target=lambda ctx: run_legacy21_dd_diff_convert_worker(
+            ctx,
+            dd_file=req.dd_file,
+            existing_concepts_file=req.existing_concepts_file,
+            parent_folder=req.parent_folder or "NCF_Added",
+            output_dir=req.output_dir,
         ),
     )
     return {"status": "submitted", "job_id": job_id}

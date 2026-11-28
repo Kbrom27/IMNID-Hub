@@ -53,6 +53,10 @@ const Legacy21ToolsPage = () => {
     cm13_check_only: false,
     cm13_delay_ms: 200,
     cm13_batch_size: 100,
+    cm15_dd_file: '',
+    cm15_existing_concepts_file: '',
+    cm15_parent_folder: 'NCF_Added',
+    cm15_output_dir: '/data/exports',
   });
 
   const handleInputChange = (field, value) => {
@@ -317,6 +321,21 @@ const Legacy21ToolsPage = () => {
         delay_ms: Number(inputs.cm13_delay_ms) || 200,
         batch_size: Number(inputs.cm13_batch_size) || 100,
       });
+    } else if (selectedToolId === 'cm15_legacy_dd_diff_conv') {
+      if (!inputs.cm15_dd_file) {
+        showToast('Please upload the DD Differences (.xlsx) file first.', 'warning');
+        return;
+      }
+      if (!inputs.cm15_existing_concepts_file) {
+        showToast('Please upload the Existing Server Concepts (.csv) file first.', 'warning');
+        return;
+      }
+      submitJob('/api/concepts/legacy-dd-diff-convert', {
+        dd_file: inputs.cm15_dd_file,
+        existing_concepts_file: inputs.cm15_existing_concepts_file,
+        parent_folder: inputs.cm15_parent_folder || 'NCF_Added',
+        output_dir: inputs.cm15_output_dir || null,
+      });
     }
   };
 
@@ -333,7 +352,7 @@ const Legacy21ToolsPage = () => {
 
       {/* Top Tool Selector */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {TOOLS_21.map((tool) => {
             const isSelected = selectedToolId === tool.id;
             return (
@@ -630,6 +649,59 @@ const Legacy21ToolsPage = () => {
                       <span>Strict Set Check (treat existing N/A concepts as non-sets)</span>
                     </label>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* CM-15 */}
+            {selectedToolId === 'cm15_legacy_dd_diff_conv' && (
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <FileDropzone
+                      id="cm15_dd_file_upload"
+                      label="DD Differences Excel File (.xlsx)"
+                      accept=".xlsx,.xls"
+                      filePath={inputs.cm15_dd_file}
+                      uploading={uploadingField === 'cm15_dd_file'}
+                      onFileSelect={(file) => handleFileUpload(file, 'cm15_dd_file')}
+                      onRemove={() => handleInputChange('cm15_dd_file', '')}
+                      helperText="Click to browse or drop NCF_DD_Differences_with_sections.xlsx"
+                    />
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Reads the &apos;Added (New Only)&apos; sheet (Stage Name, Section Name, DE ID, DE Name, Data Type, Options).
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <FileDropzone
+                      id="cm15_existing_concepts_upload"
+                      label="Existing Server Concepts Snapshot (.csv)"
+                      accept=".csv"
+                      filePath={inputs.cm15_existing_concepts_file}
+                      uploading={uploadingField === 'cm15_existing_concepts_file'}
+                      onFileSelect={(file) => handleFileUpload(file, 'cm15_existing_concepts_file')}
+                      onRemove={() => handleInputChange('cm15_existing_concepts_file', '')}
+                      helperText="Click to browse or drop existing server concepts CSV"
+                    />
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Existing server export CSV (e.g. from CM-11) used to avoid UUID collisions.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <TextInput
+                    label="Parent Output Folder Name"
+                    value={inputs.cm15_parent_folder}
+                    onChange={(e) => handleInputChange('cm15_parent_folder', e.target.value)}
+                    placeholder="NCF_Added"
+                  />
+                  <DirectoryPicker
+                    label="Output Root Directory"
+                    value={inputs.cm15_output_dir}
+                    onChange={(val) => handleInputChange('cm15_output_dir', val)}
+                  />
                 </div>
               </div>
             )}
