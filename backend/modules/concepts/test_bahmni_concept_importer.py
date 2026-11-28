@@ -222,10 +222,10 @@ class ConceptRules(unittest.TestCase):
         self.assertEqual(by_name(plan, "S").action, "REUSE")
         self.assertEqual(lv.count, 1)
         plan, lv = plan_for(tree, ex, live, cap=0)
-        self.assertEqual(by_name(plan, "S").final_name, "S set")
+        self.assertEqual(by_name(plan, "S").final_name, "S form")
         self.assertEqual(lv.capped, 1)
         plan, lv = plan_for(tree, ex, None)
-        self.assertEqual(by_name(plan, "S").final_name, "S set")
+        self.assertEqual(by_name(plan, "S").final_name, "S form")
         self.assertEqual(lv.unavailable, 1)
 
     def test_strict_set_check_reads_plain_na_concepts(self):
@@ -245,7 +245,7 @@ class SetRules(unittest.TestCase):
                 "f/concept_sets.csv": ("set", [dict(S(1, "Pain", ["Pain"]))])}
         plan, _ = plan_for(tree, [])
         s = next(r for r in plan.recs if r.kind == "set")
-        self.assertEqual(s.final_name, "Pain set")
+        self.assertEqual(s.final_name, "Pain form")
         self.assertNotEqual(s.final_uuid, uid(1))
         # inside its own member list, the same name refers to the CONCEPT
         self.assertEqual([f.name for f in s.final_refs], ["Pain"])
@@ -267,52 +267,80 @@ class SetRules(unittest.TestCase):
         self.assertEqual(g.action, "CREATE")
 
     def test_set_name_on_server_as_non_set_datatype_renamed_without_read(self):
+        # Top-level form G -> "G form"; nested section Sec -> "Sec set"
         tree = {"f/concepts.csv": ("concept", [C(1, "a")]),
-                "f/concept_sets.csv": ("set", [S(3, "G", ["a"])])}
-        plan, lv = plan_for(tree, [("G", "Text", "", uid(900))])
-        self.assertEqual(by_name(plan, "G").final_name, "G set")
+                "f/concept_sets.csv": ("set", [S(2, "Sec", ["a"]), S(3, "G", ["Sec"])])}
+        plan, lv = plan_for(tree, [("G", "Text", "", uid(900)), ("Sec", "Text", "", uid(901))])
+        self.assertEqual(by_name(plan, "Sec").final_name, "Sec set")
+        self.assertEqual(by_name(plan, "G").final_name, "G form")
         self.assertEqual(lv.count, 0)
 
-    def test_set_server_clash_numbers_subsequent_attempts_and_reuses_match(self):
-        tree = {"f/concepts.csv": ("concept", [C(1, "a", "N/A")]),
-                "f/concept_sets.csv": ("set", [S(3, "G", ["a"])])}
-        # G and G set are both taken on server -> G set 2
-        ex = [("a", "N/A", "", uid(901)),
-              ("G", "Text", "", uid(900)),
-              ("G set", "Text", "", uid(902))]
+    def test_form_and_section_server_clash_number_subsequent_attempts_and_reuse_match(self):
+        # Ancestor-folder form Stage contains subfolder section Sec (CM-15 layout)
+        tree = {
+            "Stage/Sec/concepts.csv": ("concept", [C(1, "a", "N/A")]),
+            "Stage/Sec/concept_sets.csv": ("set", [S(2, "Sec", ["a"])]),
+            "Stage/concept_sets.csv": ("set", [S(3, "Stage", ["Sec"])]),
+        }
+        ex = [
+            ("a", "N/A", "", uid(901)),
+            ("Sec", "Text", "", uid(902)),
+            ("Sec set", "Text", "", uid(903)),
+            ("Stage", "Text", "", uid(904)),
+            ("Stage form", "Text", "", uid(905)),
+        ]
         plan, _ = plan_for(tree, ex)
-        self.assertEqual(by_name(plan, "G").final_name, "G set 2")
-        self.assertEqual(by_name(plan, "G").action, "CREATE_RENAMED")
-        # If G set 2 also exists on server as an identical set -> REUSE G set 2
-        ex_with_match = ex + [("G set 2", "N/A", "", uid(903))]
-        live = Live({uid(903): {"set": True, "setMembers": [{"uuid": uid(901)}]}})
-        plan, _ = plan_for(tree, ex_with_match, live)
-        r = by_name(plan, "G")
-        self.assertEqual((r.action, r.final_name, r.final_uuid), ("REUSE", "G set 2", uid(903)))
+        self.assertEqual(by_name(plan, "Sec").final_name, "Sec set 2")
+        self.assertEqual(by_name(plan, "Stage").final_name, "Stage form 2")
+        # If Sec set 2 exists on server as an identical set -> REUSE Sec set 2
+        ex_with_match = ex + [("Sec set 2", "N/A", "", uid(906))]
+        live = Live({uid(906): {"set": True, "setMembers": [{"uuid": uid(901)}]}})
+        plan2, _ = plan_for(tree, ex_with_match, live)
+        r_sec = by_name(plan2, "Sec")
+        self.assertEqual((r_sec.action, r_sec.final_name, r_sec.final_uuid), ("REUSE", "Sec set 2", uid(906)))
 
-    def test_set_and_concept_clash_in_import_plus_server_clash_becomes_set_2(self):
+    def test_form_and_concept_clash_in_import_plus_server_clash_becomes_form_2(self):
         tree = {"f/concepts.csv": ("concept", [C(1, "Pain", "Text")]),
                 "f/concept_sets.csv": ("set", [S(2, "Pain", ["Pain"])])}
-        ex = [("Pain set", "Text", "", uid(900))]
+        ex = [("Pain form", "Text", "", uid(900))]
         plan, _ = plan_for(tree, ex)
         s = next(r for r in plan.recs if r.kind == "set")
-        self.assertEqual(s.final_name, "Pain set 2")
+        self.assertEqual(s.final_name, "Pain form 2")
 
-    def test_two_sets_same_name_when_on_server_reuses_match_and_renames_other(self):
+    def test_two_forms_same_name_when_on_server_reuses_match_and_renames_other(self):
         tree = {"f/concepts.csv": ("concept", [C(1, "a", "N/A"), C(2, "b", "N/A")]),
                 "f/concept_sets.csv": ("set", [S(3, "G", ["a"]), S(4, "G", ["b"])])}
-        # Server has set G with member a -> S(3) reuses G, S(4) becomes G set
+        # Server has set G with member a -> S(3) reuses G, S(4) becomes G form
         ex = [("a", "N/A", "", uid(901)), ("b", "N/A", "", uid(902)), ("G", "N/A", "", uid(900))]
         live = Live({uid(900): {"set": True, "setMembers": [{"uuid": uid(901)}]}})
         plan, _ = plan_for(tree, ex, live)
         sets = [r for r in plan.primaries() if r.kind == "set"]
         self.assertEqual([(r.action, r.final_name) for r in sets],
-                         [("REUSE", "G"), ("CREATE_RENAMED", "G set")])
-        # Server has non-set concept G -> S(3) gets G set, S(4) gets G set 2
+                         [("REUSE", "G"), ("CREATE_RENAMED", "G form")])
+        # Server has non-set concept G -> S(3) gets G form, S(4) gets G form 2
         ex_concept = [("a", "N/A", "", uid(901)), ("b", "N/A", "", uid(902)), ("G", "Text", "", uid(900))]
         plan2, _ = plan_for(tree, ex_concept)
         sets2 = [r for r in plan2.primaries() if r.kind == "set"]
-        self.assertEqual([r.final_name for r in sets2], ["G set", "G set 2"])
+        self.assertEqual([r.final_name for r in sets2], ["G form", "G form 2"])
+
+    def test_same_file_inner_section_and_outer_form_share_name(self):
+        # Dubti pattern (e.g. Discharge Summary / kick chart): inner section + outer form
+        tree = {
+            "f/concepts.csv": ("concept", [C(1, "Date"), C(2, "Notes")]),
+            "f/concept_sets.csv": ("set", [
+                S(3, "Discharge Summary", ["Notes"]),
+                S(4, "Discharge Summary", ["Date", "Discharge Summary"]),
+            ]),
+        }
+        plan, _ = plan_for(tree, [])
+        sets = [r for r in plan.primaries() if r.kind == "set"]
+        self.assertEqual([(r.is_form, r.final_name) for r in sets],
+                         [(False, "Discharge Summary set"), (True, "Discharge Summary")])
+        # When "Discharge Summary" ALSO clashes on server -> section="... set", form="... form"
+        plan2, _ = plan_for(tree, [("Discharge Summary", "Text", "", uid(900))])
+        sets2 = [r for r in plan2.primaries() if r.kind == "set"]
+        self.assertEqual([(r.is_form, r.final_name) for r in sets2],
+                         [(False, "Discharge Summary set"), (True, "Discharge Summary form")])
 
 
 class InImportAnalysis(unittest.TestCase):
@@ -353,12 +381,21 @@ class InImportAnalysis(unittest.TestCase):
         self.assertEqual([r.final_name for r in plan.recs], ["Z", "Z?"])
 
     def test_sets_same_name_identical_members_merge_else_set_numbered(self):
-        tree = {"f/concepts.csv": ("concept", [C(1, "a"), C(2, "b")]),
-                "f/concept_sets.csv": ("set", [S(3, "G", ["a"]), S(4, "G", ["a"]),
-                                               S(5, "G", ["b"])])}
+        # Two differing section sets under two parent forms -> "Sec set 1", "Sec set 2"
+        tree = {
+            "f1/concepts.csv": ("concept", [C(1, "a"), C(2, "b")]),
+            "f1/concept_sets.csv": ("set", [S(3, "Sec", ["a"]), S(4, "Sec", ["a"]), S(5, "Form1", ["Sec"])]),
+            "f2/concept_sets.csv": ("set", [S(6, "Sec", ["b"]), S(7, "Form2", ["Sec"])]),
+        }
         plan, _ = plan_for(tree, [])
-        names = sorted(r.final_name for r in plan.primaries() if r.kind == "set")
-        self.assertEqual(names, ["G set 1", "G set 2"])
+        sec_names = sorted(r.final_name for r in plan.primaries() if r.kind == "set" and r.name == "Sec")
+        self.assertEqual(sec_names, ["Sec set 1", "Sec set 2"])
+        # Two differing top-level forms with the same name (not on server) -> "G form 1", "G form 2"
+        tree2 = {"f/concepts.csv": ("concept", [C(1, "a"), C(2, "b")]),
+                 "f/concept_sets.csv": ("set", [S(3, "G", ["a"]), S(4, "G", ["a"]), S(5, "G", ["b"])])}
+        plan2, _ = plan_for(tree2, [])
+        form_names = sorted(r.final_name for r in plan2.primaries() if r.kind == "set")
+        self.assertEqual(form_names, ["G form 1", "G form 2"])
 
     def test_unresolved_reference_skipped_parent_continues(self):
         tree = {"f/concepts.csv": ("concept", [C(1, "a"), C(2, "P", "Coded", ["a", "ghost"])])}

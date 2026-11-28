@@ -505,6 +505,7 @@ class Rec:
         self.p2name: Optional[str] = None
         self.causes: List[str] = []
         self.is_na_answer = False
+        self.is_form = False
         self.uuid_owner = True
         self.force_new_uuid = False
         # linking / resolution
@@ -639,8 +640,56 @@ class Plan:
                              "UUID already used by '%s' (%s); a new UUID will be generated"
                              % (owner.name, owner.row.where))
 
+    def _mark_forms(self) -> None:
+        """Mark top-level concept sets as forms (`is_form = True`).
+
+        A set row is a top-level form when it is NOT referenced as a child by:
+          1. another set row in the same `concept_sets.csv` file (if two rows in
+             the same file share the same name and the outer one references that
+             name as a child while the inner one does not, only the outer one is
+             the form), and
+          2. any set row in an ancestor folder's `concept_sets.csv`.
+        """
+        set_rows = [row for row in self.rows if row.kind == "set" and not row.error]
+        by_file: Dict[str, List[Row]] = collections.defaultdict(list)
+        by_folder: Dict[str, List[Row]] = collections.defaultdict(list)
+        refsets: Dict[int, Set[str]] = {}
+        for row in set_rows:
+            by_file[row.file].append(row)
+            by_folder[row.folder].append(row)
+            refsets[row.order] = {norm(x) for x in row.refs}
+
+        for r in self.recs:
+            if r.kind != "set":
+                r.is_form = False
+                continue
+            sn = r.nname
+            is_child = False
+            for o in by_file.get(r.row.file, ()):
+                if o is r.row:
+                    continue
+                if sn in refsets[o.order]:
+                    if norm(o.name) != sn or sn not in r.refset:
+                        is_child = True
+                        break
+            if not is_child:
+                cur = r.row.folder
+                while cur:
+                    parent = os.path.dirname(cur)
+                    if parent == cur:
+                        break
+                    for anc in by_folder.get(parent, ()):
+                        if sn in refsets[anc.order]:
+                            is_child = True
+                            break
+                    if is_child:
+                        break
+                    cur = parent
+            r.is_form = not is_child
+
     # ---- Phase 2 --------------------------------------------------------
     def phase2(self) -> None:
+        self._mark_forms()
         self.answer_names = {norm(a) for r in self.recs
                              if r.kind == "concept" and r.dtype == "Coded" for a in r.refnames}
         groups: Dict[str, List[Rec]] = collections.OrderedDict()
@@ -681,8 +730,8 @@ class Plan:
                              "same name as %s but different %s; renamed '%s'"
                              % (keeper.row.where,
                                 "datatype" if r.dtype != keeper.dtype else "answers", r.p2name))
-            # (c) sets with the same name: identical members merge; if multiple
-            #     differing sets are not on the server, name them "<name> set 1", "<name> set 2", ...
+            # (c) sets/forms with the same name: identical members merge; differing
+            #     sets/forms not on the server use "set" / "set 1, set 2" and "form" / "form 1, form 2"
             dsets: List[Rec] = []
             sseen: Dict[frozenset, Rec] = {}
             for r in sets:
@@ -697,24 +746,44 @@ class Plan:
             if (len(dsets) > 1
                     and dsets[0].nname not in self.export.by_name
                     and dsets[0].nname not in self.extra_taken):
-                for idx, r in enumerate(dsets, start=1):
-                    r.p2name = "%s set %d" % (r.name, idx)
+                dforms = [r for r in dsets if r.is_form]
+                dsec_sets = [r for r in dsets if not r.is_form]
+                if len(dsec_sets) > 1:
+                    for idx, r in enumerate(dsec_sets, start=1):
+                        r.p2name = "%s set %d" % (r.name, idx)
+                        r.causes.append("IN_IMPORT_SET_CONFLICT")
+                        self.log("WARNING", "SET_CONFLICT_IN_IMPORT", r,
+                                 "multiple sets named '%s' with different members (not on server); renamed '%s'"
+                                 % (r.name, r.p2name))
+                elif len(dsec_sets) == 1 and dforms:
+                    r = dsec_sets[0]
+                    r.p2name = r.name + " set"
                     r.causes.append("IN_IMPORT_SET_CONFLICT")
                     self.log("WARNING", "SET_CONFLICT_IN_IMPORT", r,
-                             "multiple sets named '%s' with different members (not on server); renamed '%s'"
+                             "section set shares name '%s' with a form; renamed '%s'"
                              % (r.name, r.p2name))
-            # (d) concept row and set row with the same name: the (first) set is renamed
+                if len(dforms) > 1:
+                    for idx, r in enumerate(dforms, start=1):
+                        r.p2name = "%s form %d" % (r.name, idx)
+                        r.causes.append("IN_IMPORT_SET_CONFLICT")
+                        self.log("WARNING", "SET_CONFLICT_IN_IMPORT", r,
+                                 "multiple forms named '%s' with different members (not on server); renamed '%s'"
+                                 % (r.name, r.p2name))
+            # (d) concept row and set/form row with the same name: rename the set/form
             if concepts and dsets:
-                s0 = dsets[0]
+                s0 = next((s for s in dsets if not s.p2name and s.is_form), None)
+                if s0 is None:
+                    s0 = next((s for s in dsets if not s.p2name), dsets[0])
+                tag = "form" if s0.is_form else "set"
                 if not s0.p2name:
-                    s0.p2name = s0.name + " set"
+                    s0.p2name = "%s %s" % (s0.name, tag)
                 s0.causes.append("SET_CONCEPT_CLASH")
                 for s in dsets:
                     if any(c.uuid.lower() == s.uuid.lower() for c in concepts):
                         s.force_new_uuid = True
                 self.log("WARNING", "SET_CONCEPT_NAME_CLASH", s0,
-                         "a concept row has the same name; set renamed '%s'%s"
-                         % (s0.p2name, " and gets a new UUID" if s0.force_new_uuid else ""))
+                         "a concept row has the same name; %s renamed '%s'%s"
+                         % (tag, s0.p2name, " and gets a new UUID" if s0.force_new_uuid else ""))
 
     # ---- reference linking ----------------------------------------------
     def link(self) -> None:
@@ -928,12 +997,13 @@ class Plan:
         r.final_refs = self.collect_refs(r)
         suffix = "." if r.is_na_answer else "?"
         name = r.p2name or r.name
+        tag = "form" if r.is_form else "set"
         set_seq = 0
         if r.kind == "set" and r.p2name:
-            if r.p2name == r.name + " set":
+            if r.p2name == "%s %s" % (r.name, tag):
                 set_seq = 1
-            elif r.p2name.startswith(r.name + " set "):
-                tail = r.p2name[len(r.name) + 5:]
+            elif r.p2name.startswith("%s %s " % (r.name, tag)):
+                tail = r.p2name[len(r.name) + len(tag) + 2:]
                 if tail.isdigit():
                     set_seq = int(tail)
         server_clash = False
@@ -964,7 +1034,11 @@ class Plan:
             server_clash = True
             if r.kind == "set":
                 set_seq += 1
-                name = (r.name + " set") if set_seq == 1 else ("%s set %d" % (r.name, set_seq))
+                name = (
+                    ("%s %s" % (r.name, tag))
+                    if set_seq == 1
+                    else ("%s %s %d" % (r.name, tag, set_seq))
+                )
             else:
                 name = name + suffix
         else:
