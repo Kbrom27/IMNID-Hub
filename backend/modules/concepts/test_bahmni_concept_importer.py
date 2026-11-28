@@ -238,6 +238,29 @@ class ConceptRules(unittest.TestCase):
         plan, lv = plan_for(tree, ex, Live({uid(900): {"set": True}}), strict=True)
         self.assertEqual(by_name(plan, "a").final_name, "a?")
 
+    def test_time_datatype_mapped_to_text_and_avoids_broken_server_time(self):
+        tree = {"f/concepts.csv": ("concept", [
+            C(1, "Time of Birth", "Time"),
+            C(2, "Time APH", "Time"),
+            C(3, "Time Existing Text", "Time"),
+        ])}
+        ex = [
+            ("Time APH", "Time", "", uid(900)),
+            ("Time Existing Text", "Text", "", uid(901)),
+        ]
+        plan, _ = plan_for(tree, ex)
+        # New Time concept -> created as Text
+        r_new = by_name(plan, "Time of Birth")
+        self.assertEqual((r_new.action, r_new.dtype), ("CREATE", "Text"))
+        # Server has broken Time concept -> NOT reused; creates working Text concept with '?'
+        r_broken = by_name(plan, "Time APH")
+        self.assertEqual((r_broken.action, r_broken.dtype, r_broken.final_name),
+                         ("CREATE_RENAMED", "Text", "Time APH?"))
+        # Server already has Text concept -> REUSED cleanly
+        r_ok = by_name(plan, "Time Existing Text")
+        self.assertEqual((r_ok.action, r_ok.dtype, r_ok.final_uuid), ("REUSE", "Text", uid(901)))
+        self.assertTrue(any(l["code"] == "TIME_MAPPED_TO_TEXT" for l in plan.logs))
+
 
 class SetRules(unittest.TestCase):
     def test_set_and_concept_same_name_set_renamed_and_new_uuid_if_equal(self):
@@ -341,6 +364,47 @@ class SetRules(unittest.TestCase):
         sets2 = [r for r in plan2.primaries() if r.kind == "set"]
         self.assertEqual([(r.is_form, r.final_name) for r in sets2],
                          [(False, "Discharge Summary set"), (True, "Discharge Summary form")])
+        # Outer form links directly to the inner section set (not dropped as unresolved)
+        outer_form = next(r for r in sets2 if r.is_form)
+        self.assertEqual([f.name for f in outer_form.final_refs], ["Date", "Discharge Summary set"])
+
+    def test_unrelated_folder_set_does_not_hijack_server_concept(self):
+        # Partograph has a local section set 'Temperature' -> renamed 'Temperature set'.
+        # Another form 'APH CHART' references 'Temperature' expecting the server's Numeric concept!
+        tree = {
+            "Partograph/concepts.csv": ("concept", [C(1, "Hours Measured", "Numeric")]),
+            "Partograph/concept_sets.csv": ("set", [
+                S(2, "Temperature", ["Temperature", "Hours Measured"]),
+                S(3, "Partograph", ["Temperature"]),
+            ]),
+            "APH/concepts.csv": ("concept", [C(4, "Bleeding", "Text")]),
+            "APH/concept_sets.csv": ("set", [S(5, "APH CHART", ["Temperature", "Bleeding"])]),
+        }
+        ex = [("Temperature", "Numeric", "", uid(900))]
+        plan, _ = plan_for(tree, ex)
+        parto = by_name(plan, "Partograph")
+        temp_set = next(r for r in plan.primaries() if r.kind == "set" and r.name == "Temperature")
+        aph = by_name(plan, "APH CHART")
+        # Partograph links to its own local 'Temperature set', which itself contains server 'Temperature'
+        self.assertEqual(temp_set.final_name, "Temperature set")
+        self.assertEqual([f.name for f in parto.final_refs], ["Temperature set"])
+        self.assertEqual([f.uuid for f in temp_set.final_refs], [uid(900), uid(1)])
+        # APH CHART links directly to server 'Temperature' (Numeric), NOT 'Temperature set'
+        self.assertEqual([(f.name, f.uuid) for f in aph.final_refs],
+                         [("Temperature", uid(900)), ("Bleeding", uid(4))])
+
+    def test_each_form_links_to_its_own_local_same_named_section_set(self):
+        tree = {
+            "FormA/concepts.csv": ("concept", [C(1, "A1")]),
+            "FormA/concept_sets.csv": ("set", [S(2, "CVS", ["A1"]), S(3, "FormA", ["CVS"])]),
+            "FormB/concepts.csv": ("concept", [C(4, "B1")]),
+            "FormB/concept_sets.csv": ("set", [S(5, "CVS", ["B1"]), S(6, "FormB", ["CVS"])]),
+        }
+        plan, _ = plan_for(tree, [])
+        fa = by_name(plan, "FormA")
+        fb = by_name(plan, "FormB")
+        self.assertEqual([f.name for f in fa.final_refs], ["CVS set 1"])
+        self.assertEqual([f.name for f in fb.final_refs], ["CVS set 2"])
 
 
 class InImportAnalysis(unittest.TestCase):

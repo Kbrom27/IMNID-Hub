@@ -318,6 +318,7 @@ class Row:
     synonyms: List[str] = field(default_factory=list)
     refs: List[str] = field(default_factory=list)      # answers (concept) or children (set)
     ignored_refs: int = 0
+    time_coerced: bool = False
     term_source: str = ""
     term_code: str = ""
     term_rel: str = ""
@@ -407,6 +408,9 @@ def parse_import_file(path: str, kind: str, root: str, order_start: int,
                     row.synonyms = get_multi(cells, "synonym")
                     raw_dt = get(cells, "datatype")
                     row.dtype = DATATYPES.get(raw_dt.lower(), "")
+                    if row.dtype == "Time":
+                        row.dtype = "Text"
+                        row.time_coerced = True
                     if not row.dtype:
                         row.error = ("missing datatype" if not raw_dt
                                      else "unknown datatype '%s'" % raw_dt)
@@ -627,6 +631,9 @@ class Plan:
             rid += 1
             self.recs.append(r)
             by_uuid.setdefault(row.uuid.lower(), []).append(r)
+            if row.time_coerced:
+                self.log("INFO", "TIME_MAPPED_TO_TEXT", row,
+                         "Bahmni 0.93 does not support Time datatype; mapped 'Time' -> 'Text'")
             if row.ignored_refs:
                 self.log("WARNING", "ANSWERS_IGNORED", row,
                          "%d answer(s) ignored: datatype %s is not Coded" % (row.ignored_refs, row.dtype))
@@ -789,28 +796,86 @@ class Plan:
     def link(self) -> None:
         idx_na: Dict[str, List[Rec]] = {}
         idx_other: Dict[str, List[Rec]] = {}
-        idx_set: Dict[str, List[Rec]] = {}
+        # Scoped indexes include every row (including merged aliases / dup rows)
+        # mapped to its canonical primary Rec so each folder resolves its own
+        # local sets and concepts first instead of being hijacked by another form.
+        sets_by_file: Dict[Tuple[str, str], List[Rec]] = collections.defaultdict(list)
+        sets_by_name: Dict[str, List[Tuple[str, Rec]]] = collections.defaultdict(list)
+        concepts_na_by_name: Dict[str, List[Tuple[str, Rec]]] = collections.defaultdict(list)
+        concepts_other_by_name: Dict[str, List[Tuple[str, Rec]]] = collections.defaultdict(list)
+
         for r in self.recs:
-            if r.alias_of is not None:
-                continue
-            tgt = idx_set if r.kind == "set" else (idx_na if r.dtype == "N/A" else idx_other)
-            tgt.setdefault(r.nname, []).append(r)
+            c = self.canon(r)
+            if r.alias_of is None:
+                if r.kind == "concept":
+                    tgt = idx_na if r.dtype == "N/A" else idx_other
+                    tgt.setdefault(r.nname, []).append(r)
+            for row in r.rows:
+                if r.kind == "set":
+                    sets_by_file[(row.file, r.nname)].append(c)
+                    sets_by_name[r.nname].append((row.folder, c))
+                elif r.dtype == "N/A":
+                    concepts_na_by_name[r.nname].append((row.folder, c))
+                else:
+                    concepts_other_by_name[r.nname].append((row.folder, c))
 
         def first(lst: Optional[List[Rec]]) -> Optional[Rec]:
             return lst[0] if lst else None
+
+        def is_same_or_sub(parent_folder: str, child_folder: str) -> bool:
+            if child_folder == parent_folder:
+                return True
+            if not parent_folder:
+                return bool(child_folder)
+            return child_folder.startswith(parent_folder + "/")
+
+        def find_local_concept(n: str, folder: str, prefer_na: bool) -> Optional[Rec]:
+            buckets = (
+                (concepts_na_by_name, concepts_other_by_name)
+                if prefer_na
+                else (concepts_other_by_name, concepts_na_by_name)
+            )
+            for bucket in buckets:
+                for cf, c in bucket.get(n, ()):
+                    if is_same_or_sub(folder, cf):
+                        return c
+            return None
 
         for r in self.recs:
             if r.alias_of is not None:
                 continue
             for name in r.refnames:
                 n = norm(name)
+                cand: Optional[Rec] = None
                 if r.kind == "concept":
-                    cand = first(idx_na.get(n)) or first(idx_other.get(n))
+                    cand = (
+                        find_local_concept(n, r.row.folder, prefer_na=True)
+                        or first(idx_na.get(n))
+                        or first(idx_other.get(n))
+                    )
                 else:
-                    cand = None
-                    if n != r.nname:                       # own name inside own list -> the concept
-                        cand = first(idx_set.get(n))
-                    cand = cand or first(idx_other.get(n)) or first(idx_na.get(n))
+                    # 1. Local set in the same concept_sets.csv file
+                    for s in sets_by_file.get((r.row.file, n), ()):
+                        if s is r:
+                            continue
+                        if n != r.nname or n not in s.refset:
+                            cand = s
+                            break
+                    # 2. Local set in the same folder or a descendant subfolder (e.g. stage -> section)
+                    if cand is None and n != r.nname:
+                        for sf, s in sets_by_name.get(n, ()):
+                            if s is r:
+                                continue
+                            if is_same_or_sub(r.row.folder, sf):
+                                cand = s
+                                break
+                    # 3. Local concept (same folder/subfolders), then global in-import concept
+                    if cand is None:
+                        cand = (
+                            find_local_concept(n, r.row.folder, prefer_na=False)
+                            or first(idx_other.get(n))
+                            or first(idx_na.get(n))
+                        )
                 if cand is not None:
                     r.refs.append(Ref("rec", cand, None, name))
                     continue

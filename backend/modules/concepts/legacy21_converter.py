@@ -259,6 +259,8 @@ def convert_dhis2_to_legacy21(
             for _, row in section_rows.iterrows():
                 concept_uuid = row["EMR Concept UUID"]
                 data_type = row["EMR concept Data Type"]
+                if str(data_type or "").strip().lower() == "time":
+                    data_type = "Text"
                 emr_answers = row["EMR Options (Answers)"]
                 dhis2_name = row["DHIS2 Data Element Name"]
 
